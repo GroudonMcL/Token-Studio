@@ -1,0 +1,43 @@
+import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
+
+afterEach(() => cleanup());
+
+// jsdom has no matchMedia; pretend to be a wide desktop with a mouse unless a test overrides it.
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  window.matchMedia = (query: string) =>
+    ({
+      matches: /min-width: 768px|hover: hover|pointer: fine/.test(query) && !/max-width/.test(query),
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
+}
+
+// jsdom has no ResizeObserver.
+if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
+  (window as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
+// jsdom can't draw on canvases; return null quietly instead of logging an error.
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = (() => null) as unknown as HTMLCanvasElement['getContext'];
+}
+
+// Ornaments from game-icons.net are SVG paths (Path2D); node has none, so tests use @napi-rs/canvas's, as they use its canvases.
+import { Path2D as NapiPath2D } from '@napi-rs/canvas';
+(globalThis as { Path2D?: unknown }).Path2D ??= NapiPath2D;
+
+// Photo textures are decoded with @napi-rs/canvas in tests (the browser's Image elsewhere).
+import { loadImage } from '@napi-rs/canvas';
+import { setPictureDecoder } from '../render/pictures';
+setPictureDecoder(async (url) => loadImage(Buffer.from(url.slice(url.indexOf(',') + 1), 'base64')));

@@ -1,0 +1,3 @@
+# Token Maker's own pages (/token-maker/about, /token-maker/privacy) get Token
+# Maker's page, not Token Studio's (Cloudflare Pages; the Worker does the same).
+/token-maker/*  /token-maker/index.html  200

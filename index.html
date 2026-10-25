@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Make tokens for D&D and other tabletop RPGs, and design their frames, free, in your browser." />
+    <meta name="theme-color" content="#0f1a2e" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Token Studio</title>
+    <script>
+      // Token Maker's theme, applied before the page paints, so there is no flash.
+      try {
+        var t = localStorage.getItem('tm.theme');
+        document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/shell/main.tsx"></script>
+  </body>
+</html>

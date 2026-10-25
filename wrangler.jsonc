@@ -1,0 +1,21 @@
+// Only used when the site is deployed as a Cloudflare Worker (README §4,
+// "Deployed as a Worker"). Cloudflare Pages skips this file, because it has no
+// pages_build_output_dir, and uses functions/ instead.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "token-studio",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // The image proxy runs before the static files, so /api/* never gets the editor's page,
+    // and /token-maker/* is sent to Token Maker's page rather than Token Studio's.
+    "run_worker_first": ["/api/*", "/token-maker/*"]
+  },
+  "observability": { "enabled": true },
+  // Lets `npx wrangler preview` (Cloudflare's deploy command for non-production
+  // branches) upload a preview. Empty is enough: everything above applies to previews too.
+  "previews": {}
+}

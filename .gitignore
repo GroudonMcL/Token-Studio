@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+playwright-report
+test-results
+.wrangler
+*.local
+*.tsbuildinfo
+.DS_Store
+docs/frame-studio/screenshots/conversions/*
+!docs/frame-studio/screenshots/conversions/minimal.png
+!docs/frame-studio/screenshots/conversions/paladin.png
+scripts/frame-studio/scratch/
