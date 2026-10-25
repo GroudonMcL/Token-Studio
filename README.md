@@ -47,9 +47,9 @@ Cloudflare now builds new sites as **Workers** (Pages is the older option). In t
 
 Every push to `main` deploys again; other branches get a preview link. Node 22 comes from `.node-version`.
 
-How it is set up: `wrangler.jsonc` serves `dist/` and runs `worker/index.ts` first for `/api/*` (Token Maker's image proxy for web imports) and `/token-maker/*` (so `/token-maker/about` gets Token Maker's page). `public/_headers` lets the site show its own pages in frames (`SAMEORIGIN`) and no other site can. Workers reads `_headers` and `_redirects` too.
+How it is set up: `wrangler.jsonc` serves `dist/` and runs `worker/index.ts` first for `/api/*` (Token Maker's image proxy for web imports) and `/token-maker/*` (so `/token-maker/about` gets Token Maker's page). `public/_headers` lets the site show its own pages in frames (`SAMEORIGIN`) and no other site can. Workers reads `_headers` too.
 
-A Cloudflare **Pages** project still works: build command `npm run build`, output folder `dist`. `functions/` runs the image proxy there and `public/_redirects` handles Token Maker's pages.
+A Cloudflare **Pages** project still works: build command `npm run build`, output folder `dist`. `functions/` runs the image proxy there, and `functions/token-maker/` sends Token Maker's pages to Token Maker's page.
 
 ## How it fits together
 
