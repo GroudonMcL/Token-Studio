@@ -38,7 +38,18 @@ Open the address it prints (usually <http://localhost:5173>).
 
 ## Deploying
 
-Same as Token Maker: Cloudflare Pages with build command `npm run build` and output folder `dist`. `functions/` runs the image proxy that Token Maker's web import uses (`/api/...`). For a Workers deploy, `wrangler.jsonc` and `worker/index.ts` do the same. `public/_redirects` (Pages) and the Worker send `/token-maker/about` and Token Maker's other pages to Token Maker's page. `public/_headers` lets the site show its own pages in frames (`SAMEORIGIN`), and no other site can.
+Cloudflare now builds new sites as **Workers** (Pages is the older option). In the Cloudflare dashboard:
+
+1. **Workers & Pages → Create application → Import a repository** (or **GitHub**), and pick `Token-Studio`.
+2. **Project name:** `token-studio`. It must match `name` in `wrangler.jsonc`.
+3. **Build command:** `npm run build`. **Deploy command:** `npx wrangler deploy` (the default). Leave the root directory empty.
+4. **Save and Deploy**, then open `https://token-studio.<your-account>.workers.dev`. Check `/api/health` shows `{"ok":true}`.
+
+Every push to `main` deploys again; other branches get a preview link. Node 22 comes from `.node-version`.
+
+How it is set up: `wrangler.jsonc` serves `dist/` and runs `worker/index.ts` first for `/api/*` (Token Maker's image proxy for web imports) and `/token-maker/*` (so `/token-maker/about` gets Token Maker's page). `public/_headers` lets the site show its own pages in frames (`SAMEORIGIN`) and no other site can. Workers reads `_headers` and `_redirects` too.
+
+A Cloudflare **Pages** project still works: build command `npm run build`, output folder `dist`. `functions/` runs the image proxy there and `public/_redirects` handles Token Maker's pages.
 
 ## How it fits together
 
