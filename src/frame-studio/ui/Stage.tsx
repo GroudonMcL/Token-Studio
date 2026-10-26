@@ -41,10 +41,8 @@ import { onPictureLoaded } from '../render/pictures';
 import { renderProject } from '../render/renderProject';
 import { commit, finishDrawing, movableIn, select, setPathEdit, setPathPoints, updateLayer, updateLayers, updateStage, useProject, useUi, type PathEdit } from '../state/projectStore';
 import { ColorField, Segmented, Select, Slider, Toggle } from './controls';
-import { Sun, ZoomIn, ZoomOut } from 'lucide-react';
-import { LightingDialog } from './WorkflowDialogs';
+import { ZoomIn, ZoomOut } from 'lucide-react';
 import type { RenderView } from '../render/effects';
-import { LightDial } from './LightDial';
 import { stageArt } from './stageArt';
 
 const GOLD = 'rgba(240, 196, 112, 0.95)';
@@ -229,7 +227,6 @@ export function Stage() {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [view, setView] = useState<RenderView>('picture');
-  const [lighting, setLighting] = useState(false);
   const drag = useRef<Drag | null>(null);
   const selected = findLayer(project.layers, selectedId);
   // Text layers draw with web fonts: once they are loaded, the preview is drawn again.
@@ -374,17 +371,35 @@ export function Stage() {
     }
   };
 
-  const setZoomAround = (next: number) => {
+  /** Zooms to `next`, keeping the point under `at` (a screen position; the middle of the canvas if none) where it is. */
+  const setZoomAround = (next: number, at?: { x: number; y: number }) => {
     const z = Math.min(8, Math.max(1, next));
+    const r = canvas.current?.getBoundingClientRect();
+    // How far `at` is from the canvas's untransformed middle.
+    const m = at && r ? { x: at.x - (r.left + r.width / 2) + pan.x, y: at.y - (r.top + r.height / 2) + pan.y } : { x: 0, y: 0 };
     setZoom(z);
     if (z === 1) setPan({ x: 0, y: 0 });
-    else setPan((p) => ({ x: (p.x * z) / zoom, y: (p.y * z) / zoom }));
+    else setPan({ x: m.x - ((m.x - pan.x) * z) / zoom, y: m.y - ((m.y - pan.y) * z) / zoom });
   };
-  const onWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      setZoomAround(zoom * (e.deltaY < 0 ? 1.25 : 0.8));
-    } else if (zoom > 1) setPan((p) => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
-  };
+  // The wheel zooms towards the pointer (Shift + wheel moves the zoomed view
+  // about). A native listener, since React's wheel listeners can't stop the page scrolling.
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if ((e.target as HTMLElement).closest('.stage-tools, .stage-hint')) return;
+      e.preventDefault();
+      if (e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        if (zoom > 1) setPan((p) => ({ x: p.x - (e.deltaX || e.deltaY), y: p.y - (e.deltaX ? e.deltaY : 0) }));
+        return;
+      }
+      // Lines and pages scroll in bigger steps than pixels.
+      const dy = e.deltaY * (e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1);
+      setZoomAround(zoom * Math.exp(-Math.max(-300, Math.min(300, dy)) * 0.0015), { x: e.clientX, y: e.clientY });
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  });
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const d = drag.current;
@@ -434,7 +449,7 @@ export function Stage() {
   return (
     <section className="stage" aria-label="Canvas">
       <div className="stage-well" ref={wrap}>
-        <div className="stage-canvas" style={{ width: side, height: side, transform: zoom > 1 ? `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` : undefined }} onWheel={onWheel}>
+        <div className="stage-canvas" style={{ width: side, height: side, transform: zoom > 1 ? `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` : undefined }}>
           <canvas ref={canvas} width={px} height={px} aria-label={`Preview of ${project.name}`} role="img" data-testid="preview" />
           <canvas
             ref={overlay}
@@ -461,19 +476,16 @@ export function Stage() {
         </div>
         <div className="stage-tools">
           <div className="zoom" role="group" aria-label="Zoom">
-            <button type="button" className="icon-btn" aria-label="Zoom out" title="Zoom out (Ctrl + mouse wheel)" disabled={zoom <= 1} onClick={() => setZoomAround(ZOOMS.filter((z) => z < zoom).at(-1) ?? 1)}>
+            <button type="button" className="icon-btn" aria-label="Zoom out" title="Zoom out (mouse wheel)" disabled={zoom <= 1} onClick={() => setZoomAround(ZOOMS.filter((z) => z < zoom).at(-1) ?? 1)}>
               <ZoomOut size={16} />
             </button>
             <button type="button" className="btn small zoom-level" aria-label={`${Math.round(zoom * 100)}%: fit the whole token`} title="Fit the whole token" onClick={() => setZoomAround(1)}>
               {Math.round(zoom * 100)}%
             </button>
-            <button type="button" className="icon-btn" aria-label="Zoom in" title="Zoom in (Ctrl + mouse wheel); drag the empty canvas to move about" disabled={zoom >= 8} onClick={() => setZoomAround(ZOOMS.find((z) => z > zoom) ?? 8)}>
+            <button type="button" className="icon-btn" aria-label="Zoom in" title="Zoom in (mouse wheel); drag the empty canvas to move about" disabled={zoom >= 8} onClick={() => setZoomAround(ZOOMS.find((z) => z > zoom) ?? 8)}>
               <ZoomIn size={16} />
             </button>
           </div>
-          <button type="button" className="btn small" onClick={() => setLighting(true)} title="More coloured lights, an ambient colour, bloom and light bleeding">
-            <Sun size={16} aria-hidden="true" /> <span className="tool-label">Lighting…</span>
-          </button>
           {advanced && (
             <Select
               label="Show"
@@ -490,7 +502,6 @@ export function Stage() {
           </p>
         )}
       </div>
-      {lighting && <LightingDialog onClose={() => setLighting(false)} />}
       <div className="stage-bar" aria-label="Preview settings">
         <Segmented label="Token shape" value={project.stage.shape} options={SHAPES.map((s) => ({ value: s.id, label: s.name }))} onChange={(shape) => updateStage({ shape })} />
         <div className="stage-sliders">
@@ -521,8 +532,6 @@ export function Stage() {
               onCommit={commit}
             />
           )}
-          <LightDial value={project.stage.light} />
-
           <Toggle label="Show sample picture" checked={project.stage.showArt} onChange={(showArt) => updateStage({ showArt })} />
           {advanced && project.stage.showArt && <ColorField label="Backing colour" value={project.stage.backingColor} defaultValue={DEFAULT_STAGE.backingColor} onChange={(backingColor, t) => updateStage({ backingColor }, { transient: t })} />}
         </div>

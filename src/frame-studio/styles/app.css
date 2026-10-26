@@ -43,6 +43,8 @@ textarea {
 .app {
   display: grid;
   grid-template-rows: var(--topbar-h) 1fr;
+  /* One column no wider than the window, so the top bar's items shrink to fit rather than widen the page. */
+  grid-template-columns: minmax(0, 1fr);
   height: 100%;
   min-width: 960px;
 }
@@ -155,9 +157,95 @@ textarea {
 
 /* ---- Workspace ---- */
 .workspace {
+  position: relative;
   display: grid;
-  grid-template-columns: 280px 1fr var(--panel-w);
+  /* The side panels' widths can be dragged (PanelResizer), which sets --layers-w and --props-w. */
+  grid-template-columns: var(--layers-w, 280px) minmax(0, 1fr) var(--props-w, var(--panel-w));
   min-height: 0;
+}
+/* The left column: the lighting card, then the layers. */
+.side-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+.side-column .panel.layers {
+  flex: 1;
+  border-right: 0;
+}
+.lighting-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: none;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-top) 55%, var(--surface)), var(--surface));
+}
+.lighting-panel .panel-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.lighting-body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.lighting-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+.lighting-summary {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+/* The handles on the panels' inner edges. */
+.panel-resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+  width: 10px;
+  cursor: col-resize;
+  touch-action: none;
+}
+.panel-resizer.layers {
+  left: var(--layers-w, 280px);
+  margin-left: -5px;
+}
+.panel-resizer.properties {
+  right: var(--props-w, var(--panel-w));
+  margin-right: -5px;
+}
+.panel-resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 4px;
+  height: 40px;
+  margin-top: -20px;
+  border-radius: 2px;
+  background: var(--border-strong);
+  opacity: 0.6;
+  transition: opacity var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.panel-resizer:hover::after,
+.panel-resizer:focus-visible::after,
+.panel-resizer:active::after {
+  opacity: 1;
+  background: var(--accent);
+}
+.panel-resizer:focus-visible {
+  outline: none;
 }
 .panel {
   display: flex;
@@ -235,6 +323,7 @@ textarea {
 .layer-row.selected {
   background: var(--accent-soft);
   border-color: var(--accent);
+  box-shadow: var(--glow);
 }
 .layer-row.hidden-layer .layer-name {
   /* Muted and slanted rather than see-through, so it stays readable (WCAG contrast). */
@@ -294,8 +383,19 @@ textarea {
   background: var(--surface-raised);
   box-shadow: var(--shadow-lg);
 }
+/* The add menu spans the layers panel, however narrow, so it never runs off its edge. */
+.panel.layers .panel-head {
+  position: relative;
+}
+.panel.layers .add-menu {
+  position: static;
+}
 .add-menu .menu {
-  left: auto;
+  left: 0;
+  right: 0;
+  width: auto;
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
 }
 .menu button {
   display: flex;
@@ -374,16 +474,11 @@ textarea {
   font-size: var(--text-sm);
 }
 
-/* ---- Light dial ---- */
-.light-control {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  position: relative;
-}
+/* ---- Light dial (the lighting card) ---- */
 .light-dial {
   display: grid;
   place-items: center;
+  flex: none;
   border-radius: 50%;
   cursor: grab;
   touch-action: none;
@@ -396,10 +491,6 @@ textarea {
   stroke: var(--border-strong);
   stroke-width: 1.5;
 }
-.dial-token {
-  fill: var(--surface-raised);
-  stroke: var(--border-strong);
-}
 .dial-ray {
   stroke: var(--accent);
   stroke-width: 1.5;
@@ -408,12 +499,12 @@ textarea {
   fill: var(--focus);
   stroke: var(--on-accent);
 }
+.dial-extra {
+  stroke: var(--on-accent);
+  stroke-width: 1;
+}
 .light-value {
-  /* Fixed, so turning the light never changes the bar's layout (or the canvas's size). */
-  flex: none;
-  width: 10.5em;
-  white-space: nowrap;
-  color: var(--text-muted);
+  font-weight: 700;
   font-size: var(--text-sm);
 }
 .stage-bar {
@@ -1111,10 +1202,19 @@ select {
   overflow: visible;
   border: 0;
 }
+.sheet-body .side-column {
+  border: 0;
+}
 
 @media (max-width: 1200px) {
   .workspace {
-    grid-template-columns: 240px 1fr var(--panel-w-narrow);
+    grid-template-columns: var(--layers-w, 240px) minmax(0, 1fr) var(--props-w, var(--panel-w-narrow));
+  }
+  .panel-resizer.layers {
+    left: var(--layers-w, 240px);
+  }
+  .panel-resizer.properties {
+    right: var(--props-w, var(--panel-w-narrow));
   }
   .actions .btn {
     padding: 0 var(--space-2);
@@ -1270,4 +1370,56 @@ select {
 }
 .credits a {
   color: var(--accent);
+}
+
+/* The logo next to the app switch, inside Token Studio. */
+.brand-logo {
+  flex: none;
+}
+.app.narrow .brand-logo {
+  display: none;
+}
+
+/* Room in the top bar for the app switch: the Basic / Advanced switch never
+   wraps, the buttons tighten up, and on smaller screens the less used ones
+   show only their icons (their names are still read out, and show on hover). */
+.topbar .segmented {
+  flex: none;
+  flex-wrap: nowrap;
+}
+@media (max-width: 1520px) {
+  .topbar {
+    gap: var(--space-2);
+  }
+  .actions {
+    gap: var(--space-1);
+  }
+  .actions .btn {
+    padding: 0 var(--space-2);
+  }
+  .project-name {
+    min-width: 110px;
+  }
+}
+@media (max-width: 1360px) {
+  .actions .btn:not(.primary) .btn-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 1200px) {
+  .topbar .app-switch__app {
+    padding: 3px 8px 4px;
+    font-size: var(--text-md);
+  }
+  .project-name {
+    min-width: 72px;
+  }
+  .topbar .segmented button {
+    padding: 0 var(--space-2);
+  }
 }
