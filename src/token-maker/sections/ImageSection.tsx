@@ -1,8 +1,7 @@
-import { Brush, Eraser, RotateCcw, Undo2 } from 'lucide-react';
-import { Advanced, ControlLabel, SegmentedButtons, Slider, Toggle } from '../components';
+import { RotateCcw } from 'lucide-react';
+import { Advanced, Slider, Toggle } from '../components';
 import { DEFAULT_ADJUST } from '../document/defaults';
 import type { ImageAdjustments } from '../document/types';
-import { BRUSH_MAX, BRUSH_MIN, DEFAULTS as TOOL_DEFAULTS, setBrush, setTool, useTool } from '../editor/tools';
 import type { HelpId } from '../help/helpContent';
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
 
@@ -76,16 +75,11 @@ function AdjustSlider({ def, value }: { def: AdjustDef; value: number }) {
   );
 }
 
-/** Image section (DESIGN.md §6.2): adjustments and the erase/restore brush. Background removal is in the Background section (v8). */
+/** Image section (DESIGN.md §6.2): adjustments. Background removal and its erase/restore brush are in the Background section. */
 export function ImageSection() {
   const hasArt = useDoc((d) => d.art.assetId !== null);
-  if (!hasArt) return <p className="control__hint">Add an image first, then adjust it and tidy it with the brush here.</p>;
-  return (
-    <>
-      <Adjustments />
-      <BrushControls />
-    </>
-  );
+  if (!hasArt) return <p className="control__hint">Add an image first, then adjust it here.</p>;
+  return <Adjustments />;
 }
 
 function Adjustments() {
@@ -112,72 +106,5 @@ function Adjustments() {
         Reset adjustments
       </button>
     </>
-  );
-}
-
-function BrushControls() {
-  const tool = useTool((s) => s.tool);
-  const mode = useTool((s) => s.brushMode);
-  const size = useTool((s) => s.brushSize);
-  const softness = useTool((s) => s.brushSoftness);
-  const usePressure = useTool((s) => s.usePressure);
-  const showRemoved = useTool((s) => s.showRemoved);
-  const strokeCount = useDoc((d) => d.art.strokes.length);
-  const on = tool === 'brush';
-
-  return (
-    <div className="control-group">
-      <h4 className="control-group__title">Erase / restore brush</h4>
-      <div className="control" data-control="brush" data-help-id="image.brush">
-        <ControlLabel label="Brush" helpId="image.brush" />
-        <button type="button" className={`btn btn--wide${on ? ' btn--primary' : ''}`} aria-pressed={on} onClick={() => setTool(on ? 'move' : 'brush')}>
-          <Brush size={18} aria-hidden="true" />
-          {on ? 'Brush on: paint on the picture' : 'Use the brush'}
-        </button>
-      </div>
-      <SegmentedButtons
-        label="Brush does"
-        helpId="image.brushMode"
-        value={mode}
-        onChange={(m) => setBrush({ brushMode: m })}
-        options={[
-          { value: 'erase', label: 'Erase', icon: <Eraser size={16} /> },
-          { value: 'restore', label: 'Restore', icon: <Undo2 size={16} /> },
-        ]}
-      />
-      <Slider
-        label="Brush size"
-        helpId="image.brushSize"
-        unit="px"
-        defaultValue={TOOL_DEFAULTS.brushSize}
-        min={BRUSH_MIN}
-        max={BRUSH_MAX}
-        value={size}
-        onChange={(v) => setBrush({ brushSize: v })}
-      />
-      <Advanced helpId="image.brushAdvanced">
-        <Slider
-          label="Softness"
-          helpId="image.brushSoftness"
-          unit="%"
-          defaultValue={TOOL_DEFAULTS.brushSoftness}
-          min={0}
-          max={100}
-          value={softness}
-          onChange={(v) => setBrush({ brushSoftness: v })}
-        />
-        <Toggle label="Pen pressure" helpId="image.pressure" checked={usePressure} onChange={(v) => setBrush({ usePressure: v })} />
-        <Toggle label="Show removed parts in red" helpId="image.showRemoved" checked={showRemoved} onChange={(v) => setBrush({ showRemoved: v })} />
-      </Advanced>
-      <button
-        type="button"
-        className="btn btn--ghost btn--small"
-        disabled={!strokeCount}
-        onClick={() => updateDoc((d) => ({ ...d, art: { ...d.art, strokes: [] } }))}
-      >
-        <RotateCcw size={16} aria-hidden="true" />
-        Clear brush strokes
-      </button>
-    </div>
   );
 }

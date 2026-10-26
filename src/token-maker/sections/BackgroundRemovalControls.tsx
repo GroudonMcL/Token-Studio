@@ -12,6 +12,7 @@ import { toHex } from '../render/color';
 import type { RenderSource } from '../render/render';
 import { assetStore } from '../state/assets';
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
+import { BrushControls } from './BrushControls';
 
 const setRemoval = (patch: Partial<BackgroundRemoval>, transient = false) =>
   updateDoc((d) => ({ ...d, art: { ...d.art, removal: { ...d.art.removal, ...patch } } }), { transient });
@@ -51,6 +52,7 @@ export function BackgroundRemovalControls() {
           />
         </>
       )}
+      <BrushControls />
     </div>
   );
 }
@@ -122,7 +124,7 @@ function AiCutOut({ assetId, art }: { assetId: string; art: RenderSource | undef
           {status.message}
         </p>
       ) : ready ? (
-        <p className="control__hint">Done. Tidy any edges with the erase/restore brush in the Image section.</p>
+        <p className="control__hint">Done. Tidy any edges with the erase/restore brush below.</p>
       ) : (
         <p className="control__hint">Works on any background. The first time, a 100 MB AI model downloads; your picture never leaves this device.</p>
       )}
