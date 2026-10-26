@@ -6,6 +6,7 @@ import { Toggle } from '../components';
 import { Link } from '../components/Link';
 import { useTheme, type ThemeChoice } from '../hooks/useTheme';
 import { AppSwitch } from '../../shell/AppSwitch';
+import { inTokenStudio } from '../../shell/studioApps';
 import { PalettePicker } from '../../shell/PalettePicker';
 import { BrandMark } from './BrandMark';
 
@@ -25,7 +26,7 @@ export function TopBar({ compact }: { compact: boolean }) {
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
   return (
-    <header className="topbar">
+    <header className={`topbar${inTokenStudio() ? ' topbar--studio' : ''}`}>
       <AppSwitch
         current="token-maker"
         compact={compact}
