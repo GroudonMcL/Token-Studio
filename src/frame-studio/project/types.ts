@@ -16,7 +16,7 @@ import { ICON_GLYPHS, type IconKind } from './iconGlyphs';
 import type { PictureId } from './pictures';
 
 export const PROJECT_FORMAT = 'frame-studio-project';
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 export interface FrameProject {
   format: typeof PROJECT_FORMAT;
@@ -265,8 +265,25 @@ export interface OffsetEffect {
   amount: number;
 }
 
-export type Effect = BevelEffect | ShadowEffect | GlowEffect | RecolourEffect | AdjustEffect | WearEffect | DistortEffect | ExtrudeEffect | OffsetEffect;
-export const EFFECT_KINDS = ['bevel', 'shadow', 'glow', 'recolour', 'adjust', 'wear', 'distort', 'extrude', 'offset'] as const satisfies readonly Effect['kind'][];
+export const BLUR_MODES = ['soft', 'spin', 'zoom'] as const;
+export type BlurMode = (typeof BLUR_MODES)[number];
+
+/**
+ * Blurs the picture (version 11): softly all round, round the token (a spin,
+ * like something whirling), or in and out from its middle (a zoom).
+ */
+export interface BlurEffect {
+  kind: 'blur';
+  on: boolean;
+  mode: BlurMode;
+  /** How far it is smeared (band widths). */
+  amount: number;
+  /** Keeps the blurred picture inside the layer's own shape (a soft inside, crisp edges). */
+  keepShape: boolean;
+}
+
+export type Effect = BevelEffect | ShadowEffect | GlowEffect | RecolourEffect | AdjustEffect | WearEffect | DistortEffect | ExtrudeEffect | OffsetEffect | BlurEffect;
+export const EFFECT_KINDS = ['bevel', 'shadow', 'glow', 'recolour', 'adjust', 'wear', 'distort', 'extrude', 'offset', 'blur'] as const satisfies readonly Effect['kind'][];
 export type EffectKind = (typeof EFFECT_KINDS)[number];
 
 export const CLIP_MODES = ['none', 'band', 'below'] as const;
@@ -573,10 +590,36 @@ export interface PlacedStyle {
   paintEach: boolean;
 }
 
-export const SHAPE_KINDS = ['circle', 'rectangle', 'polygon', 'star', 'ornament'] as const;
+export const SHAPE_KINDS = [
+  'circle',
+  'rectangle',
+  'polygon',
+  'star',
+  'ornament',
+  // Version 11:
+  'ring',
+  'crescent',
+  'semicircle',
+  'teardrop',
+  'lens',
+  'cross',
+  'arch',
+  'trapezoid',
+  'chevron',
+  'flower',
+  'squircle',
+  'burst',
+  'blob',
+] as const;
 export type ShapeKind = (typeof SHAPE_KINDS)[number];
 
-/** One shape (circle, rectangle, polygon or star) placed on the band or freely. */
+/**
+ * One shape placed on the band or freely. `sides` is a polygon's sides, a
+ * star's or burst's points, a flower's petals or a blob's lobes;
+ * `innerRatio` a star's inner points, the thickness of a ring, crescent,
+ * cross or chevron, a trapezoid's top and a flower's petal depth; `corner`
+ * rounds a rectangle, squircle or arch.
+ */
 export interface ShapeLayer extends LayerBase, Placement, PlacedStyle {
   type: 'shape';
   shape: ShapeKind;
@@ -590,6 +633,8 @@ export interface ShapeLayer extends LayerBase, Placement, PlacedStyle {
   element: ElementKind;
   /** Ornament: its second colour (see RepeatLayer.detail). Version 10. */
   detail: string | null;
+  /** Picks the outline of the irregular shapes (burst, blob). Version 11. */
+  seed: number;
 }
 
 /**
@@ -638,6 +683,20 @@ export const TEXTURE_KINDS = [
   'sparkle',
   'crackle',
   'knurl',
+  // Version 11: natural…
+  'crystal',
+  'lava',
+  'smoke',
+  'feathers',
+  'filigree',
+  'mottled',
+  'lichen',
+  'caustics',
+  // …and strange.
+  'nebula',
+  'circuit',
+  'bubbles',
+  'eyes',
 ] as const;
 export type TextureKind = (typeof TEXTURE_KINDS)[number];
 
@@ -657,7 +716,7 @@ export interface TextureLayer extends LayerBase {
   to: number;
   /** The colour its marks are made from (the band's colour); the stars of a scatter; the glow of cracks. */
   color: string;
-  /** A second colour: the haze behind a scatter's stars. null = none. Unused by the other kinds. */
+  /** A second colour: the haze behind a scatter's stars, lava's cooled crust, a nebula's second cloud colour, mottling's flecks… null = none (or worked out from `color`). */
   color2: string | null;
   /** How many marks (1 = Token Maker's amount). */
   amount: number;

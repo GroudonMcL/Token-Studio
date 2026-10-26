@@ -9,6 +9,7 @@ import { cellsLayer, chainLayer, LAYER_PHASE9, DEFAULT_STAGE, fractureLayer, gea
 import { PICTURE_IDS } from './pictures';
 import {
   BEVEL_PROFILES,
+  BLUR_MODES,
   BLEND_MODES,
   EFFECT_KINDS,
   SURFACES,
@@ -164,6 +165,9 @@ const MIGRATIONS: Record<number, (p: Obj) => Obj> = {
   8: (p) => ({ ...p, schemaVersion: 9 }),
   // Version 9 → 10: the second branch's ornaments, textures, wave shapes and paint fills, all off.
   9: (p) => ({ ...p, schemaVersion: 10, layers: Array.isArray(p.layers) ? p.layers.map(addVersion10Fields) : p.layers }),
+  // Version 10 → 11: the new textures, shapes and the blur effect are new kinds, and a shape's seed (for the
+  // irregular shapes) is 1 when left out, so nothing changes.
+  10: (p) => ({ ...p, schemaVersion: 11 }),
 };
 
 export function parseProject(input: unknown): ParseResult {
@@ -400,6 +404,9 @@ export function checkEffects(v: unknown, name: string, warnings: string[]): Effe
       case 'offset':
         out.push({ kind: 'offset', on, amount: num(e.amount, d.amount, -0.5, 0.5) });
         break;
+      case 'blur':
+        out.push({ kind: 'blur', on, mode: oneOf(e.mode, BLUR_MODES, d.mode), amount: num(e.amount, d.amount, 0, 2), keepShape: bool(e.keepShape, d.keepShape) });
+        break;
     }
   }
   return out;
@@ -514,6 +521,7 @@ function checkLayer(l: unknown, index: number, warnings: string[], ids: Set<stri
         corner: num(o.corner, d.corner, 0, 1),
         element: oneOf(o.element, ELEMENT_KINDS, d.element),
         detail: hexOrNull(o.detail, d.detail),
+        seed: Math.round(num(o.seed, d.seed, 0, 99999)),
       };
     }
     case 'path': {

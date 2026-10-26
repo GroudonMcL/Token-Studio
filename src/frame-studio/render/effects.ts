@@ -11,7 +11,7 @@
 // export and the tests (node) draw exactly the same picture.
 
 import type { StageSettings } from '../project/types';
-import type { AdjustEffect, BevelEffect, BevelProfile, DistortEffect, Effect, ExtrudeEffect, OffsetEffect, GlowEffect, GradientStop, RecolourEffect, ShadowEffect, Surface, WearEffect } from '../project/types';
+import type { AdjustEffect, BevelEffect, BlurEffect, BevelProfile, DistortEffect, Effect, ExtrudeEffect, OffsetEffect, GlowEffect, GradientStop, RecolourEffect, ShadowEffect, Surface, WearEffect } from '../project/types';
 import type { Ctx } from './canvas';
 import { lightVector } from './light';
 
@@ -71,6 +71,9 @@ export function applyEffects(ctx: Ctx, size: number, effects: Effect[], env: Eff
         break;
       case 'offset':
         offset(px, size, e, env);
+        break;
+      case 'blur':
+        blurPicture(px, size, e, env);
         break;
     }
   }
@@ -862,6 +865,105 @@ function offset(px: Uint8ClampedArray, size: number, e: OffsetEffect, env: Effec
     for (let c = 0; c < 3; c++) px[p + c] = alpha[i] > 0 ? px[p + c] : colour[p + c];
     px[p + 3] = a * 255;
   }
+}
+
+// ---------------------------------------------------------------- blur (version 11)
+
+/**
+ * Blurs the picture, premultiplied so its edges don't darken: 'soft' all
+ * round (the box blur above), 'spin' along circles round the token's middle
+ * and 'zoom' along lines out from it, each `amount` band widths long. With
+ * `keepShape` the result keeps the picture's own alpha, so only its inside
+ * goes soft.
+ */
+function blurPicture(px: Uint8ClampedArray, size: number, e: BlurEffect, env: EffectEnv): void {
+  const length = e.amount * env.bw;
+  if (length < 0.5) return;
+  const n = size * size;
+  const pre = [new Float32Array(n), new Float32Array(n), new Float32Array(n), new Float32Array(n)];
+  for (let i = 0; i < n; i++) {
+    const p = i * 4;
+    const a = px[p + 3] / 255;
+    pre[0][i] = px[p] * a;
+    pre[1][i] = px[p + 1] * a;
+    pre[2][i] = px[p + 2] * a;
+    pre[3][i] = px[p + 3];
+  }
+  const out = e.mode === 'soft' ? pre.map((ch) => blur(ch, size, length)) : smear(pre, size, length, e.mode);
+  for (let i = 0; i < n; i++) {
+    const p = i * 4;
+    const a = out[3][i];
+    if (a <= 0.01) {
+      if (!e.keepShape) px[p + 3] = 0;
+      continue;
+    }
+    for (let c = 0; c < 3; c++) px[p + c] = out[c][i] / (a / 255);
+    if (!e.keepShape) px[p + 3] = a;
+  }
+}
+
+/** Averages each pixel along an arc round the middle ('spin') or a line out from it ('zoom'), `length` pixels long. */
+function smear(src: Float32Array[], size: number, length: number, mode: 'spin' | 'zoom'): Float32Array[] {
+  const n = size * size;
+  const out = src.map(() => new Float32Array(n));
+  const c = size / 2;
+  // Only where something can reach: the painted box, grown by the length.
+  let minX = size;
+  let minY = size;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < size; y++)
+    for (let x = 0; x < size; x++)
+      if (src[3][y * size + x] > 0) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+  if (maxX < 0) return out;
+  const reach = Math.ceil(length);
+  const x0 = Math.max(0, minX - reach);
+  const x1 = Math.min(size - 1, maxX + reach);
+  const y0 = Math.max(0, minY - reach);
+  const y1 = Math.min(size - 1, maxY + reach);
+  const steps = Math.max(3, Math.min(48, Math.ceil(length / 1.5)));
+  const sample = (ch: Float32Array, sx: number, sy: number) => {
+    const ix = Math.floor(sx);
+    const iy = Math.floor(sy);
+    if (ix < 0 || iy < 0 || ix >= size - 1 || iy >= size - 1) return 0;
+    const fx = sx - ix;
+    const fy = sy - iy;
+    const i = iy * size + ix;
+    return (ch[i] * (1 - fx) + ch[i + 1] * fx) * (1 - fy) + (ch[i + size] * (1 - fx) + ch[i + size + 1] * fx) * fy;
+  };
+  for (let y = y0; y <= y1; y++)
+    for (let x = x0; x <= x1; x++) {
+      const dx = x + 0.5 - c;
+      const dy = y + 0.5 - c;
+      const r = Math.hypot(dx, dy);
+      if (r < 0.5) continue;
+      const sums = [0, 0, 0, 0];
+      for (let k = 0; k < steps; k++) {
+        const t = (k / (steps - 1) - 0.5) * length;
+        let sx: number;
+        let sy: number;
+        if (mode === 'spin') {
+          const a = t / r;
+          const cos = Math.cos(a);
+          const sin = Math.sin(a);
+          sx = c + dx * cos - dy * sin - 0.5;
+          sy = c + dx * sin + dy * cos - 0.5;
+        } else {
+          const k2 = (r + t) / r;
+          sx = c + dx * k2 - 0.5;
+          sy = c + dy * k2 - 0.5;
+        }
+        for (let ch = 0; ch < 4; ch++) sums[ch] += sample(src[ch], sx, sy);
+      }
+      const i = y * size + x;
+      for (let ch = 0; ch < 4; ch++) out[ch][i] = sums[ch] / steps;
+    }
+  return out;
 }
 
 // ---------------------------------------------------------------- bloom and bleed (version 9)

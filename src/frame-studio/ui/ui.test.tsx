@@ -160,7 +160,8 @@ describe('textures (Phase 3)', () => {
     expect(top()).toMatchObject({ type: 'texture', kind: 'hammered' });
     expect(history.getState().past).toHaveLength(1);
     expect(onClose).toHaveBeenCalled();
-  });
+    // Finding each of the 35 tiles by its name takes a while.
+  }, 20_000);
 
   it('a project with layers gets just the texture', async () => {
     loadProject(createProject([bandFillLayer()]));

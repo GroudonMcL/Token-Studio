@@ -135,9 +135,9 @@ test('the project survives a reload', async ({ page }) => {
 });
 
 test('Advanced mode shows extra settings and the data view', async ({ page }) => {
-  await expect(page.getByText('Opacity', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Clip', { exact: true })).toHaveCount(0);
   await page.getByRole('radio', { name: 'Advanced' }).click();
-  await expect(page.getByText('Opacity', { exact: true })).toBeVisible();
+  await expect(page.getByText('Clip', { exact: true })).toBeVisible();
   await page.getByText('Advanced: project data').click();
   const data = page.getByLabel('Project data');
   await data.fill('{"not": "a project"}');

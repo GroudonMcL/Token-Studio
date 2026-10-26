@@ -74,7 +74,7 @@ Each app still has its own copy of some of the other's code, carried over unchan
 - `src/frame-studio/engine/legacy/` is a copy of Token Maker's frame renderer (`src/token-maker/render/`).
 - `src/token-maker/frameStudio/` is a copy of Frame Studio's project reader and renderer.
 
-Each copy has a `SOURCE.json`, and a test fails if a copied file is edited. Frame Studio's old `engine:sync` and `share:export` scripts, which copied these files between the two separate repositories, are not included. To update a copy, copy the files over and update the hashes in its `SOURCE.json`.
+Each copy has a `SOURCE.json`, and a test fails if a copied file is edited. Frame Studio's old `engine:sync` and `share:export` scripts, which copied these files between the two separate repositories, are not included. To update Token Maker's copy of Frame Studio after changing Frame Studio, run `npm run fs:share-copy` (add the paths of any new files the copied ones import, such as `render/newFile.ts`); it rewrites the engine's import path and the hashes in `SOURCE.json`. The engine copy is still updated by hand.
 
 ## Documents
 

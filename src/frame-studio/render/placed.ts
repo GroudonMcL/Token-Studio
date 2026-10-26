@@ -12,6 +12,7 @@ import { bandWidthPx, outlineAt, spacedAlong } from './band';
 import type { Ctx } from './canvas';
 import { drawElement, paintPattern, shadedFill } from './elements';
 import { drawFacets, flattenPath } from './facets';
+import { isOutlined, ringHole, unitOutline } from './shapeOutlines';
 import { paintCanvas } from './paint';
 import { lightVector, raisedFrom, turn } from './light';
 
@@ -130,6 +131,13 @@ function traceShape(ctx: Ctx, layer: ShapeLayer, w: number, h: number): void {
       }
       break;
     }
+    default:
+      for (const p of unitOutline(layer)) ctx.lineTo(p.x * x, p.y * y);
+      if (layer.shape === 'ring') {
+        // The hole, wound the other way.
+        ctx.closePath();
+        ringHole(layer).forEach((p, i) => (i ? ctx.lineTo(p.x * x, p.y * y) : ctx.moveTo(p.x * x, p.y * y)));
+      }
   }
   ctx.closePath();
 }
@@ -162,6 +170,12 @@ function shapePoints(layer: ShapeLayer, w: number, h: number): Point[] {
         const k = layer.shape === 'star' && i % 2 ? layer.innerRatio : 1;
         return { x: Math.cos(a) * x * k, y: Math.sin(a) * y * k };
       });
+    }
+    default: {
+      // Facets need far fewer points than drawing does.
+      const pts = unitOutline(layer);
+      const step = isOutlined(layer.shape) && pts.length > 48 ? Math.ceil(pts.length / 48) : 1;
+      return pts.filter((_p, i) => i % step === 0).map((p) => ({ x: p.x * x, y: p.y * y }));
     }
   }
 }

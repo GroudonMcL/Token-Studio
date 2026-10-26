@@ -184,6 +184,21 @@ export const TEXTURES: TexturePreset[] = [
   { id: 'gold-sparkle', name: 'Gold dust', description: 'Sparkles on gold, for a fey or royal shimmer.', layer: { kind: 'sparkle', name: 'Gold dust', color: '#fffbe6', amount: 1.6, scale: 0.7, seed: 0x901d }, band: '#c9a24a' },
   { id: 'crackle', name: 'Crackle glaze', description: 'A web of fine cracks, like old porcelain or dried mud.', layer: { kind: 'crackle', name: 'Crackle glaze', color: '#d8cfb8', seed: 0xc4ac }, band: '#d8cfb8' },
   { id: 'knurl', name: 'Knurled grip', description: 'Crossing diagonal grooves, like the grip of a tool.', layer: { kind: 'knurl', name: 'Knurled grip', color: '#8a8f99', seed: 1 }, band: '#8a8f99' },
+  // Version 11: natural…
+  { id: 'crystal', name: 'Crystal facets', description: 'Flat crystal faces, each tilted its own way and lit by the light, with bright edges.', layer: { kind: 'crystal', name: 'Crystal facets', color: '#8a6ad8', seed: 0xc275 }, band: '#3a2a6a' },
+  { id: 'ice-crystal', name: 'Ice crystal', description: 'Pale blue crystal faces, like a ring cut from ice.', layer: { kind: 'crystal', name: 'Ice crystal', color: '#a8d8f0', scale: 0.7, seed: 0x1ce }, band: '#4a7a9a' },
+  { id: 'lava', name: 'Molten lava', description: 'Glowing rivers between crusted plates of cooling rock.', layer: { kind: 'lava', name: 'Molten lava', color: '#ff5a1a', color2: '#1a0806', seed: 0x1a7a }, band: '#2a0e08' },
+  { id: 'smoke', name: 'Smoke and wisps', description: 'Thin wisps curling along the band over a soft haze.', layer: { kind: 'smoke', name: 'Smoke and wisps', color: '#bfe4ff', color2: '#1a3a5a', seed: 0x5e0c }, band: '#0e1620' },
+  { id: 'feathers', name: 'Feathers', description: 'Plumes lying across the band, overlapping like a raven’s wing.', layer: { kind: 'feathers', name: 'Feathers', color: '#6a6e78', seed: 0xfea7 }, band: '#121318' },
+  { id: 'filigree', name: 'Filigree scrolls', description: 'Scrolling tendrils that curl into spirals, chased into metal.', layer: { kind: 'filigree', name: 'Filigree scrolls', color: '#c9a24a', seed: 0xf111 }, band: '#c9a24a' },
+  { id: 'mottled', name: 'Mottled patina', description: 'Blotches of a second colour with flecks, like old gilding or enamel.', layer: { kind: 'mottled', name: 'Mottled patina', color: '#d9a640', color2: '#fff0b0', seed: 0x307 }, band: '#8a2a14' },
+  { id: 'lichen', name: 'Lichen', description: 'Round colonies with crinkled rims, as on old stone.', layer: { kind: 'lichen', name: 'Lichen', color: '#b8b84a', seed: 0x11c4 }, band: '#6a6a66' },
+  { id: 'caustics', name: 'Water caustics', description: 'A shimmering net of light, as through rippling water.', layer: { kind: 'caustics', name: 'Water caustics', color: '#d8fbff', seed: 0xca05 }, band: '#1a6a8a' },
+  // …and strange.
+  { id: 'nebula', name: 'Nebula', description: 'Clouds of two colours in deep space, with stars.', layer: { kind: 'nebula', name: 'Nebula', color: '#d04ab0', color2: '#3a6aff', seed: 0x2eb }, band: '#0a0a1e' },
+  { id: 'circuit', name: 'Arcane circuitry', description: 'Glowing traces in lanes along the band, ending in nodes.', layer: { kind: 'circuit', name: 'Arcane circuitry', color: '#5affd0', seed: 0xc1c }, band: '#16222a' },
+  { id: 'bubbles', name: 'Bubbles', description: 'Round cells of every size crowded together: foam, spawn, something alive.', layer: { kind: 'bubbles', name: 'Bubbles', color: '#8adf6a', seed: 0xb0b }, band: '#1e3a1a' },
+  { id: 'eyes', name: 'Watching eyes', description: 'Eyes of every size, some half shut, watching from the band.', layer: { kind: 'eyes', name: 'Watching eyes', color: '#c8a020', seed: 0xe7e5 }, band: '#3a1a2a' },
 ];
 
 /** A band fill of a photo texture (version 6), bent round the band and lit like the rest. */
@@ -208,7 +223,7 @@ export const DEFAULT_PLACEMENT: Placement = { place: 'band', along: 0, across: 0
 const DEFAULT_STYLE: PlacedStyle = { fill: '#5fa8d3', shaded: true, outline: '#1a1008', outlineWidth: 0.06, raised: true, glow: null, faceted: false, facetTable: 0.5, facetDepth: 1, fillPaint: null, paintEach: false };
 
 export function shapeLayer(): ShapeLayer {
-  return { ...base('Shape'), type: 'shape', ...DEFAULT_PLACEMENT, ...DEFAULT_STYLE, shape: 'polygon', sides: 6, innerRatio: 0.45, corner: 0, element: 'heart', detail: null };
+  return { ...base('Shape'), type: 'shape', ...DEFAULT_PLACEMENT, ...DEFAULT_STYLE, shape: 'polygon', sides: 6, innerRatio: 0.45, corner: 0, element: 'heart', detail: null, seed: 1 };
 }
 
 /** A new path has no points: it is drawn by clicking on the canvas. */

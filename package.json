@@ -29,7 +29,9 @@
     "fs:compare-conversions": "tsx scripts/frame-studio/compare-conversions.ts",
     "fs:showcase": "tsx scripts/frame-studio/showcase.ts",
     "fs:make-fixtures": "tsx scripts/frame-studio/make-fixtures.ts",
-    "fs:look": "tsx scripts/frame-studio/look.ts"
+    "fs:look": "tsx scripts/frame-studio/look.ts",
+    "fs:compare-pictures": "tsx scripts/frame-studio/compare-pictures.ts",
+    "fs:share-copy": "tsx scripts/frame-studio/share-copy.ts"
   },
   "dependencies": {
     "@fontsource/alegreya-sc": "^5.3.0",

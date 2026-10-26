@@ -124,7 +124,7 @@ describe('project files', () => {
     const a = NEW_LAYER.line();
     const r = parseProject({
       ...createProject(),
-      layers: [a, { ...groupLayer([{ ...a }]) }, { type: 'shape', shape: 'blob', sides: 99, mirror: 'sideways', place: 'nowhere' }, { type: 'path', points: [{ x: 'a', y: 2, handle: 7 }, 'junk'] }],
+      layers: [a, { ...groupLayer([{ ...a }]) }, { type: 'shape', shape: 'splodge', sides: 99, mirror: 'sideways', place: 'nowhere' }, { type: 'path', points: [{ x: 'a', y: 2, handle: 7 }, 'junk'] }],
     });
     if (!r.ok) throw new Error(r.error);
     const g = r.project.layers[1];
@@ -212,7 +212,7 @@ describe('project files', () => {
   it('bad texture and ring values fall back; numbers are kept in range', () => {
     const p = JSON.parse(serializeProject(createProject([bandFillLayer(), textureLayer('wood')])));
     p.layers[0].paint = { kind: 'ring', stops: [{ angle: 400, color: '#ABCDEF' }, { angle: -90, color: 'nope' }] };
-    Object.assign(p.layers[1], { kind: 'lava', amount: 99, scale: -1, strength: 'lots', where: 'somewhere', color: 'red', color2: 5, seed: -3 });
+    Object.assign(p.layers[1], { kind: 'plasma', amount: 99, scale: -1, strength: 'lots', where: 'somewhere', color: 'red', color2: 5, seed: -3 });
     const r = parseProject(p);
     if (!r.ok) throw new Error(r.error);
     const [band, tex] = r.project.layers;

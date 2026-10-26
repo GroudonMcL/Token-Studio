@@ -60,11 +60,11 @@ describe('fills with a paint', () => {
 });
 
 describe('photo textures and credits', () => {
-  it('the texture library offers the 20 photo textures as band fills', async () => {
+  it('the texture library offers the 32 photo textures as band fills', async () => {
     loadProject(createProject([]));
     render(<TextureDialog onClose={() => {}} />);
     const photos = screen.getByRole('region', { name: 'Photo textures' });
-    expect(within(photos).getAllByRole('button')).toHaveLength(20);
+    expect(within(photos).getAllByRole('button')).toHaveLength(32);
     await userEvent.click(within(photos).getByRole('button', { name: 'Wood planks' }));
     expect(top()).toMatchObject({ type: 'bandFill', name: 'Wood planks', paint: { kind: 'picture', picture: 'wood-planks', bend: true } });
   });

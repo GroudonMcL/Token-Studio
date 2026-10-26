@@ -110,6 +110,45 @@ const SHAPE_NAMES: Record<ShapeKind, string> = {
   polygon: 'Polygon',
   star: 'Star',
   ornament: 'Ornament (heart, fleur-de-lis…)',
+  ring: 'Ring',
+  crescent: 'Crescent',
+  semicircle: 'Half circle (dome)',
+  teardrop: 'Teardrop',
+  lens: 'Almond (pointed oval)',
+  cross: 'Cross',
+  arch: 'Arch (round or pointed)',
+  trapezoid: 'Trapezoid',
+  chevron: 'Chevron',
+  flower: 'Flower (rosette)',
+  squircle: 'Rounded square (squircle)',
+  burst: 'Burst (uneven star)',
+  blob: 'Blob (organic)',
+};
+
+/** What a shape's numbers mean, for the shapes that use them: [label, hint, min, max]. */
+const SHAPE_SIDES: Partial<Record<ShapeKind, [string, string, number, number]>> = {
+  polygon: ['Sides', 'How many sides it has.', 3, 16],
+  star: ['Points', 'How many points it has.', 3, 16],
+  burst: ['Points', 'How many points it has.', 3, 24],
+  flower: ['Petals', 'How many petals it has.', 3, 16],
+  blob: ['Lumps', 'How many lumps and hollows its outline has.', 3, 8],
+};
+const SHAPE_RATIO: Partial<Record<ShapeKind, [string, string]>> = {
+  star: ['Inner points', 'How far in the points between the tips are.'],
+  burst: ['Inner points', 'How far in the points between the tips are.'],
+  ring: ['Hole size', 'How big the hole in the middle is.'],
+  crescent: ['Thinness', 'How much is cut away: a fat crescent at 0%, a thin sliver at 100%.'],
+  cross: ['Arm width', 'How wide the arms are.'],
+  chevron: ['Thickness', 'How thick its arms are.'],
+  trapezoid: ['Top width', 'How wide its outer side is, as a share of the inner side.'],
+  flower: ['Petal depth', 'How deep the dips between the petals are.'],
+  teardrop: ['Plumpness', 'How round its body is.'],
+  blob: ['Lumpiness', 'How lumpy it is.'],
+};
+const SHAPE_CORNER: Partial<Record<ShapeKind, [string, string]>> = {
+  rectangle: ['Round the corners', 'How rounded its corners are.'],
+  squircle: ['Roundness', 'From nearly square (0%) to a circle (100%).'],
+  arch: ['Pointed top', 'A round arch at 0%, a tall pointed (Gothic) arch at 100%.'],
 };
 
 const COMBINE_NAMES: Record<CombineMode, string> = {
@@ -218,25 +257,9 @@ export function PropertiesPanel() {
           </p>
           <LayerControls layer={inLockedGroup ? ({ ...layer, locked: true } as Layer) : layer} light={project.stage.light} />
           {layer.type !== 'unsupported' && <EffectsSection layer={inLockedGroup ? ({ ...layer, locked: true } as Layer) : layer} />}
+          {layer.type !== 'unsupported' && <BlendingControls layer={inLockedGroup ? ({ ...layer, locked: true } as Layer) : layer} />}
           {advanced && layer.type !== 'unsupported' && (
             <Fold title="Advanced: layer" defaultOpen>
-              {layer.type !== 'group' && num(layer, setterFor(layer), 'opacity', 'Opacity', 0, 1, pct)}
-              <Toggle
-                label="Cut a hole in the layers below"
-                hint="A knockout: instead of being drawn, it cuts its shape out of the layers under it (in its group). Put a bevel on the group to give the hole an edge."
-                checked={layer.blend === 'destination-out'}
-                disabled={layer.locked}
-                onChange={(on) => updateLayer(layer.id, { blend: on ? 'destination-out' : 'source-over' })}
-              />
-              {layer.blend !== 'destination-out' && (
-                <Select
-                  label="Blend mode"
-                  value={layer.blend}
-                  disabled={layer.locked}
-                  options={BLEND_MODES.filter((b) => b !== 'destination-out').map((b) => ({ value: b, label: BLEND_NAMES[b] }))}
-                  onChange={(blend) => updateLayer(layer.id, { blend })}
-                />
-              )}
               <Select
                 label="Clip"
                 hint="Show this layer only inside the band, or only where the layer below it has paint."
@@ -254,6 +277,33 @@ export function PropertiesPanel() {
       )}
       {advanced && <DataView />}
     </aside>
+  );
+}
+
+/** Opacity, blend mode and knockout: how the layer mixes with the layers under it (in Basic and Advanced). */
+function BlendingControls({ layer }: { layer: Layer }) {
+  const knockout = layer.blend === 'destination-out';
+  return (
+    <Fold title="Opacity and blend mode" defaultOpen>
+      {layer.type !== 'group' && num(layer, setterFor(layer), 'opacity', 'Opacity', 0, 1, { ...pct, hint: 'How solid the layer is: at 0% it is invisible, at 100% fully drawn.' })}
+      {!knockout && (
+        <Select
+          label="Blend mode"
+          hint="How its colours mix with the layers under it: Multiply darkens (shadows, stains), Screen and Add lighten (glows, light), Overlay and Soft light add contrast, Colour and Hue recolour."
+          value={layer.blend}
+          disabled={layer.locked}
+          options={BLEND_MODES.filter((b) => b !== 'destination-out').map((b) => ({ value: b, label: BLEND_NAMES[b] }))}
+          onChange={(blend) => updateLayer(layer.id, { blend })}
+        />
+      )}
+      <Toggle
+        label="Cut a hole in the layers below"
+        hint="A knockout: instead of being drawn, it cuts its shape out of the layers under it (in its group). Put a bevel on the group to give the hole an edge."
+        checked={knockout}
+        disabled={layer.locked}
+        onChange={(on) => updateLayer(layer.id, { blend: on ? 'destination-out' : 'source-over' })}
+      />
+    </Fold>
   );
 }
 
@@ -775,6 +825,28 @@ const TEXTURE_COLOUR_LABEL: Partial<Record<TextureLayer['kind'], [string, string
   rust: ['Rust colour', 'The colour of the rust patches.'],
   frost: ['Ice colour', 'The colour of the frost and its crystals.'],
   sparkle: ['Sparkle colour', 'The colour of the sparkles.'],
+  crystal: ['Crystal colour', 'The colour of the crystal; its faces are lighter and darker shades of it.'],
+  lava: ['Glow colour', 'The colour of the molten rock where it glows.'],
+  smoke: ['Wisp colour', 'The colour of the wisps.'],
+  feathers: ['Feather colour', 'The colour of the feathers; the side facing the light is lighter.'],
+  filigree: ['Metal colour', 'The colour of the metal it is chased into: match it to the band underneath.'],
+  mottled: ['Blotch colour', 'The colour of the blotches.'],
+  lichen: ['Lichen colour', 'The colour of the lichen.'],
+  caustics: ['Light colour', 'The colour of the shimmering light.'],
+  nebula: ['Cloud colour', 'The colour of the clouds.'],
+  circuit: ['Glow colour', 'The colour the traces glow.'],
+  bubbles: ['Bubble colour', 'The colour of the bubbles.'],
+  eyes: ['Iris colour', 'The colour of the eyes’ irises.'],
+};
+
+/** Textures with a second colour: [label, hint, colour used when it is switched on]. */
+const TEXTURE_COLOUR2: Partial<Record<TextureLayer['kind'], [string, string, string]>> = {
+  scatter: ['Haze', 'Soft clouds of colour behind the stars.', '#6a5acd'],
+  lava: ['Crust colour', 'The colour of the cooled crust between the glowing rivers.', '#1a0806'],
+  smoke: ['Haze', 'A soft haze behind the wisps.', '#1a3a5a'],
+  mottled: ['Fleck colour', 'The colour of the flecks inside the blotches.', '#fff0b0'],
+  nebula: ['Second cloud colour', 'The clouds blend between their colour and this one.', '#3a6aff'],
+  eyes: ['White colour', 'The colour of the whites of the eyes.', '#efe6d0'],
 };
 
 function TextureControls({ layer }: { layer: TextureLayer }) {
@@ -791,11 +863,13 @@ function TextureControls({ layer }: { layer: TextureLayer }) {
         onChange={(kind) => {
           const preset = TEXTURES.find((t) => t.layer.kind === kind)!.layer;
           const named = layer.name === 'Texture' || TEXTURES.some((t) => t.layer.name === layer.name);
-          set({ kind, seed: preset.seed ?? layer.seed, color2: kind === 'scatter' ? (layer.color2 ?? preset.color2 ?? null) : layer.color2, ...(named ? { name: preset.name } : {}) });
+          set({ kind, seed: preset.seed ?? layer.seed, color2: TEXTURE_COLOUR2[kind] ? (preset.color2 ?? layer.color2 ?? null) : layer.color2, ...(named ? { name: preset.name } : {}) });
         }}
       />
       <ColorField label={colourLabel} hint={colourHint} value={layer.color} disabled={disabled} defaultValue={defaultsFor(layer).color as string} onChange={(color, t) => set({ color }, t)} />
-      {layer.kind === 'scatter' && <OptionalColor label="Haze" hint="Soft clouds of colour behind the stars." value={layer.color2} fallback="#6a5acd" disabled={disabled} onChange={(color2, t) => set({ color2 }, t)} />}
+      {TEXTURE_COLOUR2[layer.kind] && (
+        <OptionalColor label={TEXTURE_COLOUR2[layer.kind]![0]} hint={TEXTURE_COLOUR2[layer.kind]![1]} value={layer.color2} fallback={TEXTURE_COLOUR2[layer.kind]![2]} disabled={disabled} onChange={(color2, t) => set({ color2 }, t)} />
+      )}
       {num(layer, set, 'amount', 'How many', 0.1, 3, { ...pct, step: 0.05, hint: '100% is as many as Token Maker draws.' })}
       {num(layer, set, 'scale', 'Size', 0.2, 3, { ...pct, step: 0.05, hint: '100% is the size Token Maker draws them.' })}
       {num(layer, set, 'strength', 'Strength', 0, 2, { ...pct, step: 0.05, hint: 'How strongly it shows. 100% is as strong as in Token Maker.' })}
@@ -832,16 +906,24 @@ function PlacedControls({ layer }: { layer: PlacedLayer }) {
       {layer.type === 'shape' ? (
         <>
           <Select label="Shape" value={layer.shape} disabled={disabled} options={SHAPE_KINDS.map((k) => ({ value: k, label: SHAPE_NAMES[k] }))} onChange={(shape) => set({ shape })} />
-          {(layer.shape === 'polygon' || layer.shape === 'star') && num(layer, set, 'sides', layer.shape === 'star' ? 'Points' : 'Sides', 3, 16, { step: 1 })}
-          {layer.shape === 'star' && num(layer, set, 'innerRatio', 'Inner points', 0.1, 0.95, pct)}
-          {layer.shape === 'rectangle' && num(layer, set, 'corner', 'Round the corners', 0, 1, pct)}
+          {SHAPE_SIDES[layer.shape] && num(layer, set, 'sides', SHAPE_SIDES[layer.shape]![0], SHAPE_SIDES[layer.shape]![2], SHAPE_SIDES[layer.shape]![3], { step: 1, hint: SHAPE_SIDES[layer.shape]![1] })}
+          {SHAPE_RATIO[layer.shape] && num(layer, set, 'innerRatio', SHAPE_RATIO[layer.shape]![0], 0.05, 0.95, { ...pct, hint: SHAPE_RATIO[layer.shape]![1] })}
+          {SHAPE_CORNER[layer.shape] && num(layer, set, 'corner', SHAPE_CORNER[layer.shape]![0], 0, 1, { ...pct, hint: SHAPE_CORNER[layer.shape]![1] })}
+          {(layer.shape === 'burst' || layer.shape === 'blob') && (
+            <div className="row">
+              {num(layer, set, 'seed', 'Variation', 0, 99999, { step: 1, hint: 'Each number gives a differently shaped outline.' })}
+              <button type="button" className="icon-btn" aria-label="Shuffle" title="Try another outline" disabled={disabled} onClick={() => set({ seed: Math.floor(Math.random() * 99999) })}>
+                <Shuffle size={16} />
+              </button>
+            </div>
+          )}
           {layer.shape === 'ornament' && (
             <Select label="Ornament" value={layer.element} disabled={disabled} options={ELEMENT_KINDS.map((k) => ({ value: k, label: ELEMENT_NAMES[k] }))} onChange={(element) => set({ element })} />
           )}
           {layer.shape === 'ornament' && DETAIL_NAMES[layer.element] && (
             <OptionalColor label={DETAIL_NAMES[layer.element]!} hint={DETAIL_HINT} value={layer.detail} fallback="#f2ead8" disabled={disabled} onChange={(detail, t) => set({ detail }, t)} />
           )}
-          {layer.shape !== 'ornament' && (
+          {layer.shape !== 'ornament' && layer.shape !== 'ring' && (
             <button type="button" className="btn small" disabled={disabled} onClick={() => shapeToPath(layer.id)} title="Make it a path with the same outline, so its points can be moved one by one">
               <PenTool size={16} /> Turn into a path
             </button>
