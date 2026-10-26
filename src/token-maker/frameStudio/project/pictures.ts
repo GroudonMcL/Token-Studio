@@ -33,6 +33,19 @@ export const PICTURES = [
   { id: 'snow', name: 'Snow', site: 'Poly Haven', source: 'https://polyhaven.com/a/snow_02', average: '#a5a5a7' },
   { id: 'metal-plate', name: 'Tread plate', site: 'Poly Haven', source: 'https://polyhaven.com/a/metal_plate', average: '#3d321c' },
   { id: 'wood-planks', name: 'Wood planks', site: 'Poly Haven', source: 'https://polyhaven.com/a/wood_planks', average: '#795839' },
+  // Version 11: more natural and strange ones.
+  { id: 'lava-flow', name: 'Ember streaks', site: 'ambientCG', source: 'https://ambientcg.com/view?id=Lava001', average: '#4a383b' },
+  { id: 'molten-rock', name: 'Molten rock', site: 'ambientCG', source: 'https://ambientcg.com/view?id=Lava005', average: '#7c413c' },
+  { id: 'moss', name: 'Moss', site: 'ambientCG', source: 'https://ambientcg.com/view?id=Moss002', average: '#4a6519' },
+  { id: 'blue-onyx', name: 'Blue onyx', site: 'ambientCG', source: 'https://ambientcg.com/view?id=Onyx006', average: '#767b7b' },
+  { id: 'black-onyx', name: 'Black onyx', site: 'ambientCG', source: 'https://ambientcg.com/view?id=Onyx013', average: '#35302b' },
+  { id: 'plane-bark', name: 'Plane tree bark', site: 'Poly Haven', source: 'https://polyhaven.com/a/bark_platanus', average: '#56473c' },
+  { id: 'coral-stone', name: 'Coral stone', site: 'Poly Haven', source: 'https://polyhaven.com/a/coral_stone_wall', average: '#908372' },
+  { id: 'dark-rock', name: 'Dark rock', site: 'Poly Haven', source: 'https://polyhaven.com/a/dark_rock', average: '#211c17' },
+  { id: 'forest-floor', name: 'Forest floor', site: 'Poly Haven', source: 'https://polyhaven.com/a/forest_leaves_02', average: '#8e703a' },
+  { id: 'lichen-rock', name: 'Lichen rock', site: 'Poly Haven', source: 'https://polyhaven.com/a/lichen_rock', average: '#44392e' },
+  { id: 'cracked-mud', name: 'Cracked mud', site: 'Poly Haven', source: 'https://polyhaven.com/a/mud_cracked_dry_03', average: '#cfa981' },
+  { id: 'tiger-rock', name: 'Tiger rock', site: 'Poly Haven', source: 'https://polyhaven.com/a/tiger_rock', average: '#705341' },
 ] as const satisfies readonly PictureInfo[];
 
 export type PictureId = (typeof PICTURES)[number]['id'];

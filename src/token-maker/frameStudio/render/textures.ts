@@ -16,6 +16,7 @@ import { bandWidthPx, insetAt, outlineAt, spacedAlong } from './band';
 import { context2d, newCanvas, type Ctx } from './canvas';
 import { lightAt, lightVector, turn, turnTable } from './light';
 import { litFor, ringTable } from './paint';
+import { bubbles, caustics, circuit, crystal, eyes, feathers, filigree, lava, lichen, mottled, nebula, smoke } from './naturalTextures';
 
 export const TEXTURE_NAMES: Record<TextureKind, string> = {
   marble: 'Marble',
@@ -37,6 +38,18 @@ export const TEXTURE_NAMES: Record<TextureKind, string> = {
   sparkle: 'Sparkles',
   crackle: 'Crackle glaze',
   knurl: 'Knurled grip',
+  crystal: 'Crystal facets',
+  lava: 'Molten lava',
+  smoke: 'Smoke and wisps',
+  feathers: 'Feathers',
+  filigree: 'Filigree scrolls',
+  mottled: 'Mottled patina',
+  lichen: 'Lichen',
+  caustics: 'Water caustics',
+  nebula: 'Nebula',
+  circuit: 'Arcane circuitry',
+  bubbles: 'Bubbles',
+  eyes: 'Watching eyes',
 };
 
 /** How strongly a texture shows at a point (0–1); 1 everywhere unless it keeps to one side. */
@@ -852,8 +865,9 @@ function fadeToSide(ctx: Ctx, size: number, light: number, side: 'shaded' | 'lit
   ctx.putImageData(image, 0, 0);
 }
 
-function paintKind(ctx: Ctx, g: FrameGeometry, layer: TextureLayer, light: number): void {
+function paintKind(ctx: Ctx, g: FrameGeometry, layer: TextureLayer, light: number, size: number): void {
   const { color: base, seed, amount, scale, strength } = layer;
+  const nature = { color: base, color2: layer.color2, seed, amount, scale, strength, light };
   switch (layer.kind) {
     case 'marble':
       return marble(ctx, g, { base, seed, amount, scale, strength, weight: marbleWeight(layer, light) });
@@ -900,6 +914,30 @@ function paintKind(ctx: Ctx, g: FrameGeometry, layer: TextureLayer, light: numbe
       return crackle(ctx, g, { base, seed, amount, scale, strength, light });
     case 'knurl':
       return knurl(ctx, g, { base, seed, amount, scale, strength, light });
+    case 'crystal':
+      return crystal(ctx, g, size, nature);
+    case 'lava':
+      return lava(ctx, g, size, nature);
+    case 'smoke':
+      return smoke(ctx, g, size, nature);
+    case 'mottled':
+      return mottled(ctx, g, size, nature);
+    case 'lichen':
+      return lichen(ctx, g, size, nature);
+    case 'caustics':
+      return caustics(ctx, g, size, nature);
+    case 'nebula':
+      return nebula(ctx, g, size, nature);
+    case 'feathers':
+      return feathers(ctx, g, nature);
+    case 'filigree':
+      return filigree(ctx, g, nature);
+    case 'circuit':
+      return circuit(ctx, g, nature);
+    case 'bubbles':
+      return bubbles(ctx, g, nature);
+    case 'eyes':
+      return eyes(ctx, g, nature);
   }
 }
 
@@ -912,7 +950,7 @@ export function drawTexture(ctx: Ctx, layer: TextureLayer, g0: FrameGeometry, li
   const paint = (c: Ctx) => {
     c.save();
     clipToBand(c, g);
-    paintKind(c, g, layer, light);
+    paintKind(c, g, layer, light, size);
     c.restore();
   };
   // Marble and veins keep to a side by themselves (as the originals do); the others are faded towards it.

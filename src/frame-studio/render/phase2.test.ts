@@ -46,7 +46,9 @@ describe('shapes', () => {
     const d = draw(project([layer]));
     const g = bandGeometry(project([]).stage, SIZE);
     const t = placement(layer, g)!;
-    expect(rgbAt(d, px(t).x, px(t).y)).toEqual([255, 0, 0]);
+    // A ring and a chevron are hollow where they are anchored.
+    if (shape !== 'ring' && shape !== 'chevron') expect(rgbAt(d, px(t).x, px(t).y)).toEqual([255, 0, 0]);
+    else expect(alphaAt(d, px(t).x, px(t).y)).toBe(0);
     expect(opaque(d)).toBeGreaterThan(20);
     // Nothing at the bottom of the token.
     expect(alphaAt(d, 100, 190)).toBe(0);

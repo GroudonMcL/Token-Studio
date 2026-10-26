@@ -155,6 +155,26 @@ A checklist of build phases, following [`BUILD-PROMPTS.md`](BUILD-PROMPTS.md). D
   - [x] `npm run showcase`; screenshots 27–37
   - [x] Tests: the branch's unit tests for the ornaments, textures, photos, fills, reset buttons and credits (adapted), the four conversions' limits, the v9 fixtures and the version-10 defaults on every older file; Playwright: the four conversions on the real preview, the new repeat, shape and line options, a photo band and its reset, a photo-filled icon ring, the credits
 
+- [x] **Version 11: blending, blur, natural and strange textures, more shapes** (DESIGN.md §4.12). The owner sent six ring frames (gilded filigree, a guild ring with arrow studs, black feathers between copper rims, frosted iron with a lava ring, blurred storm wisps, riveted iron plates) and asked for what it takes to make frames like them, and for them as templates:
+  - [x] Opacity and blend mode in Basic mode too (an "Opacity and blend mode" section on every layer); the knockout beside them
+  - [x] A **Blur** effect: soft, spin (round the token) or zoom (in and out), optionally keeping the layer's own edges
+  - [x] 12 textures: crystal facets, molten lava, smoke and wisps, feathers, filigree scrolls, mottled patina, lichen, water caustics, nebula, arcane circuitry, bubbles, watching eyes (13 library presets); the pixel ones wrap round the band without a seam on every shape
+  - [x] 12 more photo textures (CC0): ember streaks, molten rock, moss, blue and black onyx, plane tree bark, coral stone, dark rock, forest floor, lichen rock, cracked mud, tiger rock
+  - [x] 13 shapes: ring, crescent, half circle, teardrop, almond, cross, arch (round or pointed), trapezoid, chevron, flower, squircle, burst and blob (the last two seeded)
+  - [x] A "Pale gold" material
+  - [x] 7 crafted borders in their own section of New, each with the band thickness it was made for: Gilded filigree, Guild ring (gold and silver), Raven plume, Emberforged, Storm wisps, Riveted plates; `npm run fs:compare-pictures` draws a template beside any reference picture
+  - [x] Schema version 11 with a migration from version 10; version-10 fixture files open and draw as before (versions 1–9 too)
+  - [x] Token Maker's copy of the reader and renderer brought up to date (`npm run fs:share-copy`), so it draws designs that use all this
+  - [x] Tests: the blur (each kind, keeping the shape, no change at 0, files), each new texture on every shape (inside its part of the band, by seed, repeatable), no seam at the top, where a pixel is across the band on every shape, each new shape (in its box, drawn, seeded, a ring's hole), the crafted borders (round trip, every shape, what they use), blend mode in Basic mode, the v10 fixtures
+
+## Known limitations after version 11
+
+- The crafted borders are close to the frames they were made from, not copies: hand-painted detail (the exact scrolls, every plate and rivet) is approximated by seeded textures and repeats.
+- The blur, like the other effects, works on pixels: a large spin or zoom blur on a big export takes a moment.
+- Pixel textures (crystal, lava, smoke, mottled, lichen, caustics, nebula) are worked out at the picture's size, so they look the same at every size but take longer on very large exports than the drawn ones.
+- A ring can't be turned into a path (a path has no holes); faceting a crescent, cross or chevron cuts its outline into faces as if it were a solid block.
+- Still from version 10: photos show as their average colour until loaded; photos bend only on band fills.
+
 ## Known limitations after version 10
 
 - Until a photo has loaded (a moment, the first time a design uses one) it shows as its average colour; exports wait for it.

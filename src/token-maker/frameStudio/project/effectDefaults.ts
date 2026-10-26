@@ -42,6 +42,7 @@ export const NEW_EFFECT: Record<EffectKind, () => Effect> = {
   distort: () => ({ kind: 'distort', on: true, amount: 0.04, scale: 0.3, seed: 1 }),
   extrude: () => ({ kind: 'extrude', on: true, depth: 0.08, shade: 0.55 }),
   offset: () => ({ kind: 'offset', on: true, amount: 0.04 }),
+  blur: () => ({ kind: 'blur', on: true, mode: 'soft', amount: 0.08, keepShape: false }),
 };
 
 /** What each effect is called in the interface. */
@@ -55,4 +56,5 @@ export const EFFECT_NAMES: Record<EffectKind, string> = {
   distort: 'Distortion',
   extrude: 'Sides (extrude)',
   offset: 'Grow or shrink',
+  blur: 'Blur',
 };

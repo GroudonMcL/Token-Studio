@@ -10,7 +10,7 @@ import { saveUserStyle } from '../state/styles';
 import { showMessage } from '../state/messages';
 import { EFFECT_NAMES, NEW_EFFECT } from '../project/defaults';
 import { MATERIALS } from '../project/styles';
-import { BEVEL_PROFILES, EFFECT_KINDS, SURFACES, type BevelProfile, type Effect, type EffectKind, type Layer, type Surface } from '../project/types';
+import { BEVEL_PROFILES, BLUR_MODES, EFFECT_KINDS, SURFACES, type BevelProfile, type BlurMode, type Effect, type EffectKind, type Layer, type Surface } from '../project/types';
 import { commit, copyEffects, pasteEffects, setEffects, useUi } from '../state/projectStore';
 import { ColorField, Field, Select, Slider, Toggle } from './controls';
 import { helpFor, hintId } from './help';
@@ -129,6 +129,12 @@ export function EffectStack({ effects, disabled, advanced, onChange, label = '' 
   );
 }
 
+const BLUR_NAMES: Record<BlurMode, string> = {
+  soft: 'Soft (all round)',
+  spin: 'Spin (round the token)',
+  zoom: 'Zoom (in and out)',
+};
+
 const EFFECT_HINTS: Record<EffectKind, string> = {
   bevel: 'Gives it depth: raised or sunk in, with a surface like hammered metal or cracked stone, lit by the light dial.',
   shadow: 'A soft shadow cast away from the light, behind it or inside its edge.',
@@ -139,6 +145,7 @@ const EFFECT_HINTS: Record<EffectKind, string> = {
   distort: 'Warps it with smooth wobbles: uneven edges, irregular stone, a subtle shimmer.',
   extrude: 'Gives it sides: pushed back away from the light, as if it were a thick raised plate.',
   offset: 'Makes its shape fatter or thinner all round.',
+  blur: 'Softens it: all round, whirled round the token, or streaked in and out from its middle.',
 };
 
 function AddEffect({ disabled, onAdd, label }: { disabled: boolean; onAdd: (k: EffectKind) => void; label: string }) {
@@ -337,6 +344,21 @@ function EffectControls({ effect: e, disabled, advanced, onChange }: { effect: E
         <div className="effect-body">
           {slider('depth', 'Side depth', 0, 0.4, 'How deep the sides are, as a share of the band width.')}
           {slider('shade', 'Side shading', 0, 1, 'How dark the sides are.')}
+        </div>
+      );
+    case 'blur':
+      return (
+        <div className="effect-body">
+          <Select
+            label="Blur kind"
+            hint="Soft blurs it evenly; Spin smears it round the token, like something whirling; Zoom streaks it in and out from the middle."
+            value={e.mode}
+            disabled={disabled}
+            options={BLUR_MODES.map((m) => ({ value: m, label: BLUR_NAMES[m] }))}
+            onChange={(mode) => onChange({ mode })}
+          />
+          {slider('amount', 'Blur amount', 0, 1.5, 'How far it is smeared, as a share of the band width.')}
+          <Toggle label="Keep its shape" hint="Only the inside goes soft; the edges stay where they were." checked={e.keepShape} disabled={disabled} onChange={(keepShape) => onChange({ keepShape })} />
         </div>
       );
     case 'offset':

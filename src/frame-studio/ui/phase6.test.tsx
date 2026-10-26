@@ -129,6 +129,17 @@ describe('facets and the knockout', () => {
     expect(screen.queryByRole('switch', { name: 'Shaded by the light' })).toBeNull();
   });
 
+  it('opacity and the blend mode are offered in Basic mode too', async () => {
+    const shape = shapeLayer();
+    loadProject(createProject([shape]));
+    select(shape.id);
+    const user = userEvent.setup();
+    render(<PropertiesPanel />);
+    await user.selectOptions(screen.getByLabelText('Blend mode'), 'screen');
+    expect(layerOf(shape.id).blend).toBe('screen');
+    expect(screen.getByLabelText('Opacity')).toBeInTheDocument();
+  });
+
   it('the knockout switch makes the layer cut a hole, and hides the blend mode', async () => {
     const shape = shapeLayer();
     loadProject(createProject([shape]));

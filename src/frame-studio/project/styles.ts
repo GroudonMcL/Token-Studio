@@ -21,6 +21,7 @@ const ramp = (...colors: string[]): GradientStop[] => colors.map((color, i) => (
 
 export const MATERIALS: Material[] = [
   { id: 'gold', name: 'Gold', stops: ramp('#2a1404', '#7a4a10', '#c8962a', '#f0d070', '#fffae0') },
+  { id: 'pale-gold', name: 'Pale gold', stops: ramp('#2a2410', '#6e6236', '#b8a66a', '#e6dcae', '#fffbe8') },
   { id: 'silver', name: 'Silver', stops: ramp('#16181c', '#4a5058', '#9aa2ac', '#dfe4ea', '#ffffff') },
   { id: 'bronze', name: 'Bronze', stops: ramp('#1c0e04', '#5a3414', '#9a6430', '#d0a060', '#f6e0b0') },
   { id: 'copper', name: 'Copper', stops: ramp('#1e0804', '#6a2810', '#b8602e', '#eea070', '#ffe4cc') },

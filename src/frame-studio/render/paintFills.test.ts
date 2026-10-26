@@ -66,8 +66,8 @@ describe('ornaments from game-icons.net', () => {
 });
 
 describe('photo textures', () => {
-  it('there are 20, from Poly Haven and ambientCG, each with an average colour', () => {
-    expect(PICTURES).toHaveLength(20);
+  it('there are 32, from Poly Haven and ambientCG, each with an average colour', () => {
+    expect(PICTURES).toHaveLength(32);
     for (const p of PICTURES) expect(p.average).toMatch(/^#[0-9a-f]{6}$/);
   });
 
