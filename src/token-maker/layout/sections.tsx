@@ -44,7 +44,7 @@ const icon = (C: typeof Download) => <C size={18} strokeWidth={1.75} />;
 
 export const SECTIONS: readonly SectionDef[] = [
   { id: 'import', title: 'Import', helpId: 'section.import', icon: icon(ImagePlus), placeholder: 'Upload, drop, paste or link an image.' },
-  { id: 'image', title: 'Image', helpId: 'section.image', icon: icon(SlidersHorizontal), placeholder: 'Adjustments and the erase/restore brush.' },
+  { id: 'image', title: 'Image', helpId: 'section.image', icon: icon(SlidersHorizontal), placeholder: 'Adjustments.' },
   { id: 'background', title: 'Background', helpId: 'section.background', icon: icon(Mountain), placeholder: 'Background removal, and a colour, gradient or image behind the art.' },
   { id: 'frame', title: 'Frame & shape', helpId: 'section.frame', icon: icon(Frame), placeholder: 'Shape, border style, colour and thickness.' },
   { id: 'popout', title: 'Pop-out', helpId: 'section.popout', icon: icon(Maximize2), placeholder: 'Paint parts of the art over the border.' },

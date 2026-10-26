@@ -34,15 +34,18 @@ async function hasWebGpu(): Promise<boolean> {
 
 function load(onProgress: (p: number) => void): Promise<Segmenter> {
   segmenter ??= (async () => {
-    const device = (await hasWebGpu()) ? 'webgpu' : 'wasm';
-    const seg = await pipeline('image-segmentation', AI_MODEL, {
-      device,
-      dtype: 'fp16',
-      progress_callback: (info: { status: string; progress?: number }) => {
-        if (info.status === 'progress_total' && typeof info.progress === 'number') onProgress(info.progress);
-      },
-    });
-    return seg as unknown as Segmenter;
+    const progress_callback = (info: { status: string; progress?: number }) => {
+      if (info.status === 'progress_total' && typeof info.progress === 'number') onProgress(info.progress);
+    };
+    // fp16 weights only run on the GPU; the CPU (wasm) backend can't run them, so it needs the full-size model.
+    if (await hasWebGpu()) {
+      try {
+        return (await pipeline('image-segmentation', AI_MODEL, { device: 'webgpu', dtype: 'fp16', progress_callback })) as unknown as Segmenter;
+      } catch (err) {
+        console.warn('AI cut-out: WebGPU failed, falling back to the CPU', err);
+      }
+    }
+    return (await pipeline('image-segmentation', AI_MODEL, { device: 'wasm', dtype: 'fp32', progress_callback })) as unknown as Segmenter;
   })().catch((err) => {
     segmenter = null; // try again next time
     throw err;
@@ -61,6 +64,7 @@ self.onmessage = async (e: MessageEvent<AiRequest>) => {
     const data = mask.channels === 1 ? Uint8Array.from(mask.data) : Uint8Array.from({ length: mask.width * mask.height }, (_, i) => mask.data[i * mask.channels]!);
     post({ type: 'done', id, mask: data, width: mask.width, height: mask.height }, [data.buffer]);
   } catch (err) {
+    console.error('AI cut-out failed', err);
     post({ type: 'failed', id, message: err instanceof Error ? err.message : String(err) });
   }
 };

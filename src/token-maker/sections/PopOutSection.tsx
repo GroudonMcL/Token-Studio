@@ -9,7 +9,7 @@ const setPopOut = (patch: Partial<PopOutSettings>) => updateDoc((d) => ({ ...d, 
 /**
  * Pop-out section (DESIGN.md §6.6): paint the parts of the art (horns, a
  * head, a sword) that are drawn over the border. The brush shares its size,
- * softness and pen pressure with the Image section's erase/restore brush.
+ * softness and pen pressure with the Background section's erase/restore brush.
  */
 export function PopOutSection() {
   const hasArt = useDoc((d) => d.art.assetId !== null);
