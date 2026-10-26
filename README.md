@@ -1,6 +1,6 @@
 # Token Studio
 
-**Token Maker** and **Frame Studio** in one web app. Token Maker makes tokens for D&D and other tabletop RPGs; Frame Studio designs the frames that go round them. The app titles at the left of each app's top bar switch between the apps. Both stay open while you switch, so you lose nothing. The swatch-book button in either app's top bar picks one of ten colour schemes for both apps (`src/shell/palettes.css`).
+**Token Maker** and **Frame Studio** in one web app. Token Maker makes tokens for D&D and other tabletop RPGs; Frame Studio designs the frames that go round them. The app titles at the left of each app's top bar switch between the apps. Both stay open while you switch, so you lose nothing. The swatch-book button in either app's top bar picks the colour scheme for both apps: Graphite on navy unless another is picked (`src/shell/palettes.css`).
 
 **Sending a frame from Frame Studio to Token Maker:** in Frame Studio, click **Export**. Inside Token Studio the menu starts on **Frame for Token Maker**. Click **Send to Token Maker**. Token Studio switches to Token Maker, which uses the design as the token's frame and keeps it in its list of Frame Studio designs (**Frame & shape → Frame type → Frame Studio**). Nothing is downloaded.
 
