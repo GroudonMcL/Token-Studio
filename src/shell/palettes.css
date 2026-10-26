@@ -206,6 +206,30 @@
   --glow: none;
 }
 
+/* Graphite panels on a navy page: navy from the top of the page to the bottom. */
+:root:not([data-theme='light'])[data-palette='midnight'],
+.palette-preview[data-palette='midnight'] {
+  --bg-top: #142645;
+  --bg: #0a1222;
+  --bg-gradient: linear-gradient(180deg, #172c50 0%, #10203b 40%, #0b1528 75%, #0a1222 100%);
+  --surface: #26292d;
+  --surface-raised: #2f3337;
+  --surface-sunken: #131a26;
+  --border: #383c41;
+  --border-strong: #50565c;
+  --text: #ecedee;
+  --text-muted: #b2b7bc;
+  --text-faint: #8a9096;
+  --accent: #d9ac5a;
+  --accent-hover: #e6bf78;
+  --accent-soft: rgba(217, 172, 90, 0.16);
+  --on-accent: #1a1206;
+  --focus: #f0c470;
+  --checker-a: #222b3a;
+  --checker-b: #1c2431;
+  --glow: none;
+}
+
 /* Grey slate with a lagoon-cyan focus and gold buttons. */
 :root:not([data-theme='light'])[data-palette='slate'],
 .palette-preview[data-palette='slate'] {

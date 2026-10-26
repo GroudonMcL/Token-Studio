@@ -14,6 +14,7 @@ export const PALETTES = [
   { id: 'glass', name: 'Glass tide', note: 'Royal blue to cyan, like frosted glass.' },
   { id: 'obsidian', name: 'Obsidian glow', note: 'Near-black, with a gold glow on what is chosen.' },
   { id: 'graphite', name: 'Graphite', note: 'Quiet neutral greys, gold for what matters.' },
+  { id: 'midnight', name: 'Graphite on navy', note: 'Graphite panels on a navy page, top to bottom.' },
   { id: 'slate', name: 'Slate lagoon', note: 'Grey slate with lagoon-cyan focus and gold.' },
   { id: 'verdigris', name: 'Verdigris', note: 'Blue-green copper patina and brass.' },
 ] as const;
