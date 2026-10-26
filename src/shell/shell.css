@@ -1,4 +1,4 @@
-/* Token Studio's shell: a slim bar with the two app titles, and the apps below it. */
+/* Token Studio's shell: the two apps, one shown at a time. Each app's own top bar has the titles that switch between them. */
 *,
 *::before,
 *::after {
@@ -13,7 +13,7 @@ body,
 }
 
 body {
-  background: var(--bg);
+  background: var(--bg-gradient), var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
   font-size: var(--text-md);
@@ -28,66 +28,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-}
-
-.studio__bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3, 12px);
-  flex: none;
-  min-height: 44px;
-  padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
-  background: var(--bg-top);
-  border-bottom: 1px solid var(--border);
-}
-
-.studio__logo {
-  flex: none;
-}
-
-.studio__apps {
-  display: flex;
-  gap: 4px;
-  align-self: stretch;
-}
-
-.studio__app {
-  position: relative;
-  padding: 0 14px;
-  border: 0;
-  background: none;
-  color: var(--text-muted);
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-  transition: color var(--dur-fast) var(--ease);
-}
-
-.studio__app:hover {
-  color: var(--text);
-}
-
-.studio__app[aria-pressed='true'] {
-  color: var(--accent);
-}
-
-.studio__app[aria-pressed='true']::after {
-  content: '';
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: -1px;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
-  background: var(--accent);
-}
-
-.studio__app:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: -4px;
-  border-radius: var(--radius-sm);
 }
 
 .studio__frames {
@@ -109,11 +49,4 @@ body {
 
 .studio__frame[data-active='true'] {
   visibility: visible;
-}
-
-@media (max-width: 420px) {
-  .studio__app {
-    padding: 0 8px;
-    font-size: var(--text-lg);
-  }
 }

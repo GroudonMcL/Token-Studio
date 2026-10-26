@@ -5,6 +5,7 @@ import '@fontsource/grenze/600.css';
 import '@fontsource/atkinson-hyperlegible/400.css';
 import '@fontsource/atkinson-hyperlegible/700.css';
 import './styles/tokens.css';
+import '../shell/palettes.css';
 import './styles/app.css';
 import { App } from './App';
 

@@ -7,6 +7,12 @@
     <meta name="theme-color" content="#0f1a2e" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Frame Studio</title>
+    <script>
+      // Token Studio's colour scheme (src/shell/palettes.css), also before the page paints.
+      try {
+        document.documentElement.setAttribute('data-palette', localStorage.getItem('ts.palette') || 'lamplit');
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

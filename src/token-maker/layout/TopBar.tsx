@@ -5,12 +5,14 @@ import { redo, undo, useCanRedo, useCanUndo } from '../state/tokenStore';
 import { Toggle } from '../components';
 import { Link } from '../components/Link';
 import { useTheme, type ThemeChoice } from '../hooks/useTheme';
+import { AppSwitch } from '../../shell/AppSwitch';
+import { PalettePicker } from '../../shell/PalettePicker';
 import { BrandMark } from './BrandMark';
 
 const NEXT_THEME: Record<ThemeChoice, ThemeChoice> = { dark: 'light', light: 'dark' };
 const THEME_ICON = { dark: Moon, light: Sun };
 
-/** Logo, Batch toggle, Undo/Redo, New (DESIGN.md §8). */
+/** Logo, Batch toggle, Undo/Redo, New (DESIGN.md §8). Inside Token Studio the title is the switch between the apps. */
 export function TopBar({ compact }: { compact: boolean }) {
   const batch = useBatch((b) => b.on);
   const setBatch = (on: boolean) => {
@@ -24,10 +26,17 @@ export function TopBar({ compact }: { compact: boolean }) {
   const canRedo = useCanRedo();
   return (
     <header className="topbar">
-      <Link href="/" className="topbar__brand" aria-label="Token Maker home">
-        <BrandMark />
-        {!compact && <span className="topbar__name">Token Maker</span>}
-      </Link>
+      <AppSwitch
+        current="token-maker"
+        compact={compact}
+        logo={!compact && <BrandMark />}
+        standalone={
+          <Link href="/" className="topbar__brand" aria-label="Token Maker home">
+            <BrandMark />
+            {!compact && <span className="topbar__name">Token Maker</span>}
+          </Link>
+        }
+      />
       <div className="topbar__spacer" />
       <Toggle label="Batch" helpId="topbar.batch" checked={batch} onChange={setBatch} helpButton />
       <div className="topbar__group" role="group" aria-label="History">
@@ -44,6 +53,7 @@ export function TopBar({ compact }: { compact: boolean }) {
         {compact && <span className="visually-hidden">New</span>}
       </button>
       <div className="topbar__group" data-control="theme" data-help-id="topbar.theme">
+        <PalettePicker />
         <button
           type="button"
           className="icon-btn"

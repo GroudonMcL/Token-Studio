@@ -1,0 +1,255 @@
+/*
+ * Token Studio's colour schemes, shared by the page and both apps. Each one
+ * replaces the dark theme's colours from tokens.css (the light theme keeps its
+ * own). Chosen in either app (the swatch-book button) and remembered as
+ * 'ts.palette'; palettes.ts lists them and palettes.test.ts checks contrast.
+ *
+ * The same blocks also colour each scheme's preview swatch in the picker
+ * (.palette-preview), so the picker always shows what a scheme really is.
+ *
+ * --glow is the soft halo round the chosen item (the active app, the picked
+ * layer); --panel-tint lays a faint colour over panels.
+ */
+
+:root {
+  --glow: none;
+}
+
+:root:not([data-theme='light'])[data-palette='lamplit'],
+.palette-preview[data-palette='lamplit'] {
+  --bg-top: #0f1a2e;
+  --bg: #16130f;
+  --bg-gradient: linear-gradient(180deg, #0f1a2e 0%, #141721 32%, #16130f 70%);
+  --surface: #211d18;
+  --surface-raised: #2a251f;
+  --surface-sunken: #110f0c;
+  --border: #3a332a;
+  --border-strong: #574c3e;
+  --text: #f1e9dc;
+  --text-muted: #b3a794;
+  --text-faint: #8a7f6f;
+  --accent: #d6a24e;
+  --accent-hover: #e3b469;
+  --accent-soft: rgba(214, 162, 78, 0.18);
+  --on-accent: #1a1206;
+  --focus: #f0c470;
+  --checker-a: #2a251f;
+  --checker-b: #221e19;
+  --glow: none;
+}
+
+/* Grey-navy panels under the navy top, cyan in the borders, gold highlights. */
+:root:not([data-theme='light'])[data-palette='harbour'],
+.palette-preview[data-palette='harbour'] {
+  --bg-top: #0f1a2e;
+  --bg: #121821;
+  --bg-gradient: linear-gradient(180deg, #0f1a2e 0%, #12202b 38%, #121821 75%);
+  --surface: #18212c;
+  --surface-raised: #212c39;
+  --surface-sunken: #0c1118;
+  --border: #2b3a48;
+  --border-strong: #43596c;
+  --text: #e9eef2;
+  --text-muted: #a9b6c2;
+  --text-faint: #7f8e9b;
+  --accent: #d9a94f;
+  --accent-hover: #e7bd6d;
+  --accent-soft: rgba(217, 169, 79, 0.18);
+  --on-accent: #1a1206;
+  --focus: #f0c470;
+  --checker-a: #212c39;
+  --checker-b: #1a232e;
+  --glow: 0 0 0 1px rgba(217, 169, 79, 0.35), 0 0 14px rgba(217, 169, 79, 0.18);
+}
+
+/* Navy at the top running down into dark cyan. */
+:root:not([data-theme='light'])[data-palette='teal'],
+.palette-preview[data-palette='teal'] {
+  --bg-top: #0e1c2e;
+  --bg: #0d1a1d;
+  --bg-gradient: linear-gradient(180deg, #0e1c2e 0%, #0f2329 40%, #0d1a1d 80%);
+  --surface: #12262a;
+  --surface-raised: #183237;
+  --surface-sunken: #091315;
+  --border: #244247;
+  --border-strong: #366168;
+  --text: #e6f1ef;
+  --text-muted: #a2bdb9;
+  --text-faint: #789893;
+  --accent: #e0b13f;
+  --accent-hover: #ecc463;
+  --accent-soft: rgba(224, 177, 63, 0.17);
+  --on-accent: #1a1206;
+  --focus: #f2c75e;
+  --checker-a: #183237;
+  --checker-b: #132a2e;
+  --glow: 0 0 0 1px rgba(224, 177, 63, 0.35), 0 0 16px rgba(42, 150, 160, 0.3);
+}
+
+/* The "sea from space" swatches: deep indigo, ocean blue, teal, seafoam and gold. */
+:root:not([data-theme='light'])[data-palette='sea'],
+.palette-preview[data-palette='sea'] {
+  --bg-top: #0b1030;
+  --bg: #0d1530;
+  --bg-gradient: linear-gradient(160deg, #0b1030 0%, #172552 45%, #123c48 100%);
+  --surface: #151e40;
+  --surface-raised: #1e2a50;
+  --surface-sunken: #090d24;
+  --border: #2d3c6a;
+  --border-strong: #47598f;
+  --text: #eef1fa;
+  --text-muted: #aab4d4;
+  --text-faint: #8190bb;
+  --accent: #dcb03a;
+  --accent-hover: #e8c35c;
+  --accent-soft: rgba(220, 176, 58, 0.18);
+  --on-accent: #1a1206;
+  --focus: #5bbf9f;
+  --checker-a: #1e2a50;
+  --checker-b: #182246;
+  --glow: 0 0 0 1px rgba(91, 191, 159, 0.4), 0 0 16px rgba(42, 150, 160, 0.35);
+}
+
+/* Indigo and dusk violet, with warm gold. */
+:root:not([data-theme='light'])[data-palette='abyss'],
+.palette-preview[data-palette='abyss'] {
+  --bg-top: #0b1030;
+  --bg: #0f0f24;
+  --bg-gradient: linear-gradient(180deg, #0b1030 0%, #14143a 40%, #0f0f24 80%);
+  --surface: #1a1934;
+  --surface-raised: #24233f;
+  --surface-sunken: #0a0a1a;
+  --border: #33315a;
+  --border-strong: #4c4980;
+  --text: #eeecf7;
+  --text-muted: #b0add0;
+  --text-faint: #8784ae;
+  --accent: #e2b448;
+  --accent-hover: #edc66b;
+  --accent-soft: rgba(226, 180, 72, 0.17);
+  --on-accent: #1a1206;
+  --focus: #f0c470;
+  --checker-a: #24233f;
+  --checker-b: #1d1c37;
+  --glow: 0 0 0 1px rgba(226, 180, 72, 0.35), 0 0 18px rgba(120, 100, 220, 0.25);
+}
+
+/* Bright royal blue to cyan, like frosted glass over water. */
+:root:not([data-theme='light'])[data-palette='glass'],
+.palette-preview[data-palette='glass'] {
+  --bg-top: #0a1f6b;
+  --bg: #0b1a4a;
+  --bg-gradient: linear-gradient(135deg, #071a63 0%, #0d3a85 55%, #1d7fa3 100%);
+  --surface: #10255c;
+  --surface-raised: #17326f;
+  --surface-sunken: #08164a;
+  --border: #2a4c92;
+  --border-strong: #4a70b8;
+  --text: #f0f5ff;
+  --text-muted: #b6c6e8;
+  --text-faint: #8ea4d0;
+  --accent: #f0c14b;
+  --accent-hover: #f6d273;
+  --accent-soft: rgba(240, 193, 75, 0.18);
+  --on-accent: #1a1206;
+  --focus: #7fd6f0;
+  --checker-a: #17326f;
+  --checker-b: #122a63;
+  --glow: 0 0 0 1px rgba(255, 255, 255, 0.22), 0 0 18px rgba(127, 214, 240, 0.3);
+}
+
+/* Near-black, with a gold glow on whatever is chosen. */
+:root:not([data-theme='light'])[data-palette='obsidian'],
+.palette-preview[data-palette='obsidian'] {
+  --bg-top: #111114;
+  --bg: #0c0c0e;
+  --bg-gradient: radial-gradient(120% 80% at 50% 0%, #1a1a20 0%, #0c0c0e 60%);
+  --surface: #151518;
+  --surface-raised: #1e1e23;
+  --surface-sunken: #08080a;
+  --border: #2a2a31;
+  --border-strong: #3f3f49;
+  --text: #ededf0;
+  --text-muted: #a9a9b4;
+  --text-faint: #80808c;
+  --accent: #e5b450;
+  --accent-hover: #f0c672;
+  --accent-soft: rgba(229, 180, 80, 0.15);
+  --on-accent: #1a1206;
+  --focus: #f0c470;
+  --checker-a: #1e1e23;
+  --checker-b: #18181c;
+  --glow: 0 0 0 1px rgba(229, 180, 80, 0.45), 0 0 20px rgba(229, 180, 80, 0.28);
+}
+
+/* Neutral graphite, like a writing app: quiet panels, gold for what matters. */
+:root:not([data-theme='light'])[data-palette='graphite'],
+.palette-preview[data-palette='graphite'] {
+  --bg-top: #1b1d20;
+  --bg: #1e2124;
+  --bg-gradient: linear-gradient(180deg, #1b1d20 0%, #1e2124 100%);
+  --surface: #26292d;
+  --surface-raised: #2f3337;
+  --surface-sunken: #17191b;
+  --border: #383c41;
+  --border-strong: #50565c;
+  --text: #ecedee;
+  --text-muted: #b2b7bc;
+  --text-faint: #8a9096;
+  --accent: #d9ac5a;
+  --accent-hover: #e6bf78;
+  --accent-soft: rgba(217, 172, 90, 0.16);
+  --on-accent: #1a1206;
+  --focus: #f0c470;
+  --checker-a: #2f3337;
+  --checker-b: #292c30;
+  --glow: none;
+}
+
+/* Grey slate with a lagoon-cyan focus and gold buttons. */
+:root:not([data-theme='light'])[data-palette='slate'],
+.palette-preview[data-palette='slate'] {
+  --bg-top: #14243a;
+  --bg: #182029;
+  --bg-gradient: linear-gradient(180deg, #14243a 0%, #172d38 40%, #182029 80%);
+  --surface: #1e2832;
+  --surface-raised: #27333f;
+  --surface-sunken: #11171d;
+  --border: #34424f;
+  --border-strong: #4d6070;
+  --text: #eaf0f3;
+  --text-muted: #a9b9c3;
+  --text-faint: #82939e;
+  --accent: #e3b65a;
+  --accent-hover: #edc77a;
+  --accent-soft: rgba(227, 182, 90, 0.17);
+  --on-accent: #1a1206;
+  --focus: #4fc3c8;
+  --checker-a: #27333f;
+  --checker-b: #212c37;
+  --glow: 0 0 0 1px rgba(79, 195, 200, 0.4), 0 0 14px rgba(79, 195, 200, 0.2);
+}
+
+/* Weathered copper: blue-green patina and brass. */
+:root:not([data-theme='light'])[data-palette='verdigris'],
+.palette-preview[data-palette='verdigris'] {
+  --bg-top: #0e2228;
+  --bg: #101c1c;
+  --bg-gradient: linear-gradient(180deg, #0e2228 0%, #112523 40%, #101c1c 80%);
+  --surface: #172826;
+  --surface-raised: #1f3431;
+  --surface-sunken: #0b1514;
+  --border: #2a4541;
+  --border-strong: #3f6560;
+  --text: #e8f2ee;
+  --text-muted: #a7c2ba;
+  --text-faint: #7d9c94;
+  --accent: #d8a54a;
+  --accent-hover: #e6b967;
+  --accent-soft: rgba(216, 165, 74, 0.17);
+  --on-accent: #1a1206;
+  --focus: #f0c470;
+  --checker-a: #1f3431;
+  --checker-b: #1a2d2a;
+  --glow: 0 0 0 1px rgba(216, 165, 74, 0.35), 0 0 14px rgba(91, 191, 159, 0.2);
+}

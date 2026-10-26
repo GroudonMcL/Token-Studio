@@ -1,34 +1,47 @@
 import { expect, test } from '@playwright/test';
 
-// Token Studio's page: the title buttons switch between the two apps, and a
-// design sent from Frame Studio becomes Token Maker's frame.
+// Token Studio's page: the app titles in each app's top bar switch between
+// the two apps, and a design sent from Frame Studio becomes Token Maker's frame.
 
-test('the title buttons switch between Token Maker and Frame Studio', async ({ page }) => {
+test("the app titles in each app's top bar switch between Token Maker and Frame Studio", async ({ page }) => {
   await page.goto('/');
-  const tokenMakerButton = page.getByRole('button', { name: 'Token Maker', exact: true });
-  const frameStudioButton = page.getByRole('button', { name: 'Frame Studio', exact: true });
-  await expect(tokenMakerButton).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.frameLocator('iframe[title="Token Maker"]').getByRole('button', { name: /upload image/i }).first()).toBeVisible();
+  // There is no bar of its own above the apps.
+  await expect(page.locator('body > #root header')).toHaveCount(0);
+  const maker = page.frameLocator('iframe[title="Token Maker"]');
+  const studio = page.frameLocator('iframe[title="Frame Studio"]');
+  await expect(maker.getByRole('button', { name: 'Token Maker', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(maker.getByRole('button', { name: /upload image/i }).first()).toBeVisible();
   await expect(page.locator('iframe[title="Frame Studio"]')).toHaveCount(0);
 
-  await frameStudioButton.click();
-  await expect(frameStudioButton).toHaveAttribute('aria-pressed', 'true');
+  await maker.getByRole('button', { name: 'Frame Studio', exact: true }).click();
   await expect(page.locator('iframe[title="Frame Studio"]')).toBeVisible();
   await expect(page.locator('iframe[title="Token Maker"]')).toBeHidden();
-  await expect(page.frameLocator('iframe[title="Frame Studio"]').getByRole('button', { name: 'Export' })).toBeVisible();
+  await expect(studio.getByRole('button', { name: 'Frame Studio', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(studio.getByRole('button', { name: 'Export' })).toBeVisible();
 
   // The choice is remembered.
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Frame Studio', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('iframe[title="Frame Studio"]')).toBeVisible();
 
-  await tokenMakerButton.click();
+  await studio.getByRole('button', { name: 'Token Maker', exact: true }).click();
   await expect(page.locator('iframe[title="Token Maker"]')).toBeVisible();
   await expect(page.locator('iframe[title="Frame Studio"]')).toBeHidden();
 });
 
+test('a colour scheme picked in one app colours both', async ({ page }) => {
+  await page.goto('/');
+  const maker = page.frameLocator('iframe[title="Token Maker"]');
+  await maker.getByRole('button', { name: 'Colour scheme' }).click();
+  await maker.getByRole('menuitemradio', { name: /Deep current/ }).click();
+  await expect(maker.locator('html')).toHaveAttribute('data-palette', 'teal');
+  await maker.getByRole('button', { name: 'Frame Studio', exact: true }).click();
+  await expect(page.frameLocator('iframe[title="Frame Studio"]').locator('html')).toHaveAttribute('data-palette', 'teal');
+  await expect(page.locator('html')).toHaveAttribute('data-palette', 'teal');
+});
+
 test('Send to Token Maker uses the Frame Studio design as the token frame', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Frame Studio', exact: true }).click();
+  await page.frameLocator('iframe[title="Token Maker"]').getByRole('button', { name: 'Frame Studio', exact: true }).click();
   const studio = page.frameLocator('iframe[title="Frame Studio"]');
   const name = await studio.getByRole('textbox', { name: 'Project name' }).inputValue();
   // In Token Studio, Export starts on "Frame for Token Maker".
@@ -36,7 +49,7 @@ test('Send to Token Maker uses the Frame Studio design as the token frame', asyn
   await expect(studio.getByRole('combobox', { name: 'Export as' })).toHaveValue('tokenMaker');
   await studio.getByRole('button', { name: 'Send to Token Maker' }).click();
 
-  await expect(page.getByRole('button', { name: 'Token Maker', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('iframe[title="Token Maker"]')).toBeVisible();
   const maker = page.frameLocator('iframe[title="Token Maker"]');
   await expect(maker.getByText(`Opened "${name}" as the frame.`)).toBeVisible();
   // It is kept in Token Maker's design library too.

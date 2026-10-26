@@ -1,11 +1,15 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { loadAutosave, startAutosave } from './state/autosave';
 import { findLayer, isLocked } from './project/tree';
 import { deleteLayer, duplicateLayer, groupSelected, loadProject, redo, ui, undo, ungroup, history } from './state/projectStore';
 import { copyPicked, cutPicked, pasteLayers } from './state/clipboard';
 import { clearMessage, showMessage, useMessage } from './state/messages';
+import { useProject } from './state/projectStore';
 import { projectFromFrame } from './project/defaults';
 import { LayersPanel } from './ui/LayersPanel';
+import { LightingPanel } from './ui/LightingPanel';
+import { PanelResizer } from './ui/PanelResizer';
+import { readPanelWidth } from './ui/panelWidth';
 import { LibraryDialog } from './ui/LibraryDialog';
 import { PropertiesPanel } from './ui/PropertiesPanel';
 import { pathEditKey } from './ui/pathKeys';
@@ -40,6 +44,11 @@ export function App() {
   const [sheet, setSheet] = useState<'layers' | 'properties'>('layers');
   const narrow = useMediaQuery(NARROW_QUERY);
   const message = useMessage();
+  const stage = useProject().stage;
+  // The side panels' widths, dragged with the handles on their inner edges (null: the layout's own).
+  const [layersWidth, setLayersWidth] = useState<number | null>(() => readPanelWidth('layers'));
+  const [propertiesWidth, setPropertiesWidth] = useState<number | null>(() => readPanelWidth('properties'));
+  const workspace = useRef<HTMLElement>(null);
 
   // Pick up where the last visit left off; a first visit starts with Stamped.
   useEffect(() => {
@@ -114,11 +123,21 @@ export function App() {
 
   if (!ready) return <div className="loading">Loading Frame Studio…</div>;
 
-  const layers = <LayersPanel onAddFrame={() => setDialog('addFrame')} onAddTexture={() => setDialog('texture')} onOpenLibrary={() => setDialog('library')} />;
+  // The lighting card sits above the layers.
+  const layers = (
+    <div className="side-column">
+      <LightingPanel stage={stage} />
+      <LayersPanel onAddFrame={() => setDialog('addFrame')} onAddTexture={() => setDialog('texture')} onOpenLibrary={() => setDialog('library')} />
+    </div>
+  );
+  const widths = {
+    ...(layersWidth !== null && { '--layers-w': `${layersWidth}px` }),
+    ...(propertiesWidth !== null && { '--props-w': `${propertiesWidth}px` }),
+  } as CSSProperties;
 
   return (
     <div className={`app${narrow ? ' narrow' : ''}`}>
-      <TopBar onNew={() => setDialog('new')} onHelp={() => setWelcome(true)} onMessage={showMessage} onVary={() => setDialog('vary')} onTheme={() => setDialog('theme')} />
+      <TopBar narrow={narrow} onNew={() => setDialog('new')} onHelp={() => setWelcome(true)} onMessage={showMessage} onVary={() => setDialog('vary')} onTheme={() => setDialog('theme')} />
       {narrow ? (
         <main className="workspace narrow">
           <Stage />
@@ -153,10 +172,12 @@ export function App() {
           </div>
         </main>
       ) : (
-        <main className="workspace">
+        <main className="workspace" ref={workspace} style={widths}>
           {layers}
           <Stage />
           <PropertiesPanel />
+          <PanelResizer side="layers" width={layersWidth} onChange={setLayersWidth} panel={() => workspace.current?.querySelector('.side-column') ?? null} />
+          <PanelResizer side="properties" width={propertiesWidth} onChange={setPropertiesWidth} panel={() => workspace.current?.querySelector('.panel.properties') ?? null} />
         </main>
       )}
       {message && (

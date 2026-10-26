@@ -1,16 +1,13 @@
 // Token Studio: Token Maker and Frame Studio on one page. Each app runs in
-// its own frame (so their styles and keyboard shortcuts stay apart), and the
-// title buttons at the top switch between them. A design Frame Studio sends
-// is passed on to Token Maker, which uses it as the token's frame.
+// its own frame (so their styles and keyboard shortcuts stay apart). The app
+// titles in each app's top bar switch between them (AppSwitch.tsx): the app
+// asks this page to show the other one. A design Frame Studio sends is passed
+// on to Token Maker, which uses it as the token's frame.
 
 import { useEffect, useRef, useState } from 'react';
 
-type AppId = 'token-maker' | 'frame-studio';
-
-const APPS: { id: AppId; title: string; src: string }[] = [
-  { id: 'token-maker', title: 'Token Maker', src: '/token-maker/' },
-  { id: 'frame-studio', title: 'Frame Studio', src: '/frame-studio/' },
-];
+import { APPS, SHOW_APP_MESSAGE, type AppId } from './studioApps';
+import { PALETTE_KEY, readPalette, applyPalette } from './palettes';
 
 /** Messages between the shell and the apps (see the apps' studioBridge.ts and tokenStudio.ts). */
 const SEND_FRAME_MESSAGE = 'token-studio:send-frame';
@@ -56,8 +53,11 @@ export function Shell() {
     };
     const onMessage = (e: MessageEvent) => {
       if (e.origin !== origin) return;
-      const data = e.data as { type?: unknown; text?: unknown } | null;
-      if (data?.type === READY_MESSAGE && e.source === tokenMaker.current?.contentWindow) {
+      const data = e.data as { type?: unknown; text?: unknown; app?: unknown } | null;
+      const fromApp = e.source === tokenMaker.current?.contentWindow || e.source === frameStudio.current?.contentWindow;
+      if (data?.type === SHOW_APP_MESSAGE && fromApp && APPS.some((a) => a.id === data.app)) {
+        show(data.app as AppId);
+      } else if (data?.type === READY_MESSAGE && e.source === tokenMaker.current?.contentWindow) {
         tokenMakerReady.current = true;
         deliver();
       } else if (data?.type === SEND_FRAME_MESSAGE && typeof data.text === 'string' && e.source === frameStudio.current?.contentWindow) {
@@ -66,9 +66,10 @@ export function Shell() {
         deliver();
       }
     };
-    // Token Maker's theme also colours this bar.
+    // Token Maker's theme and the colour scheme also colour this page (seen while an app loads).
     const onStorage = (e: StorageEvent) => {
       if (e.key === THEME_KEY) document.documentElement.setAttribute('data-theme', e.newValue === 'light' ? 'light' : 'dark');
+      if (e.key === PALETTE_KEY) applyPalette(readPalette());
     };
     window.addEventListener('message', onMessage);
     window.addEventListener('storage', onStorage);
@@ -80,16 +81,6 @@ export function Shell() {
 
   return (
     <div className="studio">
-      <header className="studio__bar">
-        <img className="studio__logo" src="/favicon.svg" alt="" width={24} height={24} />
-        <nav className="studio__apps" aria-label="Apps">
-          {APPS.map((a) => (
-            <button key={a.id} type="button" className="studio__app" aria-pressed={app === a.id} onClick={() => show(a.id)}>
-              {a.title}
-            </button>
-          ))}
-        </nav>
-      </header>
       <main className="studio__frames">
         {APPS.map(
           (a) =>

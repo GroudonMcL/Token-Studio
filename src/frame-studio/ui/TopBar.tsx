@@ -1,6 +1,7 @@
-// The top bar: project name, New / Open / Save / Export, Undo / Redo, the
-// Basic / Advanced switch and Help (the welcome card). On a narrow screen the
-// buttons show only their icons; their names are still read out.
+// The top bar: the app switch (inside Token Studio; the title on its own
+// page), project name, New / Open / Save / Export, Undo / Redo, the Basic /
+// Advanced switch, the colour scheme and Help (the welcome card). On a narrow
+// screen the buttons show only their icons; their names are still read out.
 
 import { useEffect, useRef, useState } from 'react';
 import { CircleHelp, Dices, Download, FilePlus2, FolderOpen, Image as ImageIcon, Palette, Redo2, Save, Send, Undo2 } from 'lucide-react';
@@ -20,6 +21,8 @@ import {
   saveProjectWithPreview,
 } from '../io/files';
 import { inTokenStudio, sendToTokenMaker } from '../io/tokenStudio';
+import { AppSwitch } from '../../shell/AppSwitch';
+import { PalettePicker } from '../../shell/PalettePicker';
 import { loadProject, redo, renameProject, setMode, undo, useCanRedo, useCanUndo, useProject, useUi, history } from '../state/projectStore';
 import { Field, Select, Segmented, Toggle } from './controls';
 import { helpFor, hintId } from './help';
@@ -35,7 +38,7 @@ const EXPORT_KINDS: { value: ExportKind; label: string }[] = [
   { value: 'project', label: 'Project file with a preview' },
 ];
 
-export function TopBar({ onNew, onHelp, onMessage, onVary, onTheme }: { onNew: () => void; onHelp: () => void; onMessage: (text: string, error?: boolean) => void; onVary?: () => void; onTheme?: () => void }) {
+export function TopBar({ onNew, onHelp, onMessage, onVary, onTheme, narrow = false }: { onNew: () => void; onHelp: () => void; onMessage: (text: string, error?: boolean) => void; onVary?: () => void; onTheme?: () => void; narrow?: boolean }) {
   const project = useProject();
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
@@ -63,10 +66,17 @@ export function TopBar({ onNew, onHelp, onMessage, onVary, onTheme }: { onNew: (
 
   return (
     <header className="topbar">
-      <div className="brand">
-        <img src="/favicon.svg" alt="" width={26} height={26} />
-        <span>Frame Studio</span>
-      </div>
+      <AppSwitch
+        current="frame-studio"
+        compact={narrow}
+        logo={<img className="brand-logo" src="/favicon.svg" alt="" width={26} height={26} />}
+        standalone={
+          <div className="brand">
+            <img src="/favicon.svg" alt="" width={26} height={26} />
+            <span>Frame Studio</span>
+          </div>
+        }
+      />
       <input className="project-name" aria-label="Project name" key={project.name} defaultValue={project.name} onBlur={(e) => e.target.value !== project.name && renameProject(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} />
       <nav className="actions" aria-label="Project">
         <button type="button" className="btn" onClick={onNew} title="Start a new design from a template or a blank page">
@@ -217,6 +227,7 @@ export function TopBar({ onNew, onHelp, onMessage, onVary, onTheme }: { onNew: (
         ]}
         onChange={setMode}
       />
+      <PalettePicker />
       <button type="button" className="icon-btn" aria-label="Help" title="Show the welcome card with tips again" onClick={onHelp}>
         <CircleHelp size={18} />
       </button>
