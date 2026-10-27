@@ -1,11 +1,11 @@
 import { ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff, Trash2, Upload } from 'lucide-react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import { ColorSwatches, ControlLabel, Slider, Toggle } from '../components';
 import { DECORATION_GROUPS, DECORATIONS, decorationInfo, MAX_DECORATIONS, newDecoration } from '../document/defaults';
 import type { Decoration, DecorationKind, SnapPoint } from '../document/types';
 import { addPictureDecoration, uploadPictureDecoration } from '../editor/pictureActions';
 import { selectDecoration, useTool } from '../editor/tools';
-import { DECORATION_PICTURES, decorationPicture, pictureUrl } from '../render/pictureLibrary';
+import { DECORATION_PICTURES, decorationLook, EFFECT_PICTURES, pictureUrl } from '../render/pictureLibrary';
 import { refreshUploadedPictures, useUploadedPictures } from '../state/pictureLibrary';
 import { decorationGeometry, placements } from '../render/decorations';
 import { commitDoc, getDoc, updateDoc, useDoc } from '../state/tokenStore';
@@ -75,60 +75,63 @@ export function DecorationsSection() {
         <ControlLabel label="Add a decoration" helpId="decorations.add" />
         <div className="tile-grid__groups">
           {DECORATION_GROUPS.map((group) => (
-            <div key={group} className="tile-grid__group" role="group" aria-label={group}>
-              <div className="tile-grid__group-name">{group}</div>
-              <div className="tile-grid__tiles">
-                {group === 'Pictures' ? (
-                  <>
-                    {DECORATION_PICTURES.map((p) => (
-                      <button key={p.id} type="button" className="tile" data-decoration-picture={p.id} disabled={full} onClick={() => void addPictureDecoration({ type: 'library', id: p.id })}>
-                        <span className="tile__preview tile__preview--dark" aria-hidden="true">
-                          <img src={pictureUrl(p.id)} alt="" width={44} height={44} loading="lazy" />
-                        </span>
-                        <span className="tile__label">{p.name}</span>
-                      </button>
-                    ))}
-                    {uploads.map((p) => (
-                      <button key={p.id} type="button" className="tile" disabled={full} onClick={() => void addPictureDecoration({ type: 'upload', id: p.id })}>
-                        <span className="tile__preview tile__preview--dark" aria-hidden="true">
-                          <img src={p.url} alt="" width={44} height={44} />
-                        </span>
-                        <span className="tile__label">{p.name}</span>
-                      </button>
-                    ))}
-                  </>
-                ) : (
-                  DECORATIONS.filter((x) => x.group === group).map((x) => (
-                    <button key={x.kind} type="button" className="tile" data-decoration={x.kind} disabled={full} onClick={() => add(x.kind)}>
-                      <span className="tile__preview" aria-hidden="true">
-                        {thumbs?.get(x.kind) ? <img src={thumbs.get(x.kind)} alt="" width={44} height={44} /> : <span className="tile__blank" />}
-                      </span>
-                      <span className="tile__label">{x.name}</span>
-                    </button>
-                  ))
-                )}
-              </div>
+            <Fragment key={group}>
               {group === 'Pictures' && (
-                <div className="control control--row" data-control="decoration-upload" data-help-id="decorations.picture">
-                  <button type="button" className="btn btn--small" disabled={full} onClick={() => fileInput.current?.click()}>
-                    <Upload size={14} aria-hidden="true" />
-                    Use your own picture
-                  </button>
-                  <input
-                    ref={fileInput}
-                    type="file"
-                    accept="image/png,image/webp,image/jpeg,image/gif,image/avif,image/svg+xml"
-                    hidden
-                    data-testid="decoration-file-input"
-                    onChange={(ev) => {
-                      const file = ev.target.files?.[0];
-                      ev.target.value = '';
-                      if (file) void uploadPictureDecoration(file);
-                    }}
-                  />
+                // Owner request: every picture effect can be a decoration too.
+                <div className="tile-grid__group" role="group" aria-label="Effect pictures">
+                  <div className="tile-grid__group-name">Effect pictures</div>
+                  <div className="tile-grid__tiles">
+                    {EFFECT_PICTURES.map((p) => (
+                      <PictureTile key={p.id} id={p.id} name={p.name} url={pictureUrl(p.id)} disabled={full} onAdd={() => void addPictureDecoration({ type: 'library', id: p.id })} />
+                    ))}
+                  </div>
                 </div>
               )}
-            </div>
+              <div className="tile-grid__group" role="group" aria-label={group}>
+                <div className="tile-grid__group-name">{group}</div>
+                <div className="tile-grid__tiles">
+                  {group === 'Pictures' ? (
+                    <>
+                      {DECORATION_PICTURES.map((p) => (
+                        <PictureTile key={p.id} id={p.id} name={p.name} url={pictureUrl(p.id)} disabled={full} onAdd={() => void addPictureDecoration({ type: 'library', id: p.id })} />
+                      ))}
+                      {uploads.map((p) => (
+                        <PictureTile key={p.id} name={p.name} url={p.url} disabled={full} onAdd={() => void addPictureDecoration({ type: 'upload', id: p.id })} />
+                      ))}
+                    </>
+                  ) : (
+                    DECORATIONS.filter((x) => x.group === group).map((x) => (
+                      <button key={x.kind} type="button" className="tile" data-decoration={x.kind} disabled={full} onClick={() => add(x.kind)}>
+                        <span className="tile__preview" aria-hidden="true">
+                          {thumbs?.get(x.kind) ? <img src={thumbs.get(x.kind)} alt="" width={44} height={44} /> : <span className="tile__blank" />}
+                        </span>
+                        <span className="tile__label">{x.name}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+                {group === 'Pictures' && (
+                  <div className="control control--row" data-control="decoration-upload" data-help-id="decorations.picture">
+                    <button type="button" className="btn btn--small" disabled={full} onClick={() => fileInput.current?.click()}>
+                      <Upload size={14} aria-hidden="true" />
+                      Use your own picture
+                    </button>
+                    <input
+                      ref={fileInput}
+                      type="file"
+                      accept="image/png,image/webp,image/jpeg,image/gif,image/avif,image/svg+xml"
+                      hidden
+                      data-testid="decoration-file-input"
+                      onChange={(ev) => {
+                        const file = ev.target.files?.[0];
+                        ev.target.value = '';
+                        if (file) void uploadPictureDecoration(file);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </Fragment>
           ))}
         </div>
       </div>
@@ -156,10 +159,22 @@ export function DecorationsSection() {
   );
 }
 
+/** A tile that adds a picture (built-in or the user's own) as a decoration. */
+function PictureTile({ id, name, url, disabled, onAdd }: { id?: string; name: string; url: string; disabled: boolean; onAdd: () => void }) {
+  return (
+    <button type="button" className="tile" data-decoration-picture={id} disabled={disabled} onClick={onAdd}>
+      <span className="tile__preview tile__preview--dark" aria-hidden="true">
+        <img src={url} alt="" width={44} height={44} loading="lazy" />
+      </span>
+      <span className="tile__label">{name}</span>
+    </button>
+  );
+}
+
 /** A decoration's name: its kind's, or its picture's. */
 function decorationName(d: Decoration, uploads: { id: string; name: string }[]): string {
   if (d.kind !== 'picture' || !d.image) return decorationInfo(d.kind).name;
-  return d.image.type === 'library' ? (decorationPicture(d.image.id)?.name ?? 'Picture') : (uploads.find((u) => u.id === d.image!.id)?.name ?? 'Your picture');
+  return d.image.type === 'library' ? (decorationLook(d.image.id)?.name ?? 'Picture') : (uploads.find((u) => u.id === d.image!.id)?.name ?? 'Your picture');
 }
 
 function DecorationCard({
@@ -183,7 +198,7 @@ function DecorationCard({
 }) {
   const bodyId = useId();
   const info = decorationInfo(d.kind);
-  const lib = d.kind === 'picture' && d.image?.type === 'library' ? decorationPicture(d.image.id) : undefined;
+  const lib = d.kind === 'picture' && d.image?.type === 'library' ? decorationLook(d.image.id) : undefined;
   const swatches = lib?.swatches ?? info.swatches;
   return (
     <li className="overlay-card" data-open={open} data-hidden={!d.visible || undefined} data-decoration={d.kind}>

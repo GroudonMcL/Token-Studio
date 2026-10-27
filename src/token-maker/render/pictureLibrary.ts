@@ -23,6 +23,8 @@ export interface LibraryDecorationPicture {
   name: string;
   color: string;
   swatches: string[];
+  /** Coloured by the decoration's colour (single-colour pictures); false keeps the picture's own colours. */
+  tint: boolean;
 }
 
 const fx = (
@@ -55,6 +57,7 @@ const deco = (id: string, name: string, color: string, swatches: string[] = META
   name,
   color,
   swatches: [color, ...swatches.filter((c) => c !== color)],
+  tint: true,
 });
 
 /** Picture decorations: flat icons with a dark outline, coloured by the decoration's colour. */
@@ -82,4 +85,15 @@ export const pictureAssetId = (source: PictureSource) => `picture:${source.type}
 
 export const effectPicture = (id: string) => EFFECT_PICTURES.find((p) => p.id === id);
 export const decorationPicture = (id: string) => DECORATION_PICTURES.find((p) => p.id === id);
+/**
+ * How a library picture starts out as a decoration (owner request: any effect
+ * picture can be a decoration too). Effect sprites are white, so they are
+ * tinted with the effect's starting colour.
+ */
+export function decorationLook(id: string): Pick<LibraryDecorationPicture, 'name' | 'color' | 'swatches' | 'tint'> | undefined {
+  const deco = decorationPicture(id);
+  if (deco) return deco;
+  const fx = effectPicture(id);
+  return fx && { name: fx.name, color: fx.defaults.color, swatches: fx.swatches, tint: true };
+}
 export const isLibraryPicture = (id: string) => !!effectPicture(id) || !!decorationPicture(id);

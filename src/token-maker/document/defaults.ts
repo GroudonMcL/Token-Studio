@@ -330,9 +330,9 @@ export function newDecoration(kind: DecorationKind, id = Math.random().toString(
 }
 
 /** A picture decoration: a built-in icon (coloured) or one of the user's own pictures (its own colours). */
-export function newPictureDecoration(image: PictureSource, aspect: number, color?: string, id?: string): Decoration {
+export function newPictureDecoration(image: PictureSource, aspect: number, color?: string, id?: string, tint = image.type === 'library'): Decoration {
   const d = newDecoration('picture', id);
-  return { ...d, image, aspect: aspect > 0 && Number.isFinite(aspect) ? aspect : 1, tint: image.type === 'library', color: color ?? d.color };
+  return { ...d, image, aspect: aspect > 0 && Number.isFinite(aspect) ? aspect : 1, tint, color: color ?? d.color };
 }
 
 // ---- Phase 8: the label (DESIGN.md §6.10) ----
