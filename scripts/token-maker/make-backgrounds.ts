@@ -384,7 +384,8 @@ const painters: Record<string, (ctx: Ctx) => void> = {
 };
 
 mkdirSync(OUT, { recursive: true });
-for (const { id } of BACKGROUND_LIBRARY) {
+// Only the drawn ones: the others are open-licence pictures, saved once.
+for (const { id } of BACKGROUND_LIBRARY.filter((b) => b.group === 'Drawn')) {
   const draw = painters[id];
   if (!draw) throw new Error(`No painter for ${id}`);
   const c = createCanvas(SIZE, SIZE);

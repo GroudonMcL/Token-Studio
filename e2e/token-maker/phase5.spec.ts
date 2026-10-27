@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Phase 5: pop-out art and shadows (DESIGN.md §6.6, §6.7).
 // Done when: part of the creature breaks over the border with a matching
@@ -10,23 +11,6 @@ const FLAT = 'e2e/token-maker/fixtures/flat-goblin.png';
 type Rgb = number[];
 
 /** Phone tab for each section. */
-const TABS: Record<string, string> = { Background: 'Backgr.', 'Pop-out': 'Pop-out', 'Lighting & shadows': 'Lighting' };
-
-async function section(page: Page, isMobile: boolean, name: string) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: TABS[name] }).click();
-    const panel = page.getByRole('tabpanel');
-    // Sections sharing a tab open one at a time.
-    const toggle = panel.getByRole('button', { name, exact: true });
-    if ((await toggle.count()) && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-    return panel;
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name, exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
-
 async function exportPixels(page: Page, isMobile: boolean, points: [number, number][]): Promise<Rgb[]> {
   const download = page.waitForEvent('download');
   if (isMobile) await page.locator('.bottom-sheet__summary').getByRole('button', { name: 'Export' }).click();
@@ -90,14 +74,14 @@ const INSIDE: [number, number] = [0.5, 0.75];
 
 test('paint part of the art over the frame; it moves with the art, and the export matches the preview', async ({ page, isMobile }) => {
   const m = !!isMobile;
-  let panel = await section(page, m, 'Background');
+  let panel = await openSection(page, 'Cut-out');
   await panel.getByRole('switch', { name: 'Remove background' }).click();
 
   const [frameBefore] = await exportPixels(page, m, [ON_FRAME]);
   expect(near(frameBefore!, RED, 40)).toBe(false); // the frame covers the body there
 
   // Paint the bottom of the body so it breaks over the frame.
-  panel = await section(page, m, 'Pop-out');
+  panel = await openSection(page, 'Pop-out');
   const size = panel.getByRole('textbox', { name: 'Pop-out brush size value' });
   await size.fill('90');
   await size.press('Enter');
@@ -126,7 +110,7 @@ test('paint part of the art over the frame; it moves with the art, and the expor
   expect(near(frameBack!, RED, 40)).toBe(true);
 
   // Switching the pop-out off puts it back behind the frame without losing it.
-  panel = await section(page, m, 'Pop-out');
+  panel = await openSection(page, 'Pop-out');
   await panel.getByRole('switch', { name: 'Pop-out on' }).click();
   const [frameOff] = await exportPixels(page, m, [ON_FRAME]);
   expect(near(frameOff!, RED, 40)).toBe(false);
@@ -135,10 +119,15 @@ test('paint part of the art over the frame; it moves with the art, and the expor
 
 test('shadows follow the light until unlinked', async ({ page, isMobile }) => {
   const m = !!isMobile;
-  const panel = await section(page, m, 'Lighting & shadows');
+  const panel = await openSection(page, 'Shadows');
+  // One shadow at a time, starting with the drop shadow; a dot marks the ones that are on.
+  await expect(panel.getByRole('radio', { name: 'Drop' })).toHaveAttribute('aria-checked', 'true');
   const follow = panel.getByRole('switch', { name: 'Drop shadow: follow the light' });
   await expect(follow).toHaveAttribute('aria-checked', 'true');
   await expect(panel.getByRole('slider', { name: 'Drop shadow direction' })).toHaveCount(0);
+  // Following the light only sets the direction: the rest can still be changed.
+  await expect(panel.getByRole('slider', { name: 'Drop shadow distance' })).toBeVisible();
+  await expect(panel.getByRole('slider', { name: 'Drop shadow size' })).toBeVisible();
 
   const alphaAt = async (points: [number, number][]) => {
     const download = page.waitForEvent('download');
@@ -167,6 +156,8 @@ test('shadows follow the light until unlinked', async ({ page, isMobile }) => {
   expect(b2!).toBeGreaterThan(a2! + 20);
 
   // The inner shadow can be switched off.
+  await panel.getByRole('radio', { name: 'Inner' }).click();
+  await expect(panel.getByRole('switch', { name: 'Drop shadow' })).toHaveCount(0);
   await panel.getByRole('switch', { name: 'Inner shadow' }).click();
   await expect(panel.getByRole('textbox', { name: 'Inner shadow strength value' })).toHaveCount(0);
 });

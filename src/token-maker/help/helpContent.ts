@@ -41,13 +41,23 @@ export const helpContent = {
   },
   'section.background': {
     title: 'Background',
-    text: "Remove the picture's own background (by its colour or with AI), then choose what shows behind your art: a colour, a gradient or an image.",
+    text: 'Choose what shows behind your art inside the frame: a colour, a gradient or a picture.',
     media: beforeAfter('section-background', 'a forest appears behind the goblin'),
   },
   'section.lighting': {
-    title: 'Lighting & shadows',
-    text: 'Light your art from one direction and set the shadows the token casts. Shadows follow the light unless you unlink them.',
+    title: 'Lighting',
+    text: 'Light your art from one direction, with a preset or your own colour and strength. The shadows (in Shadows) fall away from this light.',
     media: beforeAfter('section-lighting', 'torchlight shines on the goblin from below'),
+  },
+  'section.cutout': {
+    title: 'Cut-out',
+    text: "Remove the picture's own background, by its flat colour or with AI, and tidy the edges with the erase/restore brush. Pop-out, below, paints parts of the art over the frame.",
+    media: beforeAfter('section-cutout', 'the white background round the goblin disappears'),
+  },
+  'section.shadows': {
+    title: 'Shadows',
+    text: 'The shadow the token casts on the map, the shadow pop-out parts cast on the frame, and the frame\'s shadow on the art. Pick one at the top to change it.',
+    media: beforeAfter('section-shadows', 'a drop shadow appears under the token'),
   },
   'section.popout': {
     title: 'Pop-out',
@@ -334,8 +344,23 @@ export const helpContent = {
   },
   'shadows.follow': {
     title: 'Follow the light',
-    text: 'On: the shadow falls away from the light. Turn it off to set the direction, distance, blur, colour and opacity yourself.',
+    text: 'On: the shadow falls away from the light. Turn it off to choose the direction yourself.',
     media: beforeAfter('shadows-follow', 'the shadow stops following the light and falls to the left'),
+  },
+  'shadows.which': {
+    title: 'Which shadow',
+    text: 'Drop is the shadow on the map, Pop-out the one pop-out parts cast on the frame, and Inner the frame\'s shadow on the art. A filled dot means that shadow is on.',
+    media: beforeAfter('shadows-which', 'the frame casts a shadow onto the art'),
+  },
+  'shadows.styles': {
+    title: 'Drop shadow styles',
+    text: 'Quick starting points, from a subtle contact shadow to a token floating high above the map, or a coloured glow. Change any slider afterwards to fine-tune it.',
+    media: beforeAfter('shadows-styles', 'a standard shadow becomes a floating one'),
+  },
+  'shadows.spread': {
+    title: 'Drop shadow size',
+    text: 'How much bigger than the token its shadow is: 100% is the same size, more makes the token look raised higher.',
+    media: beforeAfter('shadows-spread', 'the shadow grows bigger than the token'),
   },
   'shadows.angle': { title: 'Shadow direction', text: 'Which way the shadow falls: drag the dot round the dial.', media: beforeAfter('shadows-angle', 'the shadow turns to fall the other way') },
   'shadows.distance': {

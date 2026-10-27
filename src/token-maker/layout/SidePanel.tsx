@@ -1,43 +1,33 @@
 import { useEffect, useRef } from 'react';
-import { Section } from '../components';
-import { SECTIONS, type SectionId } from './sections';
-import { MenuStyleSwitch } from './MenuStyleSwitch';
-import { SectionPlaceholder } from './SectionPlaceholder';
-import { SECTION_CONTENT } from '../sections';
+import type { PanelTab, SectionId } from './sections';
+import { TabSections } from './TabSections';
 
-/** Desktop/tablet right-hand panel: every section, collapsible, in DESIGN.md §8 order. */
+/** Desktop/tablet right-hand panel: only the tab chosen in the tool rail. */
 export function SidePanel({
-  openSections,
-  setOpen,
+  tab,
+  panelId,
+  openSection,
+  setOpenSection,
 }: {
-  openSections: ReadonlySet<SectionId>;
-  setOpen: (id: SectionId, open: boolean) => void;
+  tab: PanelTab;
+  panelId: string;
+  openSection: SectionId | null;
+  setOpenSection: (id: SectionId | null) => void;
 }) {
   const ref = useRef<HTMLElement>(null);
-  const opened = [...openSections][0];
+  // A new tab starts at its top.
+  useEffect(() => {
+    if (ref.current) ref.current.scrollTop = 0;
+  }, [tab.id]);
   // The sections above it may have just closed, so bring the opened one into view.
   useEffect(() => {
-    if (opened) ref.current?.querySelector(`#section-${opened}`)?.scrollIntoView?.({ block: 'nearest' });
-  }, [opened]);
+    if (openSection) ref.current?.querySelector(`#section-${openSection}`)?.scrollIntoView?.({ block: 'nearest' });
+  }, [openSection]);
   return (
     <aside ref={ref} className="side-panel" aria-label="Token settings">
-      <MenuStyleSwitch />
-      {SECTIONS.map((s) => {
-        const Content = SECTION_CONTENT[s.id];
-        return (
-        <Section
-          key={s.id}
-          id={`section-${s.id}`}
-          title={s.title}
-          helpId={s.helpId}
-          icon={s.icon}
-          open={openSections.has(s.id)}
-          onOpenChange={(o) => setOpen(s.id, o)}
-        >
-          {Content ? <Content /> : <SectionPlaceholder text={s.placeholder} />}
-        </Section>
-        );
-      })}
+      <div className="side-panel__tab" id={panelId} role="tabpanel" aria-label={tab.label}>
+        <TabSections tab={tab} openSection={openSection} setOpenSection={setOpenSection} />
+      </div>
     </aside>
   );
 }

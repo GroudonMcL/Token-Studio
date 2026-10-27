@@ -377,7 +377,13 @@ function castShadow(
   ctx.shadowBlur = px(shadow.blur);
   ctx.shadowOffsetX = fall.x * px(shadow.distance) + far;
   ctx.shadowOffsetY = fall.y * px(shadow.distance);
-  paint(ctx, -far);
+  if (shadow.spread > 0) {
+    // A bigger shadow: the off-canvas shape is scaled round its own centre
+    // (shadow offsets and blur ignore the transform, so they stay as set).
+    ctx.translate(-far, 0);
+    ctx.scale(1 + shadow.spread, 1 + shadow.spread);
+    paint(ctx, 0);
+  } else paint(ctx, -far);
   ctx.restore();
 }
 

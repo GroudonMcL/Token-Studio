@@ -10,12 +10,16 @@ test.describe('app shell', () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
-  test('wide screens have the side panel and bottom bar', async ({ page, isMobile }) => {
+  test('wide screens have the tool rail, side panel and bottom bar', async ({ page, isMobile }) => {
     test.skip(!!isMobile, 'phone layout');
     await page.goto('/token-maker/');
     const panel = page.getByRole('complementary', { name: 'Token settings' });
     await expect(panel).toBeVisible();
-    await panel.getByRole('button', { name: 'Label', exact: true }).click();
+    // The tool rail sits left of the canvas and shows one tab at a time in the panel.
+    const rail = page.getByRole('navigation', { name: 'Token sections' });
+    const canvas = page.getByRole('toolbar', { name: 'Image tools' });
+    expect((await rail.boundingBox())!.x).toBeLessThan((await canvas.boundingBox())!.x);
+    await rail.getByRole('tab', { name: 'Label' }).click();
     await expect(panel.getByRole('button', { name: 'Add a label' })).toBeVisible();
     // Export waits for an image.
     await expect(page.locator('.bottom-bar').getByRole('button', { name: 'Export PNG' })).toBeDisabled();
@@ -26,7 +30,7 @@ test.describe('app shell', () => {
     await page.goto('/token-maker/');
     const sheet = page.locator('.bottom-sheet');
     await expect(sheet).toHaveAttribute('data-snap', 'peek');
-    // One tab per section, in a row that scrolls sideways.
+    // The same tabs as the tool rail, in a row that scrolls sideways.
     await expect(page.getByRole('tab')).toHaveCount(12);
     await page.getByRole('tab', { name: 'Label' }).click();
     await expect(sheet).toHaveAttribute('data-snap', 'half');
@@ -42,7 +46,7 @@ test.describe('app shell', () => {
     await expect(sheet).toHaveAttribute('data-snap', 'full');
 
     // touch targets are at least 44px
-    const tab = (await page.getByRole('tab', { name: 'Import' }).boundingBox())!;
+    const tab = (await page.getByRole('tab', { name: 'Picture' }).boundingBox())!;
     expect(tab.height).toBeGreaterThanOrEqual(44);
   });
 

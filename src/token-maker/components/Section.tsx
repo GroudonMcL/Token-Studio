@@ -20,6 +20,7 @@ export function Section({
   id,
   open: openProp,
   onOpenChange,
+  fixed = false,
 }: {
   title: string;
   helpId: HelpId;
@@ -32,9 +33,11 @@ export function Section({
   /** Pass `open` + `onOpenChange` to control it from outside. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Always open, with a plain heading instead of the drop-down button (the only section on its tab). */
+  fixed?: boolean;
 }) {
   const [openState, setOpenState] = useState(defaultOpen);
-  const open = openProp ?? openState;
+  const open = fixed || (openProp ?? openState);
   const setOpen = (v: boolean) => {
     setOpenState(v);
     onOpenChange?.(v);
@@ -43,6 +46,12 @@ export function Section({
   return (
     <section className="section" data-open={open} data-control="section" data-help-id={helpId} id={id}>
       <div className="section__header">
+        {fixed ? (
+          <h2 className="section__heading">
+            {icon && <span className="section__icon" aria-hidden="true">{icon}</span>}
+            <span className="section__title">{title}</span>
+          </h2>
+        ) : (
         <button
           type="button"
           className="section__toggle"
@@ -54,6 +63,7 @@ export function Section({
           <span className="section__title">{title}</span>
           <ChevronDown className="section__chevron" aria-hidden="true" size={18} />
         </button>
+        )}
         <HelpTip id={helpId} />
       </div>
       <div className="section__body" id={bodyId} hidden={!open}>

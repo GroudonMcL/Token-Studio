@@ -74,7 +74,18 @@ const OUTER_SHADOW: OuterShadow = {
   blur: 0.1,
   color: '#000000',
   opacity: 0.8,
+  spread: 0,
 };
+
+/** Quick starting points for the drop shadow (owner feedback: more control over it). */
+export const DROP_SHADOW_STYLES: { id: string; name: string; settings: Omit<OuterShadow, 'enabled' | 'followLight' | 'angle'> }[] = [
+  { id: 'subtle', name: 'Subtle', settings: { distance: 0.02, blur: 0.05, color: '#000000', opacity: 0.55, spread: 0 } },
+  { id: 'standard', name: 'Standard', settings: { distance: OUTER_SHADOW.distance, blur: OUTER_SHADOW.blur, color: '#000000', opacity: OUTER_SHADOW.opacity, spread: 0 } },
+  { id: 'lifted', name: 'Lifted', settings: { distance: 0.1, blur: 0.16, color: '#000000', opacity: 0.7, spread: 0.04 } },
+  { id: 'floating', name: 'Floating', settings: { distance: 0.24, blur: 0.3, color: '#000000', opacity: 0.55, spread: 0.08 } },
+  { id: 'hard', name: 'Hard edge', settings: { distance: 0.06, blur: 0, color: '#000000', opacity: 0.9, spread: 0 } },
+  { id: 'glow', name: 'Glow', settings: { distance: 0, blur: 0.2, color: '#ffd27a', opacity: 0.9, spread: 0.06 } },
+];
 
 // ---- Phase 4: background and lighting ----
 
@@ -319,9 +330,9 @@ export function newDecoration(kind: DecorationKind, id = Math.random().toString(
 }
 
 /** A picture decoration: a built-in icon (coloured) or one of the user's own pictures (its own colours). */
-export function newPictureDecoration(image: PictureSource, aspect: number, color?: string, id?: string): Decoration {
+export function newPictureDecoration(image: PictureSource, aspect: number, color?: string, id?: string, tint = image.type === 'library'): Decoration {
   const d = newDecoration('picture', id);
-  return { ...d, image, aspect: aspect > 0 && Number.isFinite(aspect) ? aspect : 1, tint: image.type === 'library', color: color ?? d.color };
+  return { ...d, image, aspect: aspect > 0 && Number.isFinite(aspect) ? aspect : 1, tint, color: color ?? d.color };
 }
 
 // ---- Phase 8: the label (DESIGN.md §6.10) ----

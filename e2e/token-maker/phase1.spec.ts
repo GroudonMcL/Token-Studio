@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 const FIXTURE = 'e2e/token-maker/fixtures/goblin-boss.png';
 
@@ -22,20 +23,6 @@ async function exportPng(page: Page, isMobile: boolean) {
   return { name: file.suggestedFilename(), size: pngSize(readFileSync(path)) };
 }
 
-/** Opens the panel holding a section (phone: its tab in the bottom sheet). */
-async function openSection(page: Page, isMobile: boolean, section: string, tab: string) {
-  let panel;
-  if (isMobile) {
-    await page.getByRole('tab', { name: tab }).click();
-    panel = page.getByRole('tabpanel');
-  } else {
-    panel = page.getByRole('complementary', { name: 'Token settings' });
-  }
-  const toggle = panel.getByRole('button', { name: section, exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
-
 test.beforeEach(async ({ page }) => {
   await page.goto('/token-maker/');
   // Start clean: clear any autosave left by an earlier test.
@@ -56,16 +43,16 @@ test('import an image and download a 256 px PNG', async ({ page, isMobile }) => 
 
 test('Large tokens export at 512 px with the size shown', async ({ page, isMobile }) => {
   await upload(page);
-  const panel = await openSection(page, !!isMobile, 'Size', 'Size');
+  const panel = await openSection(page, 'Size');
   await panel.getByRole('radio', { name: 'Large' }).click();
   await expect(page.getByTestId('pixel-size').first()).toHaveText('512 × 512 px');
   const out = await exportPng(page, !!isMobile);
   expect(out.size).toEqual({ width: 512, height: 512 });
 });
 
-test('pick a frame and undo it', async ({ page, isMobile }) => {
+test('pick a frame and undo it', async ({ page }) => {
   await upload(page);
-  const panel = await openSection(page, !!isMobile, 'Frame & shape', 'Frame');
+  const panel = await openSection(page, 'Frame & shape');
   await panel.getByRole('radio', { name: 'Oak' }).click();
   await expect(panel.getByRole('radio', { name: 'Oak' })).toHaveAttribute('aria-checked', 'true');
   await page.getByRole('button', { name: 'Undo' }).first().click();
@@ -125,26 +112,29 @@ test('drop and paste import images', async ({ page, isMobile }) => {
   }
 });
 
-test('the token survives a page reload (autosave)', async ({ page, isMobile }) => {
+test('the token survives a page reload (autosave)', async ({ page }) => {
   await upload(page);
-  const panel = await openSection(page, !!isMobile, 'Frame & shape', 'Frame');
+  const panel = await openSection(page, 'Frame & shape');
   await panel.getByRole('radio', { name: 'Hexagon' }).click();
   await page.waitForTimeout(800); // autosave runs shortly after changes
   await page.reload();
   await expect(page.locator('.token-summary__name').first()).toHaveText('Goblin Boss');
-  const panel2 = await openSection(page, !!isMobile, 'Frame & shape', 'Frame');
+  const panel2 = await openSection(page, 'Frame & shape');
   await expect(panel2.getByRole('radio', { name: 'Hexagon' })).toHaveAttribute('aria-checked', 'true');
 });
 
-test('opening one panel section closes the others', async ({ page, isMobile }) => {
+test('the panel shows one tab at a time, and one section of a tab at a time', async ({ page, isMobile }) => {
   test.skip(!!isMobile, 'side panel');
   const panel = page.getByRole('complementary', { name: 'Token settings' });
   const importBtn = panel.getByRole('button', { name: 'Import', exact: true });
-  const frameBtn = panel.getByRole('button', { name: 'Frame & shape', exact: true });
+  const imageBtn = panel.getByRole('button', { name: 'Image', exact: true });
   await expect(importBtn).toHaveAttribute('aria-expanded', 'true');
-  await frameBtn.click();
-  await expect(frameBtn).toHaveAttribute('aria-expanded', 'true');
+  await imageBtn.click();
+  await expect(imageBtn).toHaveAttribute('aria-expanded', 'true');
   await expect(importBtn).toHaveAttribute('aria-expanded', 'false');
+  await page.getByRole('tab', { name: 'Frame' }).click();
+  await expect(panel.getByRole('heading', { name: 'Frame & shape' })).toBeVisible();
+  await expect(importBtn).toHaveCount(0);
 });
 
 test('the wheel zooms the view over the token and scrolls the panel elsewhere', async ({ page, isMobile }) => {
@@ -165,7 +155,8 @@ test('the wheel zooms the view over the token and scrolls the panel elsewhere', 
 
   // Away from the token and art: the side panel scrolls instead.
   const panel = page.getByRole('complementary', { name: 'Token settings' });
-  await panel.getByRole('button', { name: 'Frame & shape', exact: true }).click();
+  // Decorations is long enough to scroll even on a tall tablet.
+  await page.getByRole('tab', { name: 'Decor' }).click();
   await panel.evaluate((el) => (el.scrollTop = 0));
   const stage = (await page.locator('.stage').boundingBox())!;
   await page.mouse.move(stage.x + 30, stage.y + stage.height - 120);

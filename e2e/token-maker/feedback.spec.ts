@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { openSection, setMenuStyle } from './panel';
 
 // Owner feedback after Phase 10 (document v8): menu styles, slider resets,
 // the resizable panel, the two-way theme, picture effects and decorations,
@@ -11,41 +12,25 @@ async function sample(page: Page) {
   await expect(page.locator('.token-summary__name').first()).toHaveText('Goblin');
 }
 
-/** Opens a section (phone: its tab) and returns where its controls are. */
-async function section(page: Page, isMobile: boolean, name: string, tab = name) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: tab }).click();
-    return page.getByRole('tabpanel');
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name, exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
-
-test('menu style hides, folds or shows the Advanced settings, and is remembered', async ({ page, isMobile }) => {
+test('menu style hides, folds or shows the Advanced settings, and is remembered', async ({ page }) => {
   await sample(page);
-  const m = !!isMobile;
-  const style = async (name: string) => {
-    await section(page, m, 'Import');
-    await (m ? page.getByRole('tabpanel') : page.getByRole('complementary', { name: 'Token settings' })).getByRole('radio', { name }).click();
-  };
+  const style = (name: 'Simple' | 'Expert') => setMenuStyle(page, name);
   await style('Simple');
-  let panel = await section(page, m, 'Image');
+  let panel = await openSection(page, 'Image');
   await expect(panel.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
   await expect(panel.getByRole('textbox', { name: 'Hue value' })).toHaveCount(0);
   await style('Expert');
-  panel = await section(page, m, 'Image');
+  panel = await openSection(page, 'Image');
   await expect(panel.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
   await expect(panel.getByRole('textbox', { name: 'Hue value' })).toBeVisible();
   await page.reload();
-  panel = await section(page, m, 'Image');
+  panel = await openSection(page, 'Image');
   await expect(panel.getByRole('textbox', { name: 'Hue value' })).toBeVisible();
 });
 
-test('a slider reset button puts its default back as one undo step', async ({ page, isMobile }) => {
+test('a slider reset button puts its default back as one undo step', async ({ page }) => {
   await sample(page);
-  const panel = await section(page, !!isMobile, 'Image');
+  const panel = await openSection(page, 'Image');
   const box = panel.getByRole('textbox', { name: 'Brightness value' });
   await box.fill('40');
   await box.press('Enter');
@@ -83,21 +68,20 @@ test('the side panel can be dragged wider, and the theme switches between dark a
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 
-test('picture effects and decorations, and a plain label turned round its anchor', async ({ page, isMobile }) => {
+test('picture effects and decorations, and a plain label turned round its anchor', async ({ page }) => {
   await sample(page);
-  const m = !!isMobile;
-  let panel = await section(page, m, 'Effects');
+  let panel = await openSection(page, 'Effects');
   await panel.locator('[data-effect-picture="fx-twinkles"]').click();
   const card = panel.getByRole('list', { name: 'Effects, top first' }).getByRole('listitem');
   await expect(card).toHaveCount(1);
   await expect(card).toContainText('Twinkles');
   await expect(card.getByRole('textbox', { name: 'Blur value' })).toBeVisible();
 
-  panel = await section(page, m, 'Decorations', 'Decor');
+  panel = await openSection(page, 'Decorations');
   await panel.locator('[data-decoration-picture="deco-heart"]').click();
   await expect(panel.getByRole('list', { name: 'Decorations, top first' }).getByRole('listitem')).toContainText('Heart');
 
-  panel = await section(page, m, 'Label');
+  panel = await openSection(page, 'Label');
   await panel.getByRole('button', { name: 'Add a label' }).click();
   await panel.getByRole('radio', { name: 'Plain text' }).click();
   await panel.getByRole('radio', { name: 'Free' }).click();
@@ -112,13 +96,13 @@ test('picture effects and decorations, and a plain label turned round its anchor
   // Everything survives a reload, pictures included.
   await page.waitForTimeout(1200);
   await page.reload();
-  panel = await section(page, m, 'Effects');
+  panel = await openSection(page, 'Effects');
   await expect(panel.getByRole('list', { name: 'Effects, top first' }).getByRole('listitem')).toContainText('Twinkles');
 });
 
-test('Small covers 0.8 of a square and Tiny half of one', async ({ page, isMobile }) => {
+test('Small covers 0.8 of a square and Tiny half of one', async ({ page }) => {
   await sample(page);
-  const panel = await section(page, !!isMobile, 'Size');
+  const panel = await openSection(page, 'Size');
   await panel.getByRole('radio', { name: 'Small' }).click();
   await expect(panel.getByText(/Covers 0.8 of a square/)).toBeVisible();
   await panel.getByRole('radio', { name: 'Tiny' }).click();
@@ -131,11 +115,11 @@ test('Small covers 0.8 of a square and Tiny half of one', async ({ page, isMobil
   }
 });
 
-test('a web link explains when the image server is missing instead of a JSON error', async ({ page, isMobile }) => {
+test('a web link explains when the image server is missing instead of a JSON error', async ({ page }) => {
   await page.goto('/token-maker/');
   // Like a static deploy: every /api address answers with the editor's page.
   await page.route('**/api/**', (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>Token Maker</title>' }));
-  const panel = await section(page, !!isMobile, 'Import');
+  const panel = await openSection(page, 'Import');
   await panel.getByLabel('Web address').fill('https://uk.pinterest.com/pin/666392076130436411/');
   await panel.getByRole('button', { name: 'Get' }).click();
   await expect(panel.getByText('That site blocks direct loading. Right-click the image, choose “Copy image”, then press Ctrl+V here.')).toBeVisible();

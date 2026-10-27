@@ -1,6 +1,7 @@
 import { expect, test, type Browser, type Page } from '@playwright/test';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Phase 7: picture frames, decorations and presets (DESIGN.md §6.9).
 // Done when: upload my own ring PNG, add mirrored horns, save the look as a
@@ -11,22 +12,6 @@ const RING = 'e2e/token-maker/fixtures/purple-ring.png';
 type Rgba = number[];
 
 /** Phone tab for each section. */
-const TABS: Record<string, string> = { 'Frame & shape': 'Frame', Presets: 'Presets', Decorations: 'Decor' };
-
-async function section(page: Page, isMobile: boolean, name: string) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: TABS[name] }).click();
-    const panel = page.getByRole('tabpanel');
-    const toggle = panel.getByRole('button', { name, exact: true });
-    if ((await toggle.count()) && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-    return panel;
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name, exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
-
 async function exportPixels(page: Page, isMobile: boolean, points: [number, number][]): Promise<Rgba[]> {
   const download = page.waitForEvent('download');
   if (isMobile) await page.locator('.bottom-sheet__summary').getByRole('button', { name: 'Export' }).click();
@@ -101,7 +86,7 @@ async function anotherBrowser(browser: Browser, isMobile: boolean, contextOption
   const page = await context.newPage();
   await fresh(page);
   // Nothing from the first browser is here.
-  const presets = await section(page, isMobile, 'Presets');
+  const presets = await openSection(page, 'Presets');
   await expect(presets.getByText('Nothing saved yet.')).toBeVisible();
   return { context, page };
 }
@@ -112,21 +97,21 @@ test('upload a ring PNG, add mirrored horns, save a preset, export it and load i
   await fresh(page);
 
   // 1. My own ring PNG as a picture frame: the hole is found automatically.
-  let panel = await section(page, m, 'Frame & shape');
+  let panel = await openSection(page, 'Frame & shape');
   await panel.getByRole('radio', { name: 'Picture' }).click();
   await panel.getByTestId('frame-file-input').setInputFiles(RING);
   await expect(panel.getByRole('radio', { name: 'Purple Ring' })).toHaveAttribute('aria-checked', 'true');
   await expect(panel.getByText('Your frames')).toBeVisible();
 
   // 2. Mirrored horns: one decoration, drawn on both sides.
-  panel = await section(page, m, 'Decorations');
+  panel = await openSection(page, 'Decorations');
   await panel.getByRole('button', { name: /^Horn$/ }).click();
   await expect(panel.getByRole('list', { name: 'Decorations, top first' }).getByRole('listitem')).toHaveText(/Horn\s*top right, mirrored/);
   await expectRingAndHorns(page, m);
   expect(await previewVsExport(page, m)).toBeLessThan(6);
 
   // 3. Save the look as a preset, and download it as a file.
-  panel = await section(page, m, 'Presets');
+  panel = await openSection(page, 'Presets');
   await panel.getByLabel('Save this look').fill('Purple horns');
   await panel.getByRole('button', { name: 'Save', exact: true }).click();
   const yours = panel.getByRole('list', { name: 'Your presets' });
@@ -146,18 +131,18 @@ test('upload a ring PNG, add mirrored horns, save a preset, export it and load i
 
   // 4. Another browser (a fresh profile): load the file.
   const other = await anotherBrowser(browser, m, contextOptions);
-  let p2 = await section(other.page, m, 'Presets');
+  let p2 = await openSection(other.page, 'Presets');
   await p2.getByTestId('preset-file-input').setInputFiles(presetPath);
   await expect(p2.getByRole('list', { name: 'Your presets' }).getByRole('button', { name: 'Purple horns', exact: true })).toBeVisible();
   await expectRingAndHorns(other.page, m);
   // The ring came along and is now one of this browser's frames too.
-  p2 = await section(other.page, m, 'Frame & shape');
+  p2 = await openSection(other.page, 'Frame & shape');
   await expect(p2.getByRole('radio', { name: 'Purple Ring' })).toHaveAttribute('aria-checked', 'true');
   await other.context.close();
 
   // 5. And a third browser: paste the code.
   const third = await anotherBrowser(browser, m, contextOptions);
-  const p3 = await section(third.page, m, 'Presets');
+  const p3 = await openSection(third.page, 'Presets');
   await p3.getByPlaceholder(/Paste a preset code/).fill(code);
   await p3.getByRole('button', { name: 'Add the code' }).click();
   await expect(p3.getByRole('list', { name: 'Your presets' }).getByRole('button', { name: 'Purple horns', exact: true })).toBeVisible();
@@ -168,9 +153,9 @@ test('upload a ring PNG, add mirrored horns, save a preset, export it and load i
 test('built-in picture frame and preset; drag a decoration on the canvas to another snap point', async ({ page, isMobile }) => {
   const m = !!isMobile;
   await fresh(page);
-  let panel = await section(page, m, 'Presets');
+  let panel = await openSection(page, 'Presets');
   await panel.getByRole('button', { name: /^Celestial$/ }).click();
-  panel = await section(page, m, 'Decorations');
+  panel = await openSection(page, 'Decorations');
   const list = panel.getByRole('list', { name: 'Decorations, top first' });
   await expect(list.getByRole('listitem')).toHaveCount(2);
 
@@ -190,13 +175,13 @@ test('built-in picture frame and preset; drag a decoration on the canvas to anot
     await page.mouse.move(to.x, to.y, { steps: 10 });
     await page.mouse.up();
   }
-  panel = await section(page, m, 'Decorations');
+  panel = await openSection(page, 'Decorations');
   await expect(panel.getByRole('list', { name: 'Decorations, top first' }).getByRole('listitem').first()).toHaveText(/Holy symbol\s*bottom/);
   // The tapped decoration is selected: its card is open and it has handles.
   await expect(page.getByTestId('decor-rotate-handle')).toBeVisible();
 
   // A built-in picture frame.
-  panel = await section(page, m, 'Frame & shape');
+  panel = await openSection(page, 'Frame & shape');
   await panel.getByRole('radio', { name: 'Picture' }).click();
   await panel.getByRole('radio', { name: 'Runestone' }).click();
   await expect(panel.getByRole('radio', { name: 'Runestone' })).toHaveAttribute('aria-checked', 'true');

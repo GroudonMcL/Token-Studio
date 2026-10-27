@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Find art online, and bringing a found picture back (paste, drop, link).
 // Every route ends in the same import, and the token must still export:
@@ -11,13 +12,7 @@ const BLOCKED = 'That site blocks direct loading. Right-click the image, choose 
 
 const tokenName = (page: Page) => page.locator('.token-summary__name').first();
 
-async function importPanel(page: Page, isMobile: boolean) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: 'Import' }).click();
-    return page.getByRole('tabpanel');
-  }
-  return page.getByRole('complementary', { name: 'Token settings' });
-}
+const importPanel = (page: Page) => openSection(page, 'Import');
 
 /** Exports a PNG and checks it is a real picture. */
 async function expectExports(page: Page, isMobile: boolean) {
@@ -57,8 +52,8 @@ test.beforeEach(async ({ page }) => {
   await fakeSites(page);
 });
 
-test('the search buttons open each site with the words filled in', async ({ page, isMobile }) => {
-  const panel = await importPanel(page, !!isMobile);
+test('the search buttons open each site with the words filled in', async ({ page }) => {
+  const panel = await importPanel(page);
   const sites = panel.getByRole('group', { name: 'Search on' });
   await expect(sites.getByRole('button', { name: 'Google Images' })).toBeDisabled();
 
@@ -127,15 +122,15 @@ test('an image dragged from another tab loads straight from its site and exports
 });
 
 test('a pasted image link loads and exports', async ({ page, isMobile }) => {
-  const panel = await importPanel(page, !!isMobile);
+  const panel = await importPanel(page);
   await panel.getByRole('textbox', { name: 'Web address' }).fill('https://open.example/art/cave-troll.png');
   await panel.getByRole('button', { name: 'Get' }).click();
   await expect(tokenName(page)).toHaveText('Cave Troll');
   await expectExports(page, !!isMobile);
 });
 
-test('a site that blocks direct loading says how to copy and paste instead', async ({ page, isMobile }) => {
-  const panel = await importPanel(page, !!isMobile);
+test('a site that blocks direct loading says how to copy and paste instead', async ({ page }) => {
+  const panel = await importPanel(page);
   await panel.getByRole('textbox', { name: 'Web address' }).fill('https://strict.example/art/lich.png');
   await panel.getByRole('button', { name: 'Get' }).click();
   await expect(panel.getByRole('alert')).toHaveText(BLOCKED);

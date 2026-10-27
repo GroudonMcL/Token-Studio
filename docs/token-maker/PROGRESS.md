@@ -142,6 +142,20 @@ A checklist of build phases, following [`BUILD-PROMPTS.md`](BUILD-PROMPTS.md). D
 - [x] Copy brought up to Frame Studio 0.10.0 (Phases 6–10 and the themed borders; it reads Frame Studio files up to format 9, so effects, generators, text and the 21 themed borders draw here as they do there); a test draws every themed border in both and they match pixel for pixel
 - [x] Copy brought up to Frame Studio's format 10 (the last four conversions, more ornaments and textures, game-icons ornaments, photo textures, paint fills): a design's photo textures load with the token's other pictures, before exports too, and the frame redraws when one arrives; a test draws a design with photos, icons and paint fills in both apps and they match pixel for pixel, and a Playwright test opens one on desktop, tablet and phone
 
+## Drop shadow controls (document v10)
+
+- [x] "Follow the light" only sets the direction; distance, blur, colour and opacity always show
+- [x] Drop shadow quick styles, Size (spread, v9 → v10 migration), longer distance/blur ranges, glow colours
+- [x] Help tips with before/after pictures for the new controls (`npm run help-images`); unit, migration and Playwright tests
+
+## Asset review picks (owner feedback)
+
+- [x] Layout A: tool rail with Art / Look / Finish tabs, focused right-hand panel, Lighting and Shadows split, Cut-out section, menu style in the top bar's Panel settings; phones use the same tabs
+- [x] Any effect picture can be added as a decoration (Effect pictures group)
+- [x] 30 open-licence backgrounds (17 paintings, 2 space pictures, 11 textures and papers; CC0 or public domain), grouped in the picker with a credit line for the chosen one; the 10 drawn ones stay as "Drawn"
+- [x] 24 CC0 Openclipart ornaments as decorations (single-colour ones tinted, gold to start)
+- [x] Credits in `ASSETS-CREDITS.md`; tests that every library picture has its files and every open-licence background its source
+
 ## Find art online (Phase 1: no new server or keys)
 
 - [x] Import section: **Find art online** box, "Add “fantasy art”" (on by default), and a button per site from one list (`src/config/artSearchSites.ts`); buttons are disabled while the box is empty; Enter searches Google Images; each opens in a new tab (`noopener noreferrer`)

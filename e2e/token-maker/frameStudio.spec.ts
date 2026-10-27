@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Frame Studio designs as frames (DESIGN.md §6.12): a .framestudio.json file
 // saved in Frame Studio opens as the token's frame, follows the token's band,
@@ -29,19 +30,7 @@ async function fresh(page: Page) {
   await page.reload();
 }
 
-async function framePanel(page: Page, isMobile: boolean) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: 'Frame' }).click();
-    const panel = page.getByRole('tabpanel');
-    const toggle = panel.getByRole('button', { name: 'Frame & shape', exact: true });
-    if ((await toggle.count()) && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-    return panel;
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name: 'Frame & shape', exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
+const framePanel = (page: Page) => openSection(page, 'Frame & shape');
 
 /** The exported PNG's pixels at fractions of its width and height. */
 async function exportPixels(page: Page, isMobile: boolean, points: [number, number][]): Promise<number[][]> {
@@ -66,7 +55,7 @@ test('open a Frame Studio design as the frame, change the band, reload and expor
   await fresh(page);
   await page.getByTestId('file-input').first().setInputFiles(GOBLIN);
   await expect(page.locator('.bottom-bar, .bottom-sheet__summary').getByRole('button', { name: /^Export/ }).first()).toBeEnabled();
-  let panel = await framePanel(page, m);
+  let panel = await framePanel(page);
   await panel.getByRole('radio', { name: 'Frame Studio' }).click();
   await expect(panel.getByText(/No designs yet/)).toBeVisible();
   await panel.getByTestId('design-file-input').setInputFiles(JEWELLED);
@@ -81,7 +70,7 @@ test('open a Frame Studio design as the frame, change the band, reload and expor
   expect(top[3]).toBe(255);
 
   // A thicker band: the design follows it (the band now reaches further in, over the art).
-  panel = await framePanel(page, m);
+  panel = await framePanel(page);
   const inside = await exportPixel(page, m, 0.5, 0.17);
   const thickness = panel.getByRole('slider', { name: /Thickness/ });
   await thickness.focus();
@@ -92,7 +81,7 @@ test('open a Frame Studio design as the frame, change the band, reload and expor
   // The design is part of the token: it survives a reload, and the designs stay in this browser.
   await page.waitForTimeout(800);
   await page.reload();
-  panel = await framePanel(page, m);
+  panel = await framePanel(page);
   await expect(panel.getByRole('radio', { name: 'Frame Studio' })).toHaveAttribute('aria-checked', 'true');
   await expect(panel.getByRole('radio', { name: 'Jewelled' })).toHaveAttribute('aria-checked', 'true');
   await expect(panel.getByRole('radio', { name: 'Night sky' })).toBeVisible();
@@ -105,7 +94,7 @@ test('a design with photo textures and icons is drawn with the photos themselves
   await fresh(page);
   await page.getByTestId('file-input').first().setInputFiles(GOBLIN);
   await expect(page.locator('.bottom-bar, .bottom-sheet__summary').getByRole('button', { name: /^Export/ }).first()).toBeEnabled();
-  const panel = await framePanel(page, m);
+  const panel = await framePanel(page);
   await panel.getByRole('radio', { name: 'Frame Studio' }).click();
   await panel.getByTestId('design-file-input').setInputFiles(PHOTOS);
   await expect(panel.getByRole('radio', { name: 'Photos and icons' })).toHaveAttribute('aria-checked', 'true');
@@ -117,9 +106,9 @@ test('a design with photo textures and icons is drawn with the photos themselves
   expect(spread).toBeGreaterThan(40);
 });
 
-test('a file that is not a design is refused with a message', async ({ page, isMobile }) => {
+test('a file that is not a design is refused with a message', async ({ page }) => {
   await fresh(page);
-  const panel = await framePanel(page, !!isMobile);
+  const panel = await framePanel(page);
   await panel.getByRole('radio', { name: 'Frame Studio' }).click();
   await panel.getByTestId('design-file-input').setInputFiles({ name: 'oops.json', mimeType: 'application/json', buffer: Buffer.from('{"hello": 1}') });
   await expect(page.getByText(/isn't a Frame Studio design/)).toBeVisible();
