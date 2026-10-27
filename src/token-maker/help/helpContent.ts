@@ -329,8 +329,18 @@ export const helpContent = {
   },
   'shadows.follow': {
     title: 'Follow the light',
-    text: 'On: the shadow falls away from the light. Turn it off to set the direction, distance, blur, colour and opacity yourself.',
+    text: 'On: the shadow falls away from the light. Turn it off to choose the direction yourself.',
     media: beforeAfter('shadows-follow', 'the shadow stops following the light and falls to the left'),
+  },
+  'shadows.styles': {
+    title: 'Drop shadow styles',
+    text: 'Quick starting points, from a subtle contact shadow to a token floating high above the map, or a coloured glow. Change any slider afterwards to fine-tune it.',
+    media: beforeAfter('shadows-styles', 'a standard shadow becomes a floating one'),
+  },
+  'shadows.spread': {
+    title: 'Drop shadow size',
+    text: 'How much bigger than the token its shadow is: 100% is the same size, more makes the token look raised higher.',
+    media: beforeAfter('shadows-spread', 'the shadow grows bigger than the token'),
   },
   'shadows.angle': { title: 'Shadow direction', text: 'Which way the shadow falls: drag the dot round the dial.', media: beforeAfter('shadows-angle', 'the shadow turns to fall the other way') },
   'shadows.distance': {

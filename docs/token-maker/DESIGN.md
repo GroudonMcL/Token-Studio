@@ -250,6 +250,8 @@ Each overlay: opacity, blend mode (normal, multiply, screen, overlay, soft light
 
 *(Phase 5, as built: the shadow controls are in the Lighting & shadows section, under the light: Drop shadow, Pop-out shadow and Inner shadow, each with an on/off switch. Drop and pop-out shadows have "follow the light"; switching it off shows a direction dial (the way the shadow falls, starting from where it was, so nothing jumps), distance, blur, colour and opacity. Distance, blur and inner-shadow softness are per square and shown as "% of a square". The inner shadow has strength and softness and falls the same way as the drop shadow.)*
 
+*(Owner feedback, document v10: "follow the light" now only sets the direction, so distance, blur, colour and opacity can always be changed. The drop shadow also gets **Quick styles** (Subtle, Standard, Lifted, Floating, Hard edge, Glow), a **Size** slider (100–150%: the shadow grows round the token's centre, so it looks raised higher) and distance and blur up to 50% of a square. Glow colours joined the shadow swatches.)*
+
 ### 6.8 Styles & effects
 
 Stackable, reorderable list. Each effect chooses its placement: **behind art**, **over art** or **on border**. Each has an **Intensity** slider up front; the Advanced dropdown adds colour, size, spread and **Shuffle** (random variation, stored as a seed so it's repeatable).

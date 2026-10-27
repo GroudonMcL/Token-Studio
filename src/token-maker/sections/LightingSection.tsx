@@ -1,7 +1,7 @@
 import { Flame, FlameKindling, Moon, Sparkles, Sun, Zap } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { ColorSwatches, ControlLabel, DirectionDial, Slider, Toggle } from '../components';
-import { createDocument, DEFAULT_LIGHTING, LIGHT_PRESETS } from '../document/defaults';
+import { createDocument, DEFAULT_LIGHTING, DROP_SHADOW_STYLES, LIGHT_PRESETS } from '../document/defaults';
 import type { InnerShadow, LightingSettings, LightPresetId, OuterShadow, ShadowSettings } from '../document/types';
 import type { HelpId } from '../help/helpContent';
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
@@ -129,7 +129,7 @@ export function LightingSection() {
 }
 
 const SHADOW_DEFAULTS = createDocument().shadows;
-const SHADOW_SWATCHES = ['#000000', '#1b1020', '#14213d', '#2b1a0e', '#3a0d0d', '#ffffff'];
+const SHADOW_SWATCHES = ['#000000', '#1b1020', '#14213d', '#2b1a0e', '#3a0d0d', '#ffd27a', '#7ad0ff', '#ffffff'];
 
 /** Per-square values are shown as a percentage of one grid square (1 unit = half a square). */
 const toPct = (v: number) => Math.round(v * 50 * 10) / 10;
@@ -201,6 +201,8 @@ function CastShadow({
   const set = (patch: Partial<OuterShadow>, transient = false) => setShadow(which, patch, transient);
   // Unlinking starts from the angle the shadow had, so it doesn't jump.
   const unlink = (follow: boolean) => set(follow ? { followLight: true } : { followLight: false, angle: (((lightFrom - 180) % 360) + 360) % 360 });
+  const matches = (st: (typeof DROP_SHADOW_STYLES)[number]['settings']) =>
+    (Object.keys(st) as (keyof typeof st)[]).every((k) => shadow[k] === st[k]);
   return (
     <div className="control-group" data-shadow={which}>
       <h4 className="control-group__title">{title}</h4>
@@ -208,62 +210,87 @@ function CastShadow({
       {shadow.enabled && (
         <>
           {hint && <p className="control__hint">{hint}</p>}
+          {which === 'outer' && (
+            <div className="control" data-control="shadow-styles" data-help-id="shadows.styles">
+              <ControlLabel label="Quick styles" helpId="shadows.styles" />
+              <div className="preset-grid" role="group" aria-label="Drop shadow styles">
+                {DROP_SHADOW_STYLES.map((st) => (
+                  <button key={st.id} type="button" className="btn btn--small preset-btn" aria-pressed={matches(st.settings)} onClick={() => set({ ...st.settings })}>
+                    <span className="preset-btn__swatch" style={{ background: st.settings.color }} aria-hidden="true" />
+                    {st.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Following the light only sets the direction: everything else can always be changed. */}
           <Toggle label={`${title}: follow the light`} helpId="shadows.follow" checked={shadow.followLight} onChange={unlink} />
           {!shadow.followLight && (
-            <>
-              <DirectionDial
-                label={`${title} direction`}
-                helpId="shadows.angle"
-                value={shadow.angle}
-                describe={falls}
-                onChange={(angle) => set({ angle }, true)}
-                onCommit={commitDoc}
-              />
-              <Slider
-                label={`${title} distance`}
-                helpId="shadows.distance"
-                unit="% of a square"
-                min={0}
-                max={25}
-                step={0.1}
-                value={toPct(shadow.distance)}
-                defaultValue={toPct(base.distance)}
-                onChange={(v) => set({ distance: fromPct(v) }, true)}
-                onCommit={commitDoc}
-              />
-              <Slider
-                label={`${title} blur`}
-                helpId="shadows.blur"
-                unit="% of a square"
-                min={0}
-                max={25}
-                step={0.1}
-                value={toPct(shadow.blur)}
-                defaultValue={toPct(base.blur)}
-                onChange={(v) => set({ blur: fromPct(v) }, true)}
-                onCommit={commitDoc}
-              />
-              <ColorSwatches
-                label={`${title} colour`}
-                helpId="shadows.color"
-                value={shadow.color}
-                swatches={SHADOW_SWATCHES}
-                onChange={(color) => set({ color }, true)}
-                onCommit={commitDoc}
-              />
-              <Slider
-                label={`${title} opacity`}
-                helpId="shadows.opacity"
-                unit="%"
-                min={0}
-                max={100}
-                value={Math.round(shadow.opacity * 100)}
-                defaultValue={Math.round(base.opacity * 100)}
-                onChange={(v) => set({ opacity: v / 100 }, true)}
-                onCommit={commitDoc}
-              />
-            </>
+            <DirectionDial
+              label={`${title} direction`}
+              helpId="shadows.angle"
+              value={shadow.angle}
+              describe={falls}
+              onChange={(angle) => set({ angle }, true)}
+              onCommit={commitDoc}
+            />
           )}
+          <Slider
+            label={`${title} distance`}
+            helpId="shadows.distance"
+            unit="% of a square"
+            min={0}
+            max={50}
+            step={0.1}
+            value={toPct(shadow.distance)}
+            defaultValue={toPct(base.distance)}
+            onChange={(v) => set({ distance: fromPct(v) }, true)}
+            onCommit={commitDoc}
+          />
+          <Slider
+            label={`${title} blur`}
+            helpId="shadows.blur"
+            unit="% of a square"
+            min={0}
+            max={50}
+            step={0.1}
+            value={toPct(shadow.blur)}
+            defaultValue={toPct(base.blur)}
+            onChange={(v) => set({ blur: fromPct(v) }, true)}
+            onCommit={commitDoc}
+          />
+          {which === 'outer' && (
+            <Slider
+              label={`${title} size`}
+              helpId="shadows.spread"
+              unit="%"
+              min={100}
+              max={150}
+              value={Math.round((1 + shadow.spread) * 100)}
+              defaultValue={Math.round((1 + base.spread) * 100)}
+              onChange={(v) => set({ spread: v / 100 - 1 }, true)}
+              onCommit={commitDoc}
+            />
+          )}
+          <ColorSwatches
+            label={`${title} colour`}
+            helpId="shadows.color"
+            value={shadow.color}
+            swatches={SHADOW_SWATCHES}
+            onChange={(color) => set({ color }, true)}
+            onCommit={commitDoc}
+          />
+          <Slider
+            label={`${title} opacity`}
+            helpId="shadows.opacity"
+            unit="%"
+            min={0}
+            max={100}
+            value={Math.round(shadow.opacity * 100)}
+            defaultValue={Math.round(base.opacity * 100)}
+            onChange={(v) => set({ opacity: v / 100 }, true)}
+            onCommit={commitDoc}
+          />
         </>
       )}
     </div>

@@ -142,6 +142,12 @@ A checklist of build phases, following [`BUILD-PROMPTS.md`](BUILD-PROMPTS.md). D
 - [x] Copy brought up to Frame Studio 0.10.0 (Phases 6–10 and the themed borders; it reads Frame Studio files up to format 9, so effects, generators, text and the 21 themed borders draw here as they do there); a test draws every themed border in both and they match pixel for pixel
 - [x] Copy brought up to Frame Studio's format 10 (the last four conversions, more ornaments and textures, game-icons ornaments, photo textures, paint fills): a design's photo textures load with the token's other pictures, before exports too, and the frame redraws when one arrives; a test draws a design with photos, icons and paint fills in both apps and they match pixel for pixel, and a Playwright test opens one on desktop, tablet and phone
 
+## Drop shadow controls (document v10)
+
+- [x] "Follow the light" only sets the direction; distance, blur, colour and opacity always show
+- [x] Drop shadow quick styles, Size (spread, v9 → v10 migration), longer distance/blur ranges, glow colours
+- [x] Help tips with before/after pictures for the new controls (`npm run help-images`); unit, migration and Playwright tests
+
 ## Later (not phases yet)
 
 From DESIGN.md §15. Don't build these until the owner decides to: AI auto pop-out, AI relighting, animated borders/overlays with GIF export, Pinterest board browsing, sending tokens to Owlbear/Foundry, condition-variant packs, accounts and cloud saving, premium asset packs, switching adverts on.

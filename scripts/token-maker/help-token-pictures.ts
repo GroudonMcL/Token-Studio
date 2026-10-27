@@ -418,6 +418,8 @@ export async function tokenPictures(save: Save): Promise<void> {
   const unlinked = (patch: Partial<TokenDocument['shadows']['outer']> = {}) => shadow('outer', { followLight: false, angle: 45, distance: 0.08, blur: 0.12, ...patch });
   p('shadows.follow', [shadow('outer', { distance: 0.08 })], [unlinked({ angle: 160 })], L);
   p('shadows.angle', [unlinked()], [unlinked({ angle: 200 })], L);
+  p('shadows.styles', [shadow('outer', {})], [shadow('outer', { distance: 0.24, blur: 0.3, opacity: 0.55, spread: 0.08 })], L);
+  p('shadows.spread', [shadow('outer', { distance: 0.08, blur: 0.12 })], [shadow('outer', { distance: 0.08, blur: 0.12, spread: 0.3 })], L);
   p('shadows.distance', [unlinked({ distance: 0.01 })], [unlinked({ distance: 0.18 })], L);
   p('shadows.blur', [unlinked({ blur: 0.01 })], [unlinked({ blur: 0.3 })], L);
   p('shadows.color', [unlinked()], [unlinked({ color: '#6a1aa0', opacity: 1 })], L);

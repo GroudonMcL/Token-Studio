@@ -139,6 +139,9 @@ test('shadows follow the light until unlinked', async ({ page, isMobile }) => {
   const follow = panel.getByRole('switch', { name: 'Drop shadow: follow the light' });
   await expect(follow).toHaveAttribute('aria-checked', 'true');
   await expect(panel.getByRole('slider', { name: 'Drop shadow direction' })).toHaveCount(0);
+  // Following the light only sets the direction: the rest can still be changed.
+  await expect(panel.getByRole('slider', { name: 'Drop shadow distance' })).toBeVisible();
+  await expect(panel.getByRole('slider', { name: 'Drop shadow size' })).toBeVisible();
 
   const alphaAt = async (points: [number, number][]) => {
     const download = page.waitForEvent('download');

@@ -4,7 +4,7 @@
 import type { FrameProject } from '../frameStudio/share/frameDesign';
 import type { FrameStyle, ShapeId } from '../render/catalog';
 
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 export type SizePreset = 'tiny' | 'small' | 'medium' | 'large' | 'huge' | 'gargantuan' | 'custom';
 
@@ -207,6 +207,8 @@ export interface OuterShadow {
   blur: number;
   color: string;
   opacity: number;
+  /** How much bigger than what casts it the shadow is: 0 = the same size, 0.3 = 30% bigger. */
+  spread: number;
 }
 
 export interface InnerShadow {
