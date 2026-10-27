@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 
 // Phase 3: adjustments, flat background removal and the erase/restore brush
 // (DESIGN.md §6.2), on desktop (mouse) and phone (real touch events).
-// Background removal is in the Background section since v8.
+// Background removal and its brush are in the Background section since v8.
 
 const FLAT = 'e2e/token-maker/fixtures/flat-goblin.png';
 const BACKING = [0x1d, 0x1f, 0x27];
@@ -28,7 +28,7 @@ async function imagePanel(page: Page, isMobile: boolean) {
   return panel;
 }
 
-/** Background removal, in the Background section since v8 (phone: its tab). */
+/** Background removal and its brush, in the Background section since v8 (phone: its tab). */
 async function removeBackground(page: Page, isMobile: boolean) {
   let panel;
   if (isMobile) {
@@ -112,13 +112,12 @@ test('remove a flat background, tidy it with the brush, tune it, and the export 
   // Remove the background: the backing colour shows instead of white.
   const bgPanel = await removeBackground(page, !!isMobile);
   await expect(bgPanel.getByText('Found from the edges')).toBeVisible();
-  const panel = await imagePanel(page, !!isMobile);
   const [bgAfter, faceBefore] = await exportPixels(page, !!isMobile, [BG, FACE]);
   expect(near(bgAfter!, BACKING)).toBe(true);
   expect(near(faceBefore!, BACKING)).toBe(false);
 
   // Erase a line through the face with the brush.
-  await panel.getByRole('button', { name: 'Use the brush' }).click();
+  await bgPanel.getByRole('button', { name: 'Use the brush' }).click();
   await expect(page.getByRole('toolbar', { name: 'Brush' })).toBeVisible();
   await stroke(page, !!isMobile, FACE[1]);
   const [faceErased] = await exportPixels(page, !!isMobile, [FACE]);
@@ -130,7 +129,8 @@ test('remove a flat background, tidy it with the brush, tune it, and the export 
   expect(near(faceBack!, faceBefore!)).toBe(true);
   await page.getByRole('toolbar', { name: 'Brush' }).getByRole('button', { name: 'Done' }).click();
 
-  // Tune: brighter body.
+  // Tune: brighter body (Image section).
+  const panel = await imagePanel(page, !!isMobile);
   const [bodyBefore] = await exportPixels(page, !!isMobile, [BODY]);
   const brightness = panel.getByRole('textbox', { name: 'Brightness value' });
   await brightness.fill('40');
@@ -146,8 +146,7 @@ test('remove a flat background, tidy it with the brush, tune it, and the export 
 
 test('restore brings back part of the removed background', async ({ page, isMobile }) => {
   await upload(page);
-  await removeBackground(page, !!isMobile);
-  const panel = await imagePanel(page, !!isMobile);
+  const panel = await removeBackground(page, !!isMobile);
   await panel.getByRole('button', { name: 'Use the brush' }).click();
   await page.getByRole('toolbar', { name: 'Brush' }).getByRole('button', { name: 'Restore' }).click();
   await stroke(page, !!isMobile, BG[1]);
