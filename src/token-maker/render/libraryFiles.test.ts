@@ -1,0 +1,39 @@
+import { BACKGROUND_LIBRARY, libraryImageUrl, libraryThumbUrl } from './backgroundLibrary';
+import { DECORATION_PICTURES, EFFECT_PICTURES, pictureUrl } from './pictureLibrary';
+
+const files = import.meta.glob(['../../../public/backgrounds/*', '../../../public/pictures/*'], { eager: true, query: '?url', import: 'default' });
+const have = new Set(Object.keys(files).map((f) => f.replace('../../../public', '')));
+
+describe('built-in pictures', () => {
+  it('every background has its picture and thumbnail', () => {
+    for (const b of BACKGROUND_LIBRARY) {
+      expect(have.has(libraryImageUrl(b.id)), b.id).toBe(true);
+      expect(have.has(libraryThumbUrl(b.id)), b.id).toBe(true);
+    }
+  });
+
+  it('every open-licence background says where it came from; the drawn ones need nothing', () => {
+    for (const b of BACKGROUND_LIBRARY) {
+      if (b.group === 'Drawn') expect(b.credit, b.id).toBeUndefined();
+      else expect(b.credit?.source, b.id).toMatch(/^https:\/\//);
+    }
+  });
+
+  it('ids and names are unique', () => {
+    expect(new Set(BACKGROUND_LIBRARY.map((b) => b.id)).size).toBe(BACKGROUND_LIBRARY.length);
+    expect(new Set(BACKGROUND_LIBRARY.map((b) => b.name)).size).toBe(BACKGROUND_LIBRARY.length);
+    const pics = [...DECORATION_PICTURES, ...EFFECT_PICTURES];
+    expect(new Set(pics.map((p) => p.id)).size).toBe(pics.length);
+  });
+
+  it('every effect and decoration picture has its file', () => {
+    for (const p of [...DECORATION_PICTURES, ...EFFECT_PICTURES]) expect(have.has(pictureUrl(p.id)), p.id).toBe(true);
+  });
+
+  it('ornaments keep their own colours only when they have some', () => {
+    const ornaments = DECORATION_PICTURES.filter((p) => p.group === 'Ornaments');
+    expect(ornaments.length).toBe(24);
+    expect(ornaments.find((p) => p.id === 'deco-orn-royal-crown')?.tint).toBe(false);
+    expect(ornaments.find((p) => p.id === 'deco-orn-heraldic-dragon')?.tint).toBe(true);
+  });
+});

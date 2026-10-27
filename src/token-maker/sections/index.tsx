@@ -8,7 +8,9 @@ import { ImportSection } from './ImportSection';
 const loaders = {
   image: () => import('./ImageSection').then((m) => ({ default: m.ImageSection })),
   background: () => import('./BackgroundSection').then((m) => ({ default: m.BackgroundSection })),
+  cutout: () => import('./BackgroundRemovalControls').then((m) => ({ default: m.BackgroundRemovalControls })),
   lighting: () => import('./LightingSection').then((m) => ({ default: m.LightingSection })),
+  shadows: () => import('./ShadowsSection').then((m) => ({ default: m.ShadowsSection })),
   popout: () => import('./PopOutSection').then((m) => ({ default: m.PopOutSection })),
   effects: () => import('./EffectsSection').then((m) => ({ default: m.EffectsSection })),
   frame: () => import('./FrameSection').then((m) => ({ default: m.FrameSection })),

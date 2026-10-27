@@ -336,3 +336,21 @@ describe('v9: Frame Studio designs', () => {
     }
   });
 });
+
+describe('v10: drop shadow size', () => {
+  it('a version-9 token keeps its shadows the size of what casts them', () => {
+    const v9 = { ...JSON.parse(JSON.stringify(createDocument('Old'))), schemaVersion: 9 };
+    delete v9.shadows.outer.spread;
+    delete v9.shadows.popOut.spread;
+    const doc = migrateDocument(v9);
+    expect(doc.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(doc.shadows.outer.spread).toBe(0);
+    expect(doc.shadows.popOut.spread).toBe(0);
+  });
+
+  it('keeps the size within range', () => {
+    const base = createDocument();
+    const doc = migrateDocument({ ...base, shadows: { ...base.shadows, outer: { ...base.shadows.outer, spread: 9 } } });
+    expect(doc.shadows.outer.spread).toBe(0.5);
+  });
+});

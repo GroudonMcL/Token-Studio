@@ -7,7 +7,7 @@ const OPTIONS = [
   { value: 'expert', label: 'Expert' },
 ] as const satisfies readonly { value: MenuStyle; label: string }[];
 
-/** Simple / Advanced / Expert: how many settings the panel sections show. Sits above Import. */
+/** Simple / Advanced / Expert: how many settings the panel sections show. In the top bar's Panel settings. */
 export function MenuStyleSwitch() {
   const style = useMenuStyle();
   return (

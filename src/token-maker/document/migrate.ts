@@ -90,6 +90,8 @@ export const MIGRATIONS: Record<number, (doc: Json) => Json> = {
   },
   // v8 → v9 (Frame Studio designs as frames): nothing could use one before; `design` starts empty (filled in by sanitize).
   8: (doc) => doc,
+  // v9 → v10 (drop shadow controls): shadows were always the size of what cast them, so `spread` starts at 0 (filled in by sanitize).
+  9: (doc) => doc,
 };
 
 /** The effect kind each old foreground overlay became (v8). */
@@ -420,6 +422,7 @@ export function sanitize(raw: Json): TokenDocument {
       blur: num(s.blur, base.blur, 0, 1),
       color: hex(s.color, base.color),
       opacity: num(s.opacity, base.opacity, 0, 1),
+      spread: num(s.spread, base.spread, 0, 0.5),
     };
   };
   const inner = obj(shadows.inner);

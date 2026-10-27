@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Phase 6: styles and effects (DESIGN.md §6.8).
 // Done when: stack a frost glow on the border, mist over the art and a
@@ -9,16 +10,7 @@ import { readFileSync } from 'node:fs';
 const FLAT = 'e2e/token-maker/fixtures/flat-goblin.png';
 type Rgba = number[];
 
-async function effectsPanel(page: Page, isMobile: boolean) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: 'Effects' }).click();
-    return page.getByRole('tabpanel');
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name: 'Effects', exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
+const effectsPanel = (page: Page) => openSection(page, 'Effects');
 
 async function exportPixels(page: Page, isMobile: boolean, points: [number, number][]): Promise<Rgba[]> {
   const download = page.waitForEvent('download');
@@ -78,7 +70,7 @@ const POINTS = [OUTSIDE, FRAME, LOW, MIDDLE];
 test('stack a frost border, mist over the art and a bloodied look, reorder them and export', async ({ page, isMobile }) => {
   const m = !!isMobile;
   const before = await exportPixels(page, m, POINTS);
-  const panel = await effectsPanel(page, m);
+  const panel = await effectsPanel(page);
 
   // The picker shows a live thumbnail for every drawn effect (and picture effects show their pictures).
   await expect(panel.locator('.tile[data-effect] img')).toHaveCount(24);
@@ -111,13 +103,13 @@ test('stack a frost border, mist over the art and a bloodied look, reorder them 
   // The stack survives a reload (autosave).
   await page.waitForTimeout(1200);
   await page.reload();
-  const again = await effectsPanel(page, m);
+  const again = await effectsPanel(page);
   await expect(again.getByRole('list', { name: 'Effects, top first' }).getByRole('listitem')).toHaveCount(3);
 });
 
 test('changing placement, colour and intensity', async ({ page, isMobile }) => {
   const m = !!isMobile;
-  const panel = await effectsPanel(page, m);
+  const panel = await effectsPanel(page);
   await panel.getByRole('button', { name: /^Outer glow$/ }).click();
   const [onBorder] = await exportPixels(page, m, [OUTSIDE]);
   expect(onBorder![3]).toBeGreaterThan(50);
@@ -135,8 +127,8 @@ test('changing placement, colour and intensity', async ({ page, isMobile }) => {
   expect(off![3]).toBeLessThan(onBorder![3]! - 30);
 });
 
-test('three stacked effects stay smooth while a slider moves', async ({ page, isMobile }) => {
-  const panel = await effectsPanel(page, !!isMobile);
+test('three stacked effects stay smooth while a slider moves', async ({ page }) => {
+  const panel = await effectsPanel(page);
   for (const name of ['Frost', 'Mist', 'Bloodied']) await panel.getByRole('button', { name: new RegExp(`^${name}$`) }).click();
   const slider = panel.getByRole('slider', { name: 'Intensity' });
   await slider.scrollIntoViewIfNeeded();

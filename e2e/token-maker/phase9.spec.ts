@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { unzipSync } from 'fflate';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Phase 9: export and batch mode (DESIGN.md §6.11, §6.1).
 // Done when: drop in six goblin images, style one, see all six share the
@@ -14,20 +15,6 @@ const SIX = ['goblin-archer', 'goblin-shaman', 'goblin-brute', 'goblin-scout', '
   mimeType: 'image/png',
   buffer: i % 2 ? FLAT : GOBLIN,
 }));
-
-async function section(page: Page, isMobile: boolean, name: string, tab = name) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: tab }).click();
-    const panel = page.getByRole('tabpanel');
-    const toggle = panel.getByRole('button', { name, exact: true });
-    if ((await toggle.count()) && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-    return panel;
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name, exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
 
 /** Clicks something and returns the downloaded file's name and bytes. */
 async function download(page: Page, click: () => Promise<void>) {
@@ -86,7 +73,7 @@ test('six goblins share one style, each keeps its own crop, and download as a ZI
   await expect(page.locator('.token-summary__name').first()).toHaveText('Goblin Archer');
 
   // Style the one on screen: a square token. Every token takes the look.
-  const frame = await section(page, m, 'Frame & shape', 'Frame');
+  const frame = await openSection(page, 'Frame & shape');
   await frame.getByRole('radio', { name: 'Square' }).click();
 
   // Nudge each one's crop: turn the shaman upside down and the brute a quarter turn.
@@ -100,7 +87,7 @@ test('six goblins share one style, each keeps its own crop, and download as a ZI
 
   // Rename the scout from the Import section.
   await strip(page).getByRole('radio', { name: 'Goblin Scout' }).click();
-  const imp = await section(page, m, 'Import');
+  const imp = await openSection(page, 'Import');
   await imp.getByLabel('Token name').fill('Scout Captain');
   await imp.getByLabel('Token name').blur();
   const scoutPreview = await previewPng(page);
@@ -133,15 +120,14 @@ test('six goblins share one style, each keeps its own crop, and download as a ZI
   await expect(strip(page).getByRole('radio', { name: 'Scout Captain' })).toHaveAttribute('aria-checked', 'true');
 });
 
-test('every format and resolution matches the preview, with a safe file name', async ({ page, isMobile }) => {
+test('every format and resolution matches the preview, with a safe file name', async ({ page }) => {
   test.setTimeout(60_000);
-  const m = !!isMobile;
   await fresh(page);
   await page.getByTestId('file-input').first().setInputFiles({ name: 'goblin boss!.png', mimeType: 'image/png', buffer: GOBLIN });
   await expect(page.locator('.token-summary__name').first()).toHaveText('Goblin Boss!');
   const preview = await previewPng(page);
 
-  const panel = await section(page, m, 'Export');
+  const panel = await openSection(page, 'Export');
   const sizes = { '128': 128, '256': 256, '512': 512 } as const;
   for (const [format, ext] of [
     ['PNG', 'png'],
@@ -176,12 +162,12 @@ test('every format and resolution matches the preview, with a safe file name', a
   expect(named.name).toBe('my-bosstoken.png');
 });
 
-test('copy to clipboard puts the PNG on the clipboard', async ({ page, isMobile, browserName, context }) => {
+test('copy to clipboard puts the PNG on the clipboard', async ({ page, browserName, context }) => {
   test.skip(browserName !== 'chromium');
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await fresh(page);
   await page.getByTestId('file-input').first().setInputFiles('e2e/token-maker/fixtures/goblin-boss.png');
-  const panel = await section(page, !!isMobile, 'Export');
+  const panel = await openSection(page, 'Export');
   await panel.getByRole('button', { name: 'Copy to clipboard' }).click();
   await expect(page.getByText('Copied the token')).toBeVisible();
   const types = await page.evaluate(async () => (await navigator.clipboard.read())[0]?.types ?? []);

@@ -5,11 +5,10 @@ import { DEFAULT_BACKGROUND } from '../document/defaults';
 import type { BackgroundKind, BackgroundLayer } from '../document/types';
 import { setTool, useTool } from '../editor/tools';
 import { UploadButton } from '../editor/UploadButton';
-import { BACKGROUND_LIBRARY, libraryThumbUrl } from '../render/backgroundLibrary';
+import { BACKGROUND_LIBRARY, libraryBackground, libraryThumbUrl } from '../render/backgroundLibrary';
 import { loadLibraryImage } from '../state/libraryAssets';
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
 import { toast } from '../ui/toast';
-import { BackgroundRemovalControls } from './BackgroundRemovalControls';
 import { WebAddress } from './ImportSection';
 
 const COLOR_SWATCHES = ['#1d1f27', '#3a4a5c', '#2b3a22', '#4a2f22', '#5b2d7a', '#7a2e2e', '#c9b48a', '#e8e0d0', '#ffffff', '#000000'];
@@ -19,7 +18,7 @@ type Source = 'library' | 'asset' | 'art';
 const setBackground = (patch: Partial<BackgroundLayer>, transient = false) =>
   updateDoc((d) => ({ ...d, background: { ...d.background, ...patch } }), { transient });
 
-/** Background section (DESIGN.md §6.3): removing the art's own background (v8), then a colour, gradient or picture behind the art inside the frame. */
+/** Background section (DESIGN.md §6.3): a colour, gradient or picture behind the art inside the frame. Removing the art's own background is in Cut-out. */
 export function BackgroundSection() {
   const bg = useDoc((d) => d.background);
   const hasArt = useDoc((d) => d.art.assetId !== null);
@@ -35,7 +34,6 @@ export function BackgroundSection() {
 
   return (
     <>
-      <BackgroundRemovalControls />
       <SegmentedButtons
         label="Background"
         helpId="background.kind"
@@ -98,10 +96,12 @@ export function BackgroundSection() {
               tiles={BACKGROUND_LIBRARY.map((b) => ({
                 id: b.id,
                 label: b.name,
+                group: b.group,
                 preview: <img src={libraryThumbUrl(b.id)} alt="" width={44} height={44} loading="lazy" />,
               }))}
             />
           )}
+          {source === 'library' && <LibraryCredit id={bg.image?.type === 'library' ? bg.image.id : null} />}
           {source === 'asset' && (
             <>
               <div className="control" data-control="background-upload" data-help-id="background.upload">
@@ -174,5 +174,19 @@ export function BackgroundSection() {
         />
       )}
     </>
+  );
+}
+
+/** Where the chosen open-licence picture came from (the drawn ones have nothing to credit). */
+function LibraryCredit({ id }: { id: string | null }) {
+  const credit = id ? libraryBackground(id)?.credit : undefined;
+  if (!credit) return null;
+  return (
+    <p className="control__hint" data-testid="background-credit">
+      <i>{credit.title}</i>, {credit.by}.{' '}
+      <a href={credit.source} target="_blank" rel="noopener noreferrer">
+        Source
+      </a>
+    </p>
   );
 }

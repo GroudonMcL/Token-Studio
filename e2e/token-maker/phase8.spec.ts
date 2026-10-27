@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Phase 8: the label (DESIGN.md §6.10).
 // Done when: add a ribbon label in a fantasy font, or curve the name around
@@ -9,20 +10,6 @@ import { readFileSync } from 'node:fs';
 const GOBLIN = 'e2e/token-maker/fixtures/goblin-boss.png';
 // Any font file will do for "upload your own"; this one is OFL, from the bundled set.
 const OWN_FONT = 'node_modules/@fontsource/eagle-lake/files/eagle-lake-latin-400-normal.woff2';
-
-async function section(page: Page, isMobile: boolean, name: string) {
-  if (isMobile) {
-    await page.getByRole('tab', { name }).click();
-    const panel = page.getByRole('tabpanel');
-    const toggle = panel.getByRole('button', { name, exact: true });
-    if ((await toggle.count()) && (await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-    return panel;
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name, exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
 
 async function exportPng(page: Page, isMobile: boolean): Promise<Buffer> {
   const download = page.waitForEvent('download');
@@ -85,7 +72,7 @@ test('a ribbon label in a fantasy font, then the name curved round the ring; the
   const before = await exportPng(page, m);
 
   // A banner with the token's name, in Pirata One.
-  let panel = await section(page, m, 'Label');
+  let panel = await openSection(page, 'Label');
   await panel.getByRole('button', { name: 'Add a label' }).click();
   await expect(panel.getByRole('radio', { name: 'Banner' })).toHaveAttribute('aria-checked', 'true');
   const fonts = panel.getByRole('radiogroup', { name: 'Font' });
@@ -105,7 +92,7 @@ test('a ribbon label in a fantasy font, then the name curved round the ring; the
   expect(await changedPixels(pirata, fraktur)).toBeGreaterThan(40);
 
   // Curved round the ring.
-  panel = await section(page, m, 'Label');
+  panel = await openSection(page, 'Label');
   await panel.getByRole('radio', { name: 'Ring text' }).click();
   await expect(panel.getByRole('radio', { name: 'Ring text' })).toHaveAttribute('aria-checked', 'true');
   expect(await previewVsExport(page, m)).toBeLessThan(6);
@@ -120,7 +107,7 @@ test('a ribbon label in a fantasy font, then the name curved round the ring; the
   // It all survives a reload (autosave), still in the right font.
   await page.reload();
   await expect(page.locator('.token-summary__name').first()).toHaveText('Goblin Boss');
-  panel = await section(page, m, 'Label');
+  panel = await openSection(page, 'Label');
   await expect(panel.getByRole('radio', { name: 'Ring text' })).toHaveAttribute('aria-checked', 'true');
   await expect(panel.getByRole('radiogroup', { name: 'Font' }).getByRole('radio', { name: 'UnifrakturMaguntia' })).toHaveAttribute('aria-checked', 'true');
   expect(await previewVsExport(page, m)).toBeLessThan(6);
@@ -129,7 +116,7 @@ test('a ribbon label in a fantasy font, then the name curved round the ring; the
 test('drag the label on the canvas: it snaps to the top or bottom', async ({ page, isMobile }) => {
   const m = !!isMobile;
   await fresh(page);
-  const panel = await section(page, m, 'Label');
+  const panel = await openSection(page, 'Label');
   await panel.getByRole('button', { name: 'Add a label' }).click();
   const place = panel.getByRole('radiogroup', { name: 'Position' });
   // Start at the top: on phones the bottom sheet covers the lower part of the token.
@@ -153,7 +140,7 @@ test('drag the label on the canvas: it snaps to the top or bottom', async ({ pag
     await page.mouse.move(to.x, to.y, { steps: 12 });
     await page.mouse.up();
   }
-  const label = await section(page, m, 'Label');
+  const label = await openSection(page, 'Label');
   await expect(label.getByRole('radiogroup', { name: 'Position' }).getByRole('radio', { name: 'Bottom' })).toHaveAttribute('aria-checked', 'true');
   // The art didn't move: the drag went to the label, and the export still matches.
   expect(await previewVsExport(page, m)).toBeLessThan(6);
@@ -162,7 +149,7 @@ test('drag the label on the canvas: it snaps to the top or bottom', async ({ pag
 test('upload your own font; it is kept in this browser', async ({ page, isMobile }) => {
   const m = !!isMobile;
   await fresh(page);
-  let panel = await section(page, m, 'Label');
+  let panel = await openSection(page, 'Label');
   await panel.getByRole('button', { name: 'Add a label' }).click();
   await panel.getByTestId('font-file-input').setInputFiles(OWN_FONT);
   const own = panel.getByRole('radiogroup', { name: 'Font' }).getByRole('radio', { name: 'eagle lake latin 400 normal' });
@@ -175,7 +162,7 @@ test('upload your own font; it is kept in this browser', async ({ page, isMobile
   await expect(page.getByText(/couldn't be used as a font/)).toBeVisible();
 
   await page.reload();
-  panel = await section(page, m, 'Label');
+  panel = await openSection(page, 'Label');
   await expect(panel.getByRole('radiogroup', { name: 'Font' }).getByRole('radio', { name: 'eagle lake latin 400 normal' })).toHaveAttribute('aria-checked', 'true');
   expect(await previewVsExport(page, m)).toBeLessThan(6);
 });
