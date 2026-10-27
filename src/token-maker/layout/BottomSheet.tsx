@@ -1,11 +1,8 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { Section } from '../components';
-import { selectDecoration, toolStore } from '../editor/tools';
-import { onRevealSection } from './reveal';
-import { PHONE_TABS, sectionById } from './sections';
-import { MenuStyleSwitch } from './MenuStyleSwitch';
-import { SectionPlaceholder } from './SectionPlaceholder';
-import { SECTION_CONTENT } from '../sections';
+import { toolStore } from '../editor/tools';
+import { usePanelNav } from './panelNav';
+import { PANEL_TABS } from './sections';
+import { TabSections } from './TabSections';
 import { ExportButton } from './BottomBar';
 import { TokenSummary } from './TokenSummary';
 
@@ -30,13 +27,9 @@ export function BottomSheet() {
   const [container, setContainer] = useState(800);
   const [snap, setSnap] = useState<SheetSnap>('peek');
   const [dragHeight, setDragHeight] = useState<number | null>(null);
-  const [tab, setTab] = useState(PHONE_TABS[0]!.id);
-  // Tabs holding more than one section open one at a time, starting with the first.
-  const [openSection, setOpenSection] = useState<string | null>(PHONE_TABS[0]!.sections[0]!);
-  // Leaving the Decorations section lets go of the picked decoration, so the art's handles come back.
-  useEffect(() => {
-    if (openSection !== 'decorations') selectDecoration(null);
-  }, [openSection]);
+  // A section asked to be shown: open the sheet so it can be seen.
+  const nav = usePanelNav(() => setSnap((s) => (s === 'peek' ? 'half' : s)));
+  const tab = nav.tab.id;
   const drag = useRef<{ startY: number; startH: number; moved: boolean } | null>(null);
   const panelId = useId();
 
@@ -94,22 +87,9 @@ export function BottomSheet() {
   };
 
   const chooseTab = (id: string) => {
-    setTab(id);
-    setOpenSection(PHONE_TABS.find((t) => t.id === id)!.sections[0]!);
+    nav.setTab(id);
     if (snap === 'peek') setSnap('half');
   };
-
-  // A section asked to be shown (e.g. pictures found on a pasted page link).
-  useEffect(
-    () =>
-      onRevealSection((id) => {
-        const t = PHONE_TABS.find((p) => p.sections.includes(id));
-        if (!t) return;
-        setTab(t.id);
-        setSnap((s) => (s === 'peek' ? 'half' : s));
-      }),
-    [],
-  );
 
   // The brush and eyedropper need the picture: lower the sheet while they're on, then put it back.
   const snapRef = useRef(snap);
@@ -135,7 +115,7 @@ export function BottomSheet() {
     sheetRef.current?.querySelector(`[data-tab="${tab}"]`)?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }, [tab]);
 
-  const active = PHONE_TABS.find((t) => t.id === tab)!;
+  const active = nav.tab;
 
   return (
     <div
@@ -166,7 +146,7 @@ export function BottomSheet() {
         </div>
       </div>
       <div className="bottom-sheet__tabs" role="tablist" aria-label="Settings">
-        {PHONE_TABS.map((t) => (
+        {PANEL_TABS.map((t) => (
           <button
             key={t.id}
             type="button"
@@ -183,23 +163,7 @@ export function BottomSheet() {
         ))}
       </div>
       <div className="bottom-sheet__content" id={panelId} role="tabpanel" aria-label={active.label} hidden={snap === 'peek' && dragHeight === null}>
-        {active.id === 'import' && <MenuStyleSwitch />}
-        {active.sections.map((sid) => {
-          const s = sectionById(sid);
-          const Content = SECTION_CONTENT[sid];
-          return (
-            <Section
-              key={sid}
-              title={s.title}
-              helpId={s.helpId}
-              icon={s.icon}
-              open={openSection === sid}
-              onOpenChange={(o) => setOpenSection(o ? sid : null)}
-            >
-              {Content ? <Content /> : <SectionPlaceholder text={s.placeholder} />}
-            </Section>
-          );
-        })}
+        <TabSections tab={active} openSection={nav.openSection} setOpenSection={nav.setOpenSection} />
       </div>
     </div>
   );

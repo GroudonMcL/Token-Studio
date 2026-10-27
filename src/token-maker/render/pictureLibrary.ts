@@ -25,6 +25,7 @@ export interface LibraryDecorationPicture {
   swatches: string[];
   /** Coloured by the decoration's colour (single-colour pictures); false keeps the picture's own colours. */
   tint: boolean;
+  group: 'Ornaments' | 'Pictures';
 }
 
 const fx = (
@@ -58,10 +59,50 @@ const deco = (id: string, name: string, color: string, swatches: string[] = META
   color,
   swatches: [color, ...swatches.filter((c) => c !== color)],
   tint: true,
+  group: 'Pictures',
 });
 
-/** Picture decorations: flat icons with a dark outline, coloured by the decoration's colour. */
+const GOLD = '#d9ad4f';
+/**
+ * Ornaments (owner's choice after the asset review): Openclipart's CC0
+ * filigree, heraldry and flourishes, drawn from their SVGs. The single-colour
+ * ones are tinted (gold to start); the coloured ones keep their own colours.
+ */
+const orn = (id: string, name: string, colourful: boolean): LibraryDecorationPicture => ({
+  id: `deco-orn-${id}`,
+  name,
+  color: colourful ? '#ffffff' : GOLD,
+  swatches: colourful ? ['#ffffff'] : [GOLD, ...METAL.filter((c) => c !== GOLD), '#8a1c1c'],
+  tint: !colourful,
+  group: 'Ornaments',
+});
+
+/** Picture decorations: ornaments, then flat icons with a dark outline (coloured by the decoration's colour). */
 export const DECORATION_PICTURES: readonly LibraryDecorationPicture[] = [
+  orn('celtic-vine-corner', 'Celtic vine corner', false),
+  orn('leaf-ornament', 'Leaf ornament', false),
+  orn('corner-decoration', 'Corner decoration', false),
+  orn('engraved-lion', 'Engraved lion', false),
+  orn('bejeweled-lion', 'Bejeweled lion', false),
+  orn('golden-laurel', 'Golden laurel', true),
+  orn('gold-victorian-ring', 'Gold victorian ring', true),
+  orn('filigree-circle', 'Filigree circle', false),
+  orn('corner-flourish', 'Corner flourish', false),
+  orn('flourish-divider', 'Flourish divider', false),
+  orn('laurel-wreath', 'Laurel wreath', false),
+  orn('heraldic-dragon', 'Heraldic dragon', false),
+  orn('heraldic-griffin', 'Heraldic griffin', false),
+  orn('heraldic-unicorn', 'Heraldic unicorn', false),
+  orn('heraldic-wyvern', 'Heraldic wyvern', false),
+  orn('lion-rampant', 'Lion rampant', true),
+  orn('gold-griffin', 'Gold griffin', true),
+  orn('royal-crown', 'Royal crown', true),
+  orn('celtic-knot', 'Celtic knot', false),
+  orn('gold-fleur-de-lis', 'Gold fleur de lis', true),
+  orn('fleur-de-lis', 'Fleur de lis', false),
+  orn('knotwork-divider', 'Knotwork divider', false),
+  orn('antique-corner', 'Antique corner', false),
+  orn('dragon-head', 'Dragon head', false),
   deco('skull-icon', 'Skull icon', '#e9e1cc', ['#e9e1cc', '#3a3a3a', '#76ff4a', '#c0263a']),
   deco('heart', 'Heart', '#c0263a', ['#c0263a', '#ff6fb5', '#ffffff']),
   deco('broken-heart', 'Broken heart', '#c0263a', ['#c0263a', '#5a0606', '#8a8a8a']),

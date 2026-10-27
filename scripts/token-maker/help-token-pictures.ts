@@ -322,6 +322,7 @@ export async function tokenPictures(save: Save): Promise<void> {
   p('section.background', [bg({ kind: 'none' })], [forest()]);
   p('section.lighting', [], [light('torchlight')]);
   p('section.popout', [zoomed], [popOut()]);
+  p('section.cutout', [(d) => (d.art.removal = { ...d.art.removal, enabled: false })], []);
   p('section.effects', [], [(d) => (d.effects = [newEffect('fire', 'f'), newEffect('embers', 'e')])]);
   p('section.frame', [], [framePreset('wizard'), (d) => (d.shape = 'hexagon')]);
   p('section.decorations', [], [deco('horn'), deco('gem', { place: 'bottom' })]);
@@ -418,6 +419,8 @@ export async function tokenPictures(save: Save): Promise<void> {
   const unlinked = (patch: Partial<TokenDocument['shadows']['outer']> = {}) => shadow('outer', { followLight: false, angle: 45, distance: 0.08, blur: 0.12, ...patch });
   p('shadows.follow', [shadow('outer', { distance: 0.08 })], [unlinked({ angle: 160 })], L);
   p('shadows.angle', [unlinked()], [unlinked({ angle: 200 })], L);
+  p('section.shadows', [shadow('outer', { enabled: false })], [shadow('outer', { distance: 0.08, blur: 0.12 })], L);
+  p('shadows.which', [bg({ color: '#c9b48a' }), inner({ enabled: false })], [bg({ color: '#c9b48a' }), inner({ strength: 1, softness: 0.2 })]);
   p('shadows.styles', [shadow('outer', {})], [shadow('outer', { distance: 0.24, blur: 0.3, opacity: 0.55, spread: 0.08 })], L);
   p('shadows.spread', [shadow('outer', { distance: 0.08, blur: 0.12 })], [shadow('outer', { distance: 0.08, blur: 0.12, spread: 0.3 })], L);
   p('shadows.distance', [unlinked({ distance: 0.01 })], [unlinked({ distance: 0.18 })], L);

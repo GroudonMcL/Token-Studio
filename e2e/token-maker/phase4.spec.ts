@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Phase 4: background, foreground overlays and lighting (DESIGN.md §6.3–6.5).
 // Since v8 background removal is in Background and the overlays are effects.
@@ -11,20 +12,6 @@ const FLAT = 'e2e/token-maker/fixtures/flat-goblin.png';
 type Rgb = number[];
 
 /** Phone tab for each section. */
-const TABS: Record<string, string> = { Image: 'Image', Background: 'Backgr.', Effects: 'Effects', 'Lighting & shadows': 'Lighting' };
-
-/** Opens a section (phone: its tab in the bottom sheet) and returns where its controls are. */
-async function section(page: Page, isMobile: boolean, name: string) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: TABS[name] }).click();
-    return page.getByRole('tabpanel');
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name, exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
-
 async function exportPixels(page: Page, isMobile: boolean, points: [number, number][]): Promise<Rgb[]> {
   const download = page.waitForEvent('download');
   if (isMobile) await page.locator('.bottom-sheet__summary').getByRole('button', { name: 'Export' }).click();
@@ -76,7 +63,7 @@ const EDGE: [number, number] = [0.5, 0.14];
 test('a character on a blurred forest with a vignette and torchlight from below; the export matches the preview', async ({ page, isMobile }) => {
   const m = !!isMobile;
   // Cut the character out of its flat background.
-  let panel = await section(page, m, 'Background');
+  let panel = await openSection(page, 'Background');
   await panel.getByRole('switch', { name: 'Remove background' }).click();
 
   // A blurred forest behind it.
@@ -89,7 +76,7 @@ test('a character on a blurred forest with a vignette and torchlight from below;
   expect(lum(forest!)).toBeGreaterThan(30);
 
   // A vignette.
-  panel = await section(page, m, 'Effects');
+  panel = await openSection(page, 'Effects');
   const [edgeBefore] = await previewPixels(page, [EDGE]);
   await panel.getByRole('button', { name: /^Vignette$/ }).click();
   await expect(panel.getByRole('list', { name: 'Effects, top first' }).getByRole('listitem')).toHaveCount(1);
@@ -97,7 +84,7 @@ test('a character on a blurred forest with a vignette and torchlight from below;
   expect(lum(edgeAfter!)).toBeLessThan(lum(edgeBefore!) - 10);
 
   // Torchlight: from below and warm.
-  panel = await section(page, m, 'Lighting & shadows');
+  panel = await openSection(page, 'Lighting');
   const [bodyBefore] = await previewPixels(page, [BODY]);
   await panel.getByRole('button', { name: /Torchlight/ }).click();
   await expect(panel.getByRole('slider', { name: 'Light comes from' })).toHaveAttribute('aria-valuenow', '90');
@@ -114,9 +101,8 @@ test('a character on a blurred forest with a vignette and torchlight from below;
   points.forEach((p, i) => expect(near(exported[i]!, preview[i]!, 28), `pixel at ${p}: export ${exported[i]} vs preview ${preview[i]}`).toBe(true));
 });
 
-test('overlays can be reordered, hidden and removed; presets stay editable', async ({ page, isMobile }) => {
-  const m = !!isMobile;
-  let panel = await section(page, m, 'Effects');
+test('overlays can be reordered, hidden and removed; presets stay editable', async ({ page }) => {
+  let panel = await openSection(page, 'Effects');
   await panel.getByRole('button', { name: /^Cobwebs$/ }).click();
   await panel.getByRole('button', { name: /^Vignette$/ }).click();
   const names = () => panel.locator('.overlay-card').evaluateAll((items) => items.map((i) => i.getAttribute('data-effect')));
@@ -130,7 +116,7 @@ test('overlays can be reordered, hidden and removed; presets stay editable', asy
   await page.getByRole('button', { name: 'Undo' }).first().click();
   expect(await names()).toEqual(['cobwebs', 'vignette']);
 
-  panel = await section(page, m, 'Lighting & shadows');
+  panel = await openSection(page, 'Lighting');
   await panel.getByRole('button', { name: /Moonlight/ }).click();
   await expect(panel.getByRole('button', { name: /Moonlight/ })).toHaveAttribute('aria-pressed', 'true');
   // Changing a setting by hand keeps the light but it's no longer the preset.
@@ -144,7 +130,7 @@ test('overlays can be reordered, hidden and removed; presets stay editable', asy
 
 test('your own picture as the background, moved on the canvas', async ({ page, isMobile }) => {
   test.skip(!!isMobile, 'canvas drag is covered by the brush tests on phones');
-  const panel = await section(page, false, 'Background');
+  const panel = await openSection(page, 'Background');
   await panel.getByRole('radio', { name: 'Picture' }).click();
   await panel.getByRole('radio', { name: 'Your own' }).click();
   await page.getByTestId('background-file-input').setInputFiles('e2e/token-maker/fixtures/goblin-boss.png');

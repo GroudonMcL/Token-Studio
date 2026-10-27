@@ -74,6 +74,14 @@ export function DecorationsSection() {
       <div className="tile-grid" data-control="decoration-add" data-help-id="decorations.add">
         <ControlLabel label="Add a decoration" helpId="decorations.add" />
         <div className="tile-grid__groups">
+          <div className="tile-grid__group" role="group" aria-label="Ornaments">
+            <div className="tile-grid__group-name">Ornaments</div>
+            <div className="tile-grid__tiles">
+              {DECORATION_PICTURES.filter((p) => p.group === 'Ornaments').map((p) => (
+                <PictureTile key={p.id} id={p.id} name={p.name} url={pictureUrl(p.id)} disabled={full} onAdd={() => void addPictureDecoration({ type: 'library', id: p.id })} />
+              ))}
+            </div>
+          </div>
           {DECORATION_GROUPS.map((group) => (
             <Fragment key={group}>
               {group === 'Pictures' && (
@@ -92,7 +100,7 @@ export function DecorationsSection() {
                 <div className="tile-grid__tiles">
                   {group === 'Pictures' ? (
                     <>
-                      {DECORATION_PICTURES.map((p) => (
+                      {DECORATION_PICTURES.filter((p) => p.group === 'Pictures').map((p) => (
                         <PictureTile key={p.id} id={p.id} name={p.name} url={pictureUrl(p.id)} disabled={full} onAdd={() => void addPictureDecoration({ type: 'library', id: p.id })} />
                       ))}
                       {uploads.map((p) => (

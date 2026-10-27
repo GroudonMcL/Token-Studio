@@ -1,10 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Phase 3: adjustments, flat background removal and the erase/restore brush
 // (DESIGN.md §6.2), on desktop (mouse) and phone (real touch events).
-// Background removal is in the Background section since v8.
+// Background removal is in the Cut-out section since the tool rail (it was in Background from v8).
 
 const FLAT = 'e2e/token-maker/fixtures/flat-goblin.png';
 const BACKING = [0x1d, 0x1f, 0x27];
@@ -16,29 +17,12 @@ async function upload(page: Page) {
   await expect(page.locator('.token-summary__name').first()).toHaveText('Flat Goblin');
 }
 
-/** The Image section (phone: its tab in the bottom sheet). */
-async function imagePanel(page: Page, isMobile: boolean) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: 'Image' }).click();
-    return page.getByRole('tabpanel');
-  }
-  const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const toggle = panel.getByRole('button', { name: 'Image', exact: true });
-  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  return panel;
-}
+/** The Image section. */
+const imagePanel = (page: Page) => openSection(page, 'Image');
 
-/** Background removal, in the Background section since v8 (phone: its tab). */
-async function removeBackground(page: Page, isMobile: boolean) {
-  let panel;
-  if (isMobile) {
-    await page.getByRole('tab', { name: 'Backgr.' }).click();
-    panel = page.getByRole('tabpanel');
-  } else {
-    panel = page.getByRole('complementary', { name: 'Token settings' });
-    const toggle = panel.getByRole('button', { name: 'Background', exact: true });
-    if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
-  }
+/** Background removal, in the Cut-out section since the tool rail. */
+async function removeBackground(page: Page) {
+  const panel = await openSection(page, 'Cut-out');
   await panel.getByRole('switch', { name: 'Remove background' }).click();
   return panel;
 }
@@ -110,9 +94,9 @@ test('remove a flat background, tidy it with the brush, tune it, and the export 
   expect(near(bgBefore!, [0xfb, 0xfb, 0xf8])).toBe(true); // the white background
 
   // Remove the background: the backing colour shows instead of white.
-  const bgPanel = await removeBackground(page, !!isMobile);
+  const bgPanel = await removeBackground(page);
   await expect(bgPanel.getByText('Found from the edges')).toBeVisible();
-  const panel = await imagePanel(page, !!isMobile);
+  const panel = await imagePanel(page);
   const [bgAfter, faceBefore] = await exportPixels(page, !!isMobile, [BG, FACE]);
   expect(near(bgAfter!, BACKING)).toBe(true);
   expect(near(faceBefore!, BACKING)).toBe(false);
@@ -146,8 +130,8 @@ test('remove a flat background, tidy it with the brush, tune it, and the export 
 
 test('restore brings back part of the removed background', async ({ page, isMobile }) => {
   await upload(page);
-  await removeBackground(page, !!isMobile);
-  const panel = await imagePanel(page, !!isMobile);
+  await removeBackground(page);
+  const panel = await imagePanel(page);
   await panel.getByRole('button', { name: 'Use the brush' }).click();
   await page.getByRole('toolbar', { name: 'Brush' }).getByRole('button', { name: 'Restore' }).click();
   await stroke(page, !!isMobile, BG[1]);
@@ -158,7 +142,7 @@ test('restore brings back part of the removed background', async ({ page, isMobi
 test('the eyedropper picks the background colour from the picture', async ({ page, isMobile }) => {
   test.skip(!!isMobile, 'covered by the desktop and tablet runs');
   await upload(page);
-  const panel = await removeBackground(page, false);
+  const panel = await removeBackground(page);
   await panel.getByRole('button', { name: 'Pick colour' }).click();
   const box = (await page.getByTestId('token-canvas').boundingBox())!;
   await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.65); // the red body

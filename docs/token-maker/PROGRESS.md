@@ -148,6 +148,14 @@ A checklist of build phases, following [`BUILD-PROMPTS.md`](BUILD-PROMPTS.md). D
 - [x] Drop shadow quick styles, Size (spread, v9 → v10 migration), longer distance/blur ranges, glow colours
 - [x] Help tips with before/after pictures for the new controls (`npm run help-images`); unit, migration and Playwright tests
 
+## Asset review picks (owner feedback)
+
+- [x] Layout A: tool rail with Art / Look / Finish tabs, focused right-hand panel, Lighting and Shadows split, Cut-out section, menu style in the top bar's Panel settings; phones use the same tabs
+- [x] Any effect picture can be added as a decoration (Effect pictures group)
+- [x] 30 open-licence backgrounds (17 paintings, 2 space pictures, 11 textures and papers; CC0 or public domain), grouped in the picker with a credit line for the chosen one; the 10 drawn ones stay as "Drawn"
+- [x] 24 CC0 Openclipart ornaments as decorations (single-colour ones tinted, gold to start)
+- [x] Credits in `ASSETS-CREDITS.md`; tests that every library picture has its files and every open-licence background its source
+
 ## Later (not phases yet)
 
 From DESIGN.md §15. Don't build these until the owner decides to: AI auto pop-out, AI relighting, animated borders/overlays with GIF export, Pinterest board browsing, sending tokens to Owlbear/Foundry, condition-variant packs, accounts and cloud saving, premium asset packs, switching adverts on.

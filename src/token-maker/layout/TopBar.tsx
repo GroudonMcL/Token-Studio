@@ -9,6 +9,7 @@ import { AppSwitch } from '../../shell/AppSwitch';
 import { inTokenStudio } from '../../shell/studioApps';
 import { PalettePicker } from '../../shell/PalettePicker';
 import { BrandMark } from './BrandMark';
+import { PanelSettings } from './PanelSettings';
 
 const NEXT_THEME: Record<ThemeChoice, ThemeChoice> = { dark: 'light', light: 'dark' };
 const THEME_ICON = { dark: Moon, light: Sun };
@@ -54,6 +55,7 @@ export function TopBar({ compact }: { compact: boolean }) {
         {compact && <span className="visually-hidden">New</span>}
       </button>
       <div className="topbar__group" data-control="theme" data-help-id="topbar.theme">
+        <PanelSettings />
         <PalettePicker />
         <button
           type="button"

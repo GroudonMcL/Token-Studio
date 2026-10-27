@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Phase 10: polish and launch. A phone pass (every control at least 44 px
 // to touch), an accessibility pass (axe in both themes, keyboard use) and
@@ -101,7 +102,7 @@ for (const theme of ['dark', 'light'] as const) {
       await page.addInitScript((t) => (t === 'light' ? localStorage.setItem('tm.theme', 'light') : localStorage.removeItem('tm.theme')), theme);
     });
 
-    test('no axe problems in the editor, with every section open', async ({ page, isMobile }) => {
+    test('no axe problems in the editor, with every section open', async ({ page }) => {
       test.setTimeout(420_000);
       await page.goto('/token-maker/');
       await loadGoblin(page);
@@ -111,29 +112,20 @@ for (const theme of ['dark', 'light'] as const) {
         for (const v of r.violations) for (const n of v.nodes) problems.set(`${v.id}: ${n.target.join(' ')}`, `${where} — ${n.failureSummary?.split('\n')[1] ?? ''}`);
       };
       await scan('start');
-      if (isMobile) {
-        const tabs = page.getByRole('tab');
-        for (let t = 0; t < (await tabs.count()); t++) {
-          await tabs.nth(t).click();
-          const panel = page.getByRole('tabpanel');
-          const toggles = panel.locator('.section__toggle');
-          for (let s = 0; s < Math.max(1, await toggles.count()); s++) {
-            if ((await toggles.count()) && (await toggles.nth(s).getAttribute('aria-expanded')) === 'false') await toggles.nth(s).click();
-            await openAll(panel);
-            await scan(`tab ${t} section ${s}`);
-          }
-        }
-      } else {
-        const panel = page.getByRole('complementary', { name: 'Token settings' });
+      // Every tab (the tool rail on wide screens, the tab row on phones), each section in it.
+      const tabs = page.getByRole('tab');
+      for (let t = 0; t < (await tabs.count()); t++) {
+        await tabs.nth(t).click();
+        const panel = page.getByRole('tabpanel');
         const toggles = panel.locator('.section__toggle');
-        for (let s = 0; s < (await toggles.count()); s++) {
-          if ((await toggles.nth(s).getAttribute('aria-expanded')) === 'false') await toggles.nth(s).click();
+        for (let s = 0; s < Math.max(1, await toggles.count()); s++) {
+          if ((await toggles.count()) && (await toggles.nth(s).getAttribute('aria-expanded')) === 'false') await toggles.nth(s).click();
           for (const add of ['Add a label', 'Vignette', 'Fire', 'Gem']) {
             const b = panel.getByRole('button', { name: add, exact: true }).first();
             if ((await b.count()) && (await b.isVisible())) await b.click().catch(() => {});
           }
           await openAll(panel);
-          await scan(`section ${s}`);
+          await scan(`tab ${t} section ${s}`);
         }
       }
       expect([...problems].map(([k, v]) => `${k} (${v})`)).toEqual([]);
@@ -180,8 +172,12 @@ test.describe('keyboard', () => {
     await page.goto('/token-maker/');
     await loadGoblin(page);
     const panel = page.getByRole('complementary', { name: 'Token settings' });
-    await panel.getByRole('button', { name: 'Frame & shape', exact: true }).focus();
-    await page.keyboard.press('Enter');
+    // The tool rail: arrow keys move between tabs.
+    await page.getByRole('tab', { name: 'Picture' }).focus();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('tab', { name: 'Frame' })).toBeFocused();
+    await expect(page.getByRole('tab', { name: 'Frame' })).toHaveAttribute('aria-selected', 'true');
     const circle = panel.getByRole('radio', { name: 'Circle' });
     await circle.focus();
     await page.keyboard.press('ArrowRight');
@@ -202,9 +198,8 @@ test.describe('performance', () => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
     const results: string[] = [];
-    for (const [tab, name] of [['Image', 'Brightness'], ['Frame', 'Thickness']] as const) {
-      await page.getByRole('tab', { name: tab }).click();
-      const slider = page.getByRole('tabpanel').getByRole('slider', { name, exact: true });
+    for (const [section, name] of [['Image', 'Brightness'], ['Frame & shape', 'Thickness']] as const) {
+      const slider = (await openSection(page, section)).getByRole('slider', { name, exact: true });
       await slider.scrollIntoViewIfNeeded();
       await page.waitForTimeout(800);
       const box = (await slider.boundingBox())!;
