@@ -81,3 +81,4 @@ Each copy has a `SOURCE.json`, and a test fails if a copied file is edited. Fram
 - Token Maker: [`docs/token-maker/DESIGN.md`](docs/token-maker/DESIGN.md), [`docs/token-maker/PROGRESS.md`](docs/token-maker/PROGRESS.md)
 - Frame Studio: [`docs/frame-studio/DESIGN.md`](docs/frame-studio/DESIGN.md), [`docs/frame-studio/PROGRESS.md`](docs/frame-studio/PROGRESS.md)
 - Asset credits: [`ASSETS-CREDITS.md`](ASSETS-CREDITS.md) (Token Maker) and [`docs/frame-studio/CREDITS.md`](docs/frame-studio/CREDITS.md) (Frame Studio)
+- Going public: [`docs/RELEASE-CHECKLIST.md`](docs/RELEASE-CHECKLIST.md), and the AI-made art to replace: [`docs/AI-ART-REPLACEMENT.md`](docs/AI-ART-REPLACEMENT.md)
