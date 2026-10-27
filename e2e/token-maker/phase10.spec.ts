@@ -163,7 +163,8 @@ test.describe('keyboard', () => {
       seen.add(info.key);
       if (!info.ring || !info.shown) missing.push(info.name);
     }
-    expect(seen.size).toBeGreaterThan(30);
+    // The tool rail is one Tab stop (arrow keys move within it) and the panel shows one tab, so fewer stops than the old accordion.
+    expect(seen.size).toBeGreaterThan(24);
     expect(missing).toEqual([]);
   });
 

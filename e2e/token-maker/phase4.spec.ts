@@ -63,10 +63,11 @@ const EDGE: [number, number] = [0.5, 0.14];
 test('a character on a blurred forest with a vignette and torchlight from below; the export matches the preview', async ({ page, isMobile }) => {
   const m = !!isMobile;
   // Cut the character out of its flat background.
-  let panel = await openSection(page, 'Background');
+  let panel = await openSection(page, 'Cut-out');
   await panel.getByRole('switch', { name: 'Remove background' }).click();
 
   // A blurred forest behind it.
+  panel = await openSection(page, 'Background');
   await panel.getByRole('radio', { name: 'Picture' }).click();
   await panel.getByRole('radio', { name: 'Forest' }).click();
   await setNumber(panel, 'Blur', '50');

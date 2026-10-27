@@ -1,5 +1,5 @@
 import { Settings2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { MenuStyleSwitch } from './MenuStyleSwitch';
 
 /**
@@ -11,6 +11,14 @@ export function PanelSettings() {
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   const box = useRef<HTMLDivElement>(null);
+  // Placed under the button but kept on screen: on phones the button can sit at the left of the top bar's second row.
+  const [place, setPlace] = useState<CSSProperties>({});
+  useLayoutEffect(() => {
+    if (!open || !button.current) return;
+    const r = button.current.getBoundingClientRect();
+    const width = Math.min(300, window.innerWidth - 24);
+    setPlace({ top: r.bottom + 6, left: Math.max(12, Math.min(r.right - width, window.innerWidth - width - 12)), right: 'auto' });
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -31,6 +39,7 @@ export function PanelSettings() {
         <div
           ref={box}
           className="palette-menu panel-settings"
+          style={place}
           role="dialog"
           aria-label="Panel settings"
           onKeyDown={(e) => {

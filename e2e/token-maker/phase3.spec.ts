@@ -96,13 +96,12 @@ test('remove a flat background, tidy it with the brush, tune it, and the export 
   // Remove the background: the backing colour shows instead of white.
   const bgPanel = await removeBackground(page);
   await expect(bgPanel.getByText('Found from the edges')).toBeVisible();
-  const panel = await imagePanel(page);
   const [bgAfter, faceBefore] = await exportPixels(page, !!isMobile, [BG, FACE]);
   expect(near(bgAfter!, BACKING)).toBe(true);
   expect(near(faceBefore!, BACKING)).toBe(false);
 
-  // Erase a line through the face with the brush.
-  await panel.getByRole('button', { name: 'Use the brush' }).click();
+  // Erase a line through the face with the brush (in Cut-out, with the removal).
+  await bgPanel.getByRole('button', { name: 'Use the brush' }).click();
   await expect(page.getByRole('toolbar', { name: 'Brush' })).toBeVisible();
   await stroke(page, !!isMobile, FACE[1]);
   const [faceErased] = await exportPixels(page, !!isMobile, [FACE]);
@@ -115,6 +114,7 @@ test('remove a flat background, tidy it with the brush, tune it, and the export 
   await page.getByRole('toolbar', { name: 'Brush' }).getByRole('button', { name: 'Done' }).click();
 
   // Tune: brighter body.
+  const panel = await imagePanel(page);
   const [bodyBefore] = await exportPixels(page, !!isMobile, [BODY]);
   const brightness = panel.getByRole('textbox', { name: 'Brightness value' });
   await brightness.fill('40');
@@ -130,8 +130,7 @@ test('remove a flat background, tidy it with the brush, tune it, and the export 
 
 test('restore brings back part of the removed background', async ({ page, isMobile }) => {
   await upload(page);
-  await removeBackground(page);
-  const panel = await imagePanel(page);
+  const panel = await removeBackground(page);
   await panel.getByRole('button', { name: 'Use the brush' }).click();
   await page.getByRole('toolbar', { name: 'Brush' }).getByRole('button', { name: 'Restore' }).click();
   await stroke(page, !!isMobile, BG[1]);

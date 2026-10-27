@@ -687,6 +687,7 @@ button:disabled {
 }
 
 .panel-settings {
+  position: fixed;
   width: min(300px, calc(100vw - 24px));
 }
 
@@ -778,8 +779,13 @@ button:disabled {
 .tool-rail__tab[aria-selected='true'] {
   background: var(--accent-soft);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
-  color: var(--accent);
+  color: var(--text);
   font-weight: 700;
+}
+
+/* The accent marks the chosen tab's icon; its label stays in the text colour for contrast on the light theme. */
+.tool-rail__tab[aria-selected='true'] svg {
+  color: var(--accent);
 }
 
 /* Bottom bar */

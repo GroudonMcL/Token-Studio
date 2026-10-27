@@ -155,7 +155,8 @@ test('the wheel zooms the view over the token and scrolls the panel elsewhere', 
 
   // Away from the token and art: the side panel scrolls instead.
   const panel = page.getByRole('complementary', { name: 'Token settings' });
-  await page.getByRole('tab', { name: 'Frame' }).click();
+  // Decorations is long enough to scroll even on a tall tablet.
+  await page.getByRole('tab', { name: 'Decor' }).click();
   await panel.evaluate((el) => (el.scrollTop = 0));
   const stage = (await page.locator('.stage').boundingBox())!;
   await page.mouse.move(stage.x + 30, stage.y + stage.height - 120);

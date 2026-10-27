@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { openSection } from './panel';
 
 // Web imports (DESIGN.md §6.1 items 2–5). The /api answers are faked in the
 // browser so these tests never touch the real internet; the proxy itself is
@@ -28,16 +29,10 @@ async function fakeApi(page: Page, answers: { images?: Record<string, number>; p
 }
 
 /** The Import section (phone: its tab in the bottom sheet). */
-async function importPanel(page: Page, isMobile: boolean) {
-  if (isMobile) {
-    await page.getByRole('tab', { name: 'Import' }).click();
-    return page.getByRole('tabpanel');
-  }
-  return page.getByRole('complementary', { name: 'Token settings' });
-}
+const importPanel = (page: Page) => openSection(page, 'Import');
 
 async function getAddress(page: Page, isMobile: boolean, address: string) {
-  const panel = await importPanel(page, isMobile);
+  const panel = await importPanel(page);
   await panel.getByRole('textbox', { name: 'Web address' }).fill(address);
   await panel.getByRole('button', { name: 'Get' }).click();
   return panel;
