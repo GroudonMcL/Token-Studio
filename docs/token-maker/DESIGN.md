@@ -164,8 +164,11 @@ Ways in (all lead to the same "image loaded" state):
 4. **Web address** — a text box.
    - A **direct image link** loads straight away.
    - A **normal web page** link: the server fetches the page and returns the images found on it (`<img>`, `srcset` largest, `og:image`, `twitter:image`, CSS backgrounds where easy). The user picks one from an image strip (like the extension's Image section). Tiny images (icons, under ~64 px) are hidden.
-   - If a site blocks fetching, show a friendly message suggesting right-click → "Copy image address", or downloading and uploading.
+   - Each picture is first fetched straight from its site in the browser (works when the site allows it, CORS), then through the server. Either way it arrives as a Blob, so the canvas is never tainted and exporting always works.
+   - If a site blocks fetching, show a friendly message: "That site blocks direct loading. Right-click the image, choose “Copy image”, then press Ctrl+V here."
 5. **Pinterest pin link** — paste a pin URL (including `pin.it` short links). The server follows redirects, reads the pin page's main image (`og:image`, preferring the `/originals/` size) and loads it. (Browsing Pinterest boards with login is a future feature — §15.)
+
+**Find art online** — a search box with a button per site (Google Images, Pinterest, ArtStation, DeviantArt, Reddit, Bing Images; listed in `src/config/artSearchSites.ts`). Each opens that site's own search results in a new tab; nothing is fetched by the app. "Add “fantasy art”" (on by default) adds those words so results lean towards illustrations. Enter searches the first site. The user brings a picture back with any of the ways in above.
 
 The import file's name (without extension, tidied) becomes the token name; the user can edit it. *(Phase 1: separators become spaces, all-lowercase names get capital letters, and generic names such as "image.png" from a paste keep the current name. Phase 2: web images are named from the picture's file name (size suffixes like "-1024x768" and meaningless names such as hashes or "IMG_2041" are dropped), else its alt text, else the page or pin title.)*
 

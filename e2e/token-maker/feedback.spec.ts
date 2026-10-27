@@ -138,5 +138,5 @@ test('a web link explains when the image server is missing instead of a JSON err
   const panel = await section(page, !!isMobile, 'Import');
   await panel.getByLabel('Web address').fill('https://uk.pinterest.com/pin/666392076130436411/');
   await panel.getByRole('button', { name: 'Get' }).click();
-  await expect(panel.getByText(/isn't running its image server/)).toBeVisible();
+  await expect(panel.getByText('That site blocks direct loading. Right-click the image, choose “Copy image”, then press Ctrl+V here.')).toBeVisible();
 });

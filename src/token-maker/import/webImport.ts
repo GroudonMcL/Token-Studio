@@ -6,8 +6,10 @@
 //   anything else → /api/page-images: an image loads straight away; a page
 //     shows its pictures in the Import section for the user to pick one
 //
-// Images go through the proxy because most sites don't let other sites read
-// their pictures directly.
+// Each image is first fetched straight from its site, which works when the
+// site allows it (CORS) and needs no server. Most sites don't, so the proxy
+// is the fallback. Either way the picture arrives as a Blob, so the canvas
+// is never tainted and the token can always be exported.
 
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
@@ -75,8 +77,31 @@ async function apiFetch(path: string): Promise<Response> {
   }
 }
 
-/** Downloads an image through the proxy and makes it the token's art. */
-async function loadImage(url: string, name: string): Promise<void> {
+const DIRECT_TIMEOUT_MS = 8000;
+
+/**
+ * Fetches a picture straight from its site. Null when the site doesn't
+ * allow it (a CORS error), doesn't answer, or sends something that isn't a
+ * picture (e.g. a page).
+ */
+async function fetchDirect(url: string): Promise<Blob | null> {
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), DIRECT_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer', signal: abort.signal });
+    if (!res.ok || !/^image\//i.test(res.headers.get('content-type') ?? '')) return null;
+    return await res.blob();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Downloads an image (straight from its site, else through the proxy) and makes it the token's art. */
+async function loadImage(url: string, name: string, tryDirect = true): Promise<void> {
+  const direct = tryDirect ? await fetchDirect(url) : null;
+  if (direct) return importTo(target(), direct, name || nameFromImageUrl(url));
   const res = await apiFetch(proxiedImageUrl(url));
   if (!res.ok || isHtml(res)) throw await apiError(res);
   const blob = await res.blob();
@@ -149,9 +174,17 @@ async function run(url: URL, source: ImportSource): Promise<RunResult> {
   const current = () => mine === generation;
   try {
     const pin = pinterestKind(url);
+    // Any address may be a picture its site lets us read directly, even without the proxy.
+    const direct = pin ? null : await fetchDirect(address);
+    if (direct) {
+      await importTo(to, direct, nameFromImageUrl(address));
+      if (current()) webImportStore.setState({ ...IDLE, target: to });
+      return 'loaded';
+    }
+    if (!current()) return 'overtaken';
     if (!pin && looksLikeImageUrl(url)) {
       try {
-        await loadImage(address, '');
+        await loadImage(address, '', false);
         if (current()) webImportStore.setState({ ...IDLE, target: to });
         return 'loaded';
       } catch (err) {

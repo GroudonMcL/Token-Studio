@@ -96,6 +96,11 @@ export const helpContent = {
     text: 'Choose a picture from your device. You can also drag one anywhere onto the page, or paste it with Ctrl+V (long-press and Paste on a phone).',
     media: beforeAfter('import-upload', 'an empty token gets a goblin picture'),
   },
+  'import.search': {
+    title: 'Find art online',
+    text: 'Type what you want, like "goblin shaman", and pick a site to open its search results in a new tab. When you find a picture, copy it and press Ctrl+V here, drag it onto the page, or paste its link in the Web address box.',
+    media: beforeAfter('import-search', 'an empty token gets a picture found online'),
+  },
   'import.web': {
     title: 'Web address',
     text: 'Paste a link to a picture, a web page or a Pinterest pin and press Get. A page shows its pictures so you can pick one; you can also paste or drag a link anywhere on the page.',

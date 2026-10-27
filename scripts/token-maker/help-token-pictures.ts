@@ -332,6 +332,7 @@ export async function tokenPictures(save: Save): Promise<void> {
 
   // ---- Import ----
   p('import.upload', null, []);
+  p('import.search', null, [boss]);
   p('import.web', null, [boss]);
   {
     const strip = createCanvas(T, T);

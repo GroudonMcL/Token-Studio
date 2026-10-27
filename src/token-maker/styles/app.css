@@ -1102,6 +1102,19 @@ button:disabled {
   font-size: var(--text-sm);
 }
 
+/* Find art online (Import) */
+.art-search__sites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (pointer: coarse) {
+  .art-search__sites .btn {
+    min-height: var(--hit);
+  }
+}
+
 /* Web address box (Import) */
 .web-address__row {
   display: flex;

@@ -142,6 +142,13 @@ A checklist of build phases, following [`BUILD-PROMPTS.md`](BUILD-PROMPTS.md). D
 - [x] Copy brought up to Frame Studio 0.10.0 (Phases 6–10 and the themed borders; it reads Frame Studio files up to format 9, so effects, generators, text and the 21 themed borders draw here as they do there); a test draws every themed border in both and they match pixel for pixel
 - [x] Copy brought up to Frame Studio's format 10 (the last four conversions, more ornaments and textures, game-icons ornaments, photo textures, paint fills): a design's photo textures load with the token's other pictures, before exports too, and the frame redraws when one arrives; a test draws a design with photos, icons and paint fills in both apps and they match pixel for pixel, and a Playwright test opens one on desktop, tablet and phone
 
+## Find art online (Phase 1: no new server or keys)
+
+- [x] Import section: **Find art online** box, "Add “fantasy art”" (on by default), and a button per site from one list (`src/config/artSearchSites.ts`); buttons are disabled while the box is empty; Enter searches Google Images; each opens in a new tab (`noopener noreferrer`)
+- [x] Web imports (typed, pasted or dragged links) try the picture straight from its site first, then the proxy; a site that blocks both says to copy the picture and press Ctrl+V
+- [x] Help tip with a before/after picture
+- [x] Tests: search addresses; direct loading and its fallback; Playwright: the buttons, paste, file drop, a non-picture drop, a drag from another tab, a link, and the blocked message, each import then exporting a PNG
+
 ## Later (not phases yet)
 
 From DESIGN.md §15. Don't build these until the owner decides to: AI auto pop-out, AI relighting, animated borders/overlays with GIF export, Pinterest board browsing, sending tokens to Owlbear/Foundry, condition-variant packs, accounts and cloud saving, premium asset packs, switching adverts on.

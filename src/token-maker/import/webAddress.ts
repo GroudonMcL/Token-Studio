@@ -87,7 +87,9 @@ export function nameFromTitle(title: string): string {
   return tidyName(first.trim().slice(0, 60));
 }
 
-const SUGGESTION = 'Try right-clicking the picture and choosing “Copy image address”, or save the picture and upload it.';
+const SUGGESTION = 'Try right-clicking the picture, choosing “Copy image”, then pressing Ctrl+V here.';
+/** When a site won't let its pictures be loaded from here, copying and pasting the picture always works. */
+export const BLOCKED_MESSAGE = 'That site blocks direct loading. Right-click the image, choose “Copy image”, then press Ctrl+V here.';
 
 /** What to tell the user when a web import fails. */
 export function friendlyError(code: ApiErrorCode | 'offline' | 'no_server' | 'unknown', message?: string): string {
@@ -97,7 +99,7 @@ export function friendlyError(code: ApiErrorCode | 'offline' | 'no_server' | 'un
     case 'blocked':
       return "That address can't be fetched (only public https:// sites work).";
     case 'site_refused':
-      return `That site doesn't let other sites fetch its pictures. ${SUGGESTION}`;
+      return BLOCKED_MESSAGE;
     case 'not_found':
       return "The site says that picture or page doesn't exist any more. Check the address.";
     case 'site_error':
@@ -123,7 +125,7 @@ export function friendlyError(code: ApiErrorCode | 'offline' | 'no_server' | 'un
     case 'offline':
       return "Couldn't reach the Token Maker server. Check your internet connection and try again.";
     case 'no_server':
-      return "This copy of Token Maker isn't running its image server, so web links can't be fetched. Save the picture and upload it instead.";
+      return BLOCKED_MESSAGE;
     default:
       return `Something went wrong fetching that address. ${SUGGESTION}`;
   }
