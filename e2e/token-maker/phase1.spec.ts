@@ -157,9 +157,11 @@ test('the wheel zooms the view over the token and scrolls the panel elsewhere', 
   const panel = page.getByRole('complementary', { name: 'Token settings' });
   // Decorations is long enough to scroll even on a tall tablet.
   await page.getByRole('tab', { name: 'Decor' }).click();
+  await expect(panel.getByRole('group', { name: 'Ornaments' })).toBeVisible(); // its code loads on first use
   await panel.evaluate((el) => (el.scrollTop = 0));
   const stage = (await page.locator('.stage').boundingBox())!;
-  await page.mouse.move(stage.x + 30, stage.y + stage.height - 120);
+  // Close to the canvas's left edge: on a tablet the tool rail leaves a narrow canvas, mostly covered by the art.
+  await page.mouse.move(stage.x + 6, stage.y + stage.height - 60);
   await page.mouse.wheel(0, 300);
   await expect.poll(() => panel.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
   expect((await canvas.boundingBox())!.width).toBeCloseTo(box.width, 0);
