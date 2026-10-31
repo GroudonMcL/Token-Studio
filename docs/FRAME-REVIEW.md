@@ -28,3 +28,7 @@ picker each. Candidates are drawn with
 |---|---|---|
 | Essentials (9) | Essentials | The owner's designs, added as they were made, without the "FM_" names. |
 | Wizard | Classes | Four new versions added after Wizard: Sapphire runes, Starweave, Ley lines, Gilded grimoire. |
+| Stamped | Classic | Choosing: six candidates (veined, hammered copper, tooled leather, fired clay, brass & enamel, ember). |
+
+After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
+Crafted borders, Themed) are reviewed the same way: 77 frames in all.
