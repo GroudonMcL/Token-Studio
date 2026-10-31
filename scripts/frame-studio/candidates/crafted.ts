@@ -9,3 +9,9 @@ export const border = (id: string) => () => {
   const p = createProject(t.make(), t.name);
   return { ...p, stage: { ...p.stage, ...t.stage } };
 };
+import { LAYERED_TEMPLATES } from '../../../src/frame-studio/project/defaults';
+/** A Frame Studio starting design (Layered) as it is now. */
+export const layered = (id: string) => () => {
+  const t = LAYERED_TEMPLATES.find((x) => x.id === id)!;
+  return createProject(t.make(), t.name);
+};

@@ -62,7 +62,7 @@ export const CANDIDATES: Candidate[] = [
     colours: [slot('iron', 'Iron colour', '#3a3e46', ['Iron ring']), slot('bronze', 'Plate colour', '#a87a3a', ['Plates']), slot('gold', 'Rivet colour', '#d8a838', ['Rivets'])],
     layers: () => [
       ...ring(['#020203', '#0e1014', '#3a3e46', '#6a707a', '#a8b0b8'], 'metal-plate'),
-      curvedPlates('Plates', 12, '#a87a3a', BRONZE_STOPS),
+      curvedPlates('Plates', 12, '#a87a3a', BRONZE_STOPS, { gap: 0.16 }),
       rivets('Rivets', 0.22, 24, '#d8a838', WARM_GOLD),
       rivets('Rivets', 0.78, 24, '#d8a838', WARM_GOLD),
     ],

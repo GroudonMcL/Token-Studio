@@ -1,4 +1,5 @@
 // Round 3 trials: curved riveted plates, and overlapping-row dragon scales with gradient bands clipped to the scales.
+import { shadow } from '../../../src/frame-studio/project/styles';
 import { bandFillLayer, bandShading, BRONZE_STOPS, contact, DROP, lin, lineLayer, metalFx, photo, recolour, repeatLayer, slot, WARM_GOLD, glow, type Candidate, type Layer } from './common';
 import { groupLayer } from '../../../src/frame-studio/project/defaults';
 import { border } from './crafted';
@@ -20,13 +21,13 @@ const ironRing = (stops: string[]): Layer[] =>
   bandShading([{ ...bandFillLayer(), name: 'Iron ring', paint: photo('metal-plate', 1.4, { lighting: 0.3 }), effects: [recolour(stops), DROP] }], { step: null });
 
 /** Overlapping rows of outlined scales, each offset half a scale, clipped to the band. */
-const scaleRows = (color: string, outline: string, lay: 'serpent' | 'armour' = 'serpent', effects: Layer['effects'] = [contact(0.7)]): Layer => {
+const scaleRows = (color: string, outline: string, lay: 'serpent' | 'armour' = 'serpent', effects: Layer['effects'] = [contact(0.7)], outlineWidth = 0.06): Layer => {
   const serpent = lay === 'serpent';
   const n = serpent ? 4 : 3;
   return {
     ...groupLayer(Array.from({ length: n }, (_v, r) => ({
       ...repeatLayer(), name: 'Scale row', element: 'drop' as const, mode: 'spacing' as const, spacing: serpent ? 0.42 : 0.5, at: 0.2 + (r * 0.6) / (n - 1), size: serpent ? 0.6 : 0.8,
-      rotation: serpent ? 90 : 180, offset: r % 2 ? 0.5 : 0, fill: color, clip: 'band' as const, outline, outlineWidth: 0.06, raised: false, shaded: true, effects,
+      rotation: serpent ? 90 : 180, offset: r % 2 ? 0.5 : 0, fill: color, clip: 'band' as const, outline, outlineWidth, raised: false, shaded: true, effects,
     }))),
     name: 'Scales',
   };
@@ -64,6 +65,11 @@ export const CANDIDATES: Candidate[] = [
   {
     id: 's-gold', name: 'S · Gold', pitch: '', stage: { thickness: 0.18 },
     layers: () => [under('#1a0e02'), scaleRows('#d8a838', '#2a1602', 'serpent', [recolour(WARM_GOLD), contact(0.7)]), scaleShading(0.6)],
+  },
+  {
+    id: 'q2-serpent-shadowed', name: 'Q2 · Serpent coil, soft outlines', pitch: '', stage: { thickness: 0.18 },
+    // A thin outline in a darker green instead of black, and each row casts a soft shadow on the row beneath it.
+    layers: () => [under('#061004'), scaleRows('#3a8a2a', '#123a0c', 'serpent', [shadow({ opacity: 0.75, distance: 0.05, blur: 0.06 })], 0.03), scaleShading()],
   },
 ];
 export { glow };

@@ -83,7 +83,7 @@ picker each. Candidates are drawn with
 | Raven plume | Crafted borders | Retired; Raven sheen, Plume & bone, Owl plume, with gradient rings and a grained band for depth. |
 | Emberforged | Crafted borders | Kept, plus Molten ring, Forge runes, Frostfire. |
 | Storm wisps | Crafted borders | Kept, plus Arcane storm, Sea squall. |
-| Riveted plates | Crafted borders | Retired; Ordered plates, Forge seams, Dwarven bulwark (curved plates, rivets over plate centres and gaps). |
+| Riveted plates | Crafted borders | Retired; Ordered plates, Forge seams, Dwarven bulwark (curved plates with gaps, rivets over plate centres and gaps), Curved ordered plates, Curved forge seams. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.
