@@ -27,7 +27,8 @@ export const CANDIDATES: Candidate[] = [
     colours: [slot('rust', 'Rust colour', '#9a4a1e', ['Rust']), slot('rivets', 'Rivet colour', '#5a5e66', ['Rivets'])],
     layers: () => bandShading([
       plate('Iron plate', IRON),
-      { ...bandFillLayer(), name: 'Rust', paint: photo('rust', 1.2), opacity: 0.85, effects: [{ kind: 'distort', on: true, amount: 0.2, scale: 0.4, seed: 3 }] },
+      { ...bandFillLayer(), name: 'Rust', paint: photo('rust', 1.2), opacity: 0.9, blend: 'color', clip: 'band' },
+      { ...bandFillLayer(), name: 'Rust', paint: photo('rust', 1.2), opacity: 0.35, blend: 'multiply', clip: 'band' },
       rivets('Rivets', 0.3, '#5a5e66', IRON),
     ]),
   },

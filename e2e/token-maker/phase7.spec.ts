@@ -185,7 +185,7 @@ test('built-in picture frame and preset; drag a decoration on the canvas to anot
   await panel.getByRole('radio', { name: 'Drawn' }).click();
   await panel.getByRole('button', { name: 'Change frame' }).click();
   await page.getByRole('searchbox', { name: 'Search frames' }).fill('Runestone');
-  await page.getByRole('dialog', { name: 'Choose a frame' }).getByRole('radio', { name: 'Runestone' }).click();
+  await page.getByRole('dialog', { name: 'Choose a frame' }).getByRole('radio', { name: 'Runestone', exact: true }).click();
   await expect(panel.getByTestId('current-frame')).toContainText('Runestone');
   await expect(panel.getByRole('radio', { name: 'Drawn' })).toHaveAttribute('aria-checked', 'true');
   // Its stone photo arrives a moment later; then the preview matches the export.

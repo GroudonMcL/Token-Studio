@@ -35,7 +35,6 @@ export const PICTURE_FRAME_TEMPLATES: ThemedTemplate[] = [
       { ...repeatLayer(), name: 'Outer leaves', element: 'leaf', count: 24, snapToCorners: false, at: 0.26, size: 1.05, stretch: 0.42, rotation: -68, fill: '#d8a838', fillPaint: photo('gold', 0.6), raised: false, effects: [bevel({ size: 0.5, gloss: 0.8 }), material('gold', 0.6), soft(0.55)] },
       { ...repeatLayer(), name: 'Inner leaves', element: 'leaf', count: 24, snapToCorners: false, at: 0.74, offset: 0.5, size: 1.05, stretch: 0.42, rotation: 68, fill: '#d8a838', fillPaint: photo('gold', 0.6), raised: false, effects: [bevel({ size: 0.5, gloss: 0.8 }), material('gold', 0.6), soft(0.55)] },
       { ...lineLayer(), name: 'Gold band', at: 0.5, width: 0.3, paint: photo('gold', 1.2), effects: [bevel({ size: 0.6, depth: 1.4, gloss: 0.9 }), material('gold', 0.5), soft(0.6)] },
-      { ...repeatLayer(), name: 'Gold beads', element: 'bead', count: 4, at: 0.5, size: 0.42, fill: '#e8c050', fillPaint: photo('gold', 0.4), raised: true, effects: [material('gold', 0.5), soft(0.5)] },
     ],
   },
   {
@@ -56,7 +55,7 @@ export const PICTURE_FRAME_TEMPLATES: ThemedTemplate[] = [
     stage: { thickness: 0.2, outerSpacing: 0.02 },
     make: () => [
       { ...bandFillLayer(), name: 'Stone', paint: photo('coral-stone', 1.6, { tint: '#a8a49a' }), effects: [bevel({ profile: 'chisel', size: 0.25, gloss: 0.2 }), soft(0.7)] },
-      { ...textureLayer('cracks'), name: 'Cracks', color: '#2a2822', amount: 0.7, seed: 0x5701 },
+      { ...textureLayer('cracks'), name: 'Cracks', color: '#3a362c', amount: 0.7, opacity: 0.45, blend: 'multiply', seed: 0x5701 },
       { ...repeatLayer(), name: 'Runes', element: 'rune', count: 16, snapToCorners: false, at: 0.5, size: 0.5, fill: '#7ae6ff', raised: false, shaded: false, effects: [bevel({ direction: 'sunken', size: 0.3, gloss: 0.3 }), glow({ color: '#3ac8ff', opacity: 0.8, size: 0.1 })] },
     ],
   },

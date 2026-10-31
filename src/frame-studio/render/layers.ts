@@ -8,7 +8,7 @@ import { atPoint, noShadow, seededRandom, tracePolygon, type FrameGeometry } fro
 import { drawFrame } from '../engine/legacy/frames';
 import type { PerimeterSample } from '../engine/legacy/shapes';
 import { lineLayer } from '../project/defaults';
-import type { ContoursLayer, Layer, LegacyFrameLayer, LineLayer, Paint, RepeatLayer } from '../project/types';
+import { pointsOutward, type ContoursLayer, type Layer, type LegacyFrameLayer, type LineLayer, type Paint, type RepeatLayer } from '../project/types';
 import { bandWidthPx, repeatCount } from './band';
 import { centredCanvas, context2d, newCanvas, putCentred, type Ctx } from './canvas';
 import { activeEffects, applyEffects } from './effects';
@@ -153,12 +153,20 @@ export function repeatPlacements(layer: RepeatLayer, g: FrameGeometry, find: Fin
       const off = (layer.alternateSides > 0 ? (flip ? 1 : -1) * layer.alternateSides * w : 0) + across * w;
       if (off !== 0) at = { ...at, x: p.x - Math.sin(p.angle) * off, y: p.y + Math.cos(p.angle) * off };
       if (layer.orient === 'upright') at = { ...at, angle: 0 };
+      else if (layer.orient === 'along' && onBand && pointsOutward(layer.element)) at = { ...at, angle: outwardAngle(at) };
       const color = accent && layer.accentColor ? layer.accentColor : colors[i % colors.length];
       out.push({ p: at, h: size, accent, color, flip, index: i, spin: ((layer.jitterAngle * (ra - 0.5) * 2) * Math.PI) / 180, variant });
     });
     first += n;
   }
   return out;
+}
+
+/** Square to the line from the centre, keeping the band's sense (so what pointed out still points out). */
+function outwardAngle(p: PerimeterSample): number {
+  if (p.x === 0 && p.y === 0) return p.angle;
+  const out = Math.atan2(p.y, p.x) + Math.PI / 2;
+  return Math.cos(out - p.angle) >= 0 ? out : out + Math.PI;
 }
 
 const OVAL = (w: number, h: number) => Array.from({ length: 32 }, (_v, i) => ({ x: (Math.cos((i * Math.PI) / 16) * w) / 2, y: (Math.sin((i * Math.PI) / 16) * h) / 2 }));

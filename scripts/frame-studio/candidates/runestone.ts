@@ -64,8 +64,8 @@ export const CANDIDATES: Candidate[] = [
     colours: [slot('stone', 'Slate colour', '#2e3238', ['Stone']), slot('gold', 'Gold colour', '#d8a838', ['Runes', 'Rune stones'])],
     layers: () => bandShading([
       stone('Stone', 'black-onyx', 3, ['#020304', '#121418', '#2e3238', '#5a606a', '#8a909a']),
-      inscription('babelstone', '#f4d27a', { name: 'Runes', at: 0.72, size: 0.32, start: 2, effects: [...goldFx(0.3, WARM_GOLD)] }),
-      { ...repeatLayer(), name: 'Rune stones', element: 'icon-rune-stone', count: 4, at: 0.32, size: 0.5, fill: '#d8a838', raised: false, effects: [...goldFx(0.4, WARM_GOLD), contact(0.5)] },
+      inscription('babelstone', '#f4d27a', { name: 'Runes', at: 0.76, size: 0.28, start: 2, effects: [...goldFx(0.3, WARM_GOLD)] }),
+      { ...repeatLayer(), name: 'Rune stones', element: 'icon-rune-stone', count: 4, at: 0.2, size: 0.38, fill: '#d8a838', raised: false, effects: [...goldFx(0.4, WARM_GOLD), contact(0.5)] },
     ]),
   },
 ];

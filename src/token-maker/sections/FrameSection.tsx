@@ -355,6 +355,8 @@ function BandSliders() {
  * use them, and listed while one is the chosen frame.
  */
 const RETIRED_PRESETS = new Set(['cleric']);
+/** Built-in designs retired the same way (by their Frame Studio id). */
+const RETIRED_DESIGNS = new Set(['dragon-scales']);
 
 function frameTiles(current: string): FrameTile[] {
   const tile = (b: (typeof BUILT_IN_DESIGNS)[number]) => ({ id: b.id, label: b.name, group: b.group });
@@ -366,7 +368,15 @@ function frameTiles(current: string): FrameTile[] {
       if (RETIRED_PRESETS.has(p.id) && current !== p.id) return versions.map((b) => ({ ...tile(b), group: p.group, aka: p.name }));
       return [{ id: p.id, label: p.name, group: p.group }, ...versions.map((b) => ({ ...tile(b), group: p.group, parent: p.id }))];
     }),
-    ...BUILT_IN_DESIGNS.filter((b) => b.group !== 'Essentials' && !(b.after && placed.has(b.after))).map(tile),
+    // The Crafted designs, each with its new versions stacked behind it.
+    ...BUILT_IN_DESIGNS.filter((b) => b.group !== 'Essentials' && !b.after).flatMap((b) => {
+      const key = b.id.replace(/^builtin:/, '');
+      const versions = BUILT_IN_DESIGNS.filter((v) => v.after === key);
+      if (RETIRED_DESIGNS.has(key) && current !== b.id) return versions.map((v) => ({ ...tile(v), group: b.group, aka: b.name }));
+      return [tile(b), ...versions.map((v) => ({ ...tile(v), group: b.group, parent: b.id }))];
+    }),
+    // Anything else (a version of a frame that isn't listed).
+    ...BUILT_IN_DESIGNS.filter((b) => b.after && !placed.has(b.after) && !BUILT_IN_DESIGNS.some((d) => d.id === 'builtin:' + b.after)).map(tile),
   ];
 }
 

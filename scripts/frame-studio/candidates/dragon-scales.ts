@@ -1,7 +1,7 @@
 // Dragon scales: candidates for new versions of the Crafted Dragon scales frame.
 import {
   bandFillLayer, bandShading, bevel, BRONZE_STOPS, textureLayer, contact, DROP, goldFx, inscription, lin, lineLayer,
-  metalFx, overlay, photo, recolour, repeatLayer, slot, WARM_GOLD, type Candidate,
+  metalFx, overlay, photo, recolour, roundShading, scaleRows, glow, repeatLayer, slot, WARM_GOLD, type Candidate,
 } from './common';
 import { crafted } from './crafted';
 
@@ -61,6 +61,54 @@ export const CANDIDATES: Candidate[] = [
     layers: () => [
       ...bandShading([under('#021414'), scales('Scales', '#1a8a8a', { gloss: 0.9 }), overlay('blue-onyx', 3, 'overlay', 0.4)]),
       { ...repeatLayer(), name: 'Pearls', element: 'bead', count: 28, at: 0.86, size: 0.16, fill: '#f0ece4', raised: true, effects: [bevel({ profile: 'rounded', size: 0.8, gloss: 1 }), contact(0.5)] },
+    ],
+  },
+  // Round 2: overlapping rows of scales (houseStyle.ts: scaleRows), which hold together on every shape.
+  {
+    id: 'f-serpent-coil',
+    name: 'F · Serpent coil',
+    pitch: 'Green scales running along the band like a great serpent coiled round the token, shaded round.',
+    colours: [slot('scales', 'Scale colour', '#3a8a2a', ['Scales'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#061004' }, effects: [DROP] },
+      ...scaleRows('#3a8a2a', { outline: '#061004' }),
+      roundShading(),
+    ],
+  },
+  {
+    id: 'g-red-armour',
+    name: 'G · Red dragon armour',
+    pitch: 'Big crimson scales overlapping like armour plates, pointing outwards, between gold edges.',
+    colours: [slot('scales', 'Scale colour', '#c8322a', ['Scales']), slot('gold', 'Edge colour', '#d8a838', ['Outer edge', 'Inner edge'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#1a0202' }, effects: [DROP] },
+      ...scaleRows('#c8322a', { lay: 'armour', outline: '#1a0202' }),
+      roundShading(0.7),
+      goldEdge('Outer edge', 0.03),
+      goldEdge('Inner edge', 0.97),
+    ],
+  },
+  {
+    id: 'h-gold-wyrm',
+    name: 'H · Gold wyrm',
+    pitch: 'A coiled wyrm with polished gold scales, each one catching the light.',
+    colours: [slot('scales', 'Scale colour', '#d8a838', ['Scales'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#1a0e02' }, effects: [DROP] },
+      ...scaleRows('#d8a838', { outline: '#2a1602', effects: [recolour(WARM_GOLD), contact(0.7)] }),
+      roundShading(0.7),
+    ],
+  },
+  {
+    id: 'i-frost-wyrm',
+    name: 'I · Frost wyrm',
+    pitch: 'Pale ice-blue serpent scales with a faint frosty glow along the body.',
+    stage: { bloom: 0.15 },
+    colours: [slot('scales', 'Scale colour', '#8ac8e8', ['Scales'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#06121e' }, effects: [DROP] },
+      ...scaleRows('#8ac8e8', { outline: '#0a1a2a', effects: [contact(0.6), glow({ color: '#bfefff', opacity: 0.35, size: 0.06 })] }),
+      roundShading(0.7),
     ],
   },
 ];

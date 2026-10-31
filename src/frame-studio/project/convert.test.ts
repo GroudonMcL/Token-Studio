@@ -15,10 +15,10 @@ import { setCanvasFactory, type Ctx } from '../render/canvas';
 import { compareFrames } from '../render/compare';
 import { renderProject } from '../render/renderProject';
 import { canConvert, CONVERTIBLE_STYLES, convertFrame, convertLegacyLayer, convertPreset } from './convert';
-import { createProject, legacyFrameLayer } from './defaults';
+import { createProject, groupLayer, legacyFrameLayer, repeatLayer } from './defaults';
 import { parseProject, serializeProject } from './migrate';
 import { flatten } from './tree';
-import type { FrameProject, Layer } from './types';
+import type { FrameProject, GroupLayer, Layer, RepeatLayer } from './types';
 
 setCanvasFactory((w, h) => createCanvas(w, h) as unknown as HTMLCanvasElement);
 
@@ -161,5 +161,19 @@ describe('the converted layers', () => {
     expect(convertLegacyLayer(legacyFrameLayer('none'))).toBeNull();
     expect(CONVERTIBLE_STYLES.length).toBe(25);
     expect(FRAME_PRESETS.filter((p) => p.style !== 'none').every((p) => canConvert(p.style))).toBe(true);
+  });
+});
+
+describe('version 11 files', () => {
+  it('keep their emblems square to the band, so they draw as they did', () => {
+    const icon: RepeatLayer = { ...repeatLayer(), element: 'icon-rose' as RepeatLayer['element'] };
+    const bead: RepeatLayer = { ...repeatLayer(), element: 'bead' };
+    const old = { ...createProject([icon, { ...groupLayer([icon]) }, bead] as never), schemaVersion: 11 };
+    const r = parseProject(JSON.parse(JSON.stringify(old)));
+    if (!r.ok) throw new Error(r.error);
+    const [a, grp, b] = r.project.layers as [RepeatLayer, GroupLayer, RepeatLayer];
+    expect(a.orient).toBe('edge');
+    expect((grp.children[0] as RepeatLayer).orient).toBe('edge');
+    expect(b.orient).toBe('along');
   });
 });

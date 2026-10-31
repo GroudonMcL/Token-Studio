@@ -15,7 +15,7 @@ import { bandFillLayer, createProject, gearsLayer, groupLayer, growthLayer, knot
 import { STAMPED_OUTER, STAMPED_STEP, stampedStops } from './stamped';
 import { bevel, shadow } from './styles';
 import { cloneAllWithNewIds } from './tree';
-import type { BandFillLayer, FrameProject, GroupLayer, Layer, LegacyFrameLayer, LineLayer, RepeatLayer, TextureKind, TextureLayer } from './types';
+import { pointsOutward, type BandFillLayer, type FrameProject, type GroupLayer, type Layer, type LegacyFrameLayer, type LineLayer, type RepeatLayer, type TextureKind, type TextureLayer } from './types';
 
 /**
  * Token Maker's random sizes for each of a frame's ornaments, in its order
@@ -447,7 +447,14 @@ export const CONVERTIBLE_STYLES = Object.keys(CONVERTERS) as FrameStyle[];
 /** A frame's parts as editable layers, bottom first, or null if it has no converter yet. Every call gives fresh ids. */
 export function convertFrame(style: FrameStyle, colours: FrameColours): Layer[] | null {
   const convert = CONVERTERS[style];
-  return convert ? cloneAllWithNewIds(convert(colours), newId) : null;
+  return convert ? cloneAllWithNewIds(convert(colours), newId).map(squareLikeTokenMaker) : null;
+}
+
+/** Token Maker draws its ornaments square to the band's edge, so converted emblems keep that facing. */
+function squareLikeTokenMaker(layer: Layer): Layer {
+  if (layer.type === 'group') return { ...layer, children: layer.children.map(squareLikeTokenMaker) };
+  if (layer.type === 'repeat' && layer.orient === 'along' && pointsOutward(layer.element)) return { ...layer, orient: 'edge' };
+  return layer;
 }
 
 /**

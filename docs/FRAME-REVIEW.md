@@ -34,7 +34,8 @@ picker each. Candidates are drawn with
   Damascus, Brimstone, Infernal iron, Gold lines on enamel, Anodised titanium,
   Volcanic script, Velvet & gold, Golden lyre, Jade & gold, Crimson aria and
   Workshop iron (mostly polished metal, enamel and glossy surfaces).
-- Ornaments stay inside the band unless reaching out is the point.
+- Ornaments stay inside the band unless reaching out is the point, and clear of text.
+- On hexagons and squares, icons and emblems point out from the centre (repeat facing 'along', format 12); 'edge' keeps the old square-to-the-side facing.
 - Prefers organic, natural textures for nature and primal frames.
 - Usually keeps the current frame and most new versions; drops busy or matt ones.
 - Kept for Wizard: the calm and the rich versions (Sapphire runes, Starweave,
@@ -69,7 +70,14 @@ picker each. Candidates are drawn with
 | Paladin, Ranger, Rogue, Warlock | Classes | Kept, plus all five versions each. |
 | Sorcerer | Classes | Kept, plus Wild magic, Draconic bloodline, Storm sorcery, Crystal heart. |
 | Artificer | Classes | Kept, plus Copper pipework, Workshop iron. |
-| Gilded laurel, Iron rivets, Runestone, Thorns, Dragon scales, Celestial star, Rope, Shield rim | Crafted | Five candidates each, waiting for picks (scripts/frame-studio/candidates). |
+| Gilded laurel | Crafted | Kept (beads removed), plus Laurel on enamel, Victor’s wreath, Jewelled wreath, Silver olive, Laurel oath. |
+| Iron rivets | Crafted | Kept, plus Blackened iron, Rusted plate, Dwarven strapwork, Forge script, Gunmetal bolts. |
+| Runestone | Crafted | Kept (cracks softened), plus Mossy runestone, Ember runes, Frost runes, Gilded slate. |
+| Thorns | Crafted | Kept, plus Rose briar, Bramble on bark, Silverwork thorns. |
+| Dragon scales | Crafted | Original retired; Red dragon, Black dragon, Wyrm script. New overlapping-row scales (houseStyle.ts: scaleRows) waiting for picks. |
+| Celestial star | Crafted | Kept, plus Sun & moon, Astrolabe. |
+| Rope | Crafted | Kept, plus Sailor’s rope, Braided leather. |
+| Shield rim | Crafted | Kept, plus all five. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.

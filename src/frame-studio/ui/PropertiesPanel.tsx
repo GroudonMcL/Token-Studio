@@ -498,19 +498,22 @@ function LayerControls({ layer, light }: { layer: Layer; light: number }) {
           {num(layer, set, 'size', 'Size', 0.02, 1.5, pct)}
           <FollowSelect layer={layer} onChange={(follow) => set({ follow })} />
           {!following(layer, layers) && num(layer, set, 'at', 'Position across the band', -0.5, 1.5, pct)}
-          {following(layer, layers) && (
-            <Select
-              label="Facing"
-              hint="Turned to follow the path, or all standing upright on the screen."
-              value={layer.orient}
-              disabled={disabled}
-              options={[
-                { value: 'along', label: 'Along the path' },
-                { value: 'upright', label: 'Upright' },
-              ]}
-              onChange={(orient) => set({ orient })}
-            />
-          )}
+          <Select
+            label="Facing"
+            hint={
+              following(layer, layers)
+                ? 'Turned to follow the path, square to its edge, or all standing upright on the screen.'
+                : 'Turned with the band (icons and emblems point straight out from the centre, so on a hexagon they don’t twist), all square to the band’s edge, or all standing upright on the screen.'
+            }
+            value={layer.orient}
+            disabled={disabled}
+            options={[
+              { value: 'along', label: following(layer, layers) ? 'Along the path' : 'Along the band' },
+              { value: 'edge', label: 'Square to the edge' },
+              { value: 'upright', label: 'Upright' },
+            ]}
+            onChange={(orient) => set({ orient })}
+          />
           {num(layer, set, 'rotation', 'Rotation', -180, 180, { step: 1, unit: '°' })}
           {num(layer, set, 'offset', 'Slide along', 0, 1, pct)}
           <Toggle label="Raised (small shadow)" checked={layer.raised} disabled={disabled} onChange={(raised) => set({ raised })} />

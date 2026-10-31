@@ -45,8 +45,8 @@ export const CANDIDATES: Candidate[] = [
       ...base({ light: '#f4c060', dark: '#a85020', step: null }),
       { ...bandFillLayer(), name: 'Night', paint: { kind: 'linear', angle: 90, followLight: false, stops: [{ at: 0.3, color: '#141a4a', opacity: 0 }, { at: 0.7, color: '#141a4a', opacity: 1 }] } },
       { ...stars(16, 0.5, 0.18), offset: 0.5 },
-      { ...repeatLayer(), name: 'Sun', element: 'sun', count: 1, at: 0.5, size: 1.15, fill: '#f4d27a', raised: false, effects: [...goldFx(0.4, WARM_GOLD), glow({ color: '#ffd080', opacity: 0.6, size: 0.1 })] },
-      { ...repeatLayer(), name: 'Moon', element: 'crescent', count: 1, offset: 0.5, at: 0.5, size: 1, fill: '#d8dce4', raised: false, effects: [...metalFx(SILVER_STOPS, 0.4, 0.9), glow({ color: '#c0d0ff', opacity: 0.5, size: 0.08 })] },
+      { ...repeatLayer(), name: 'Sun', element: 'sun', count: 1, snapToCorners: false, at: 0.5, size: 1.15, fill: '#f4d27a', raised: false, effects: [...goldFx(0.4, WARM_GOLD), glow({ color: '#ffd080', opacity: 0.6, size: 0.1 })] },
+      { ...repeatLayer(), name: 'Moon', element: 'crescent', count: 1, snapToCorners: false, offset: 0.5, at: 0.5, size: 1, fill: '#d8dce4', raised: false, effects: [...metalFx(SILVER_STOPS, 0.4, 0.9), glow({ color: '#c0d0ff', opacity: 0.5, size: 0.08 })] },
     ],
   },
   {

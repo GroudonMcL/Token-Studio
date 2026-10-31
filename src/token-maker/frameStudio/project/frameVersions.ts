@@ -4,6 +4,7 @@
 // with a colour picker per colour slot.
 
 import {
+  across,
   adjust,
   bandFillLayer,
   bandShading,
@@ -234,6 +235,48 @@ const brass = (scale = 2) => photo('hammered-metal', scale, { lighting: 0.4 });
 
 // cobblestone
 const cobbles = (name = 'Cobbles', patch = {}) => ({ ...bandFillLayer(), name, paint: photo('cobblestone', 1.4, { lighting: 0.7 }), effects: [bevel({ profile: 'rounded', size: 0.3, gloss: 0.15, highlightOpacity: 0.4 }), DROP], ...patch });
+
+// ── Crafted frames ──
+const laurelGold = (scale = 0.6) => photo('gold', scale, { lighting: 0.4 });
+const laurelLeaves = (name: string, at: number, rotation: number, fill: string, stops: string[], o: { count?: number; offset?: number; size?: number } = {}) => ({
+  ...repeatLayer(), name, element: 'leaf' as const, count: o.count ?? 24, snapToCorners: false, at, size: o.size ?? 0.9, stretch: 0.42, rotation, offset: o.offset ?? 0,
+  fill, fillPaint: laurelGold(), raised: false, effects: [...metalFx(stops, 0.45, 0.8), contact(0.55)],
+});
+const IRON_PLATE = ['#040506', '#16191e', '#4a5058', '#8a929c', '#d0d6de'];
+const ironPlate = (name: string, stops: string[], picture: 'hammered-metal' | 'metal-plate' | 'rust' = 'hammered-metal') =>
+  ({ ...bandFillLayer(), name, paint: photo(picture, 1.4, { lighting: 0.3 }), effects: [recolour(stops), DROP] });
+const ironRivets = (name: string, at: number, fill: string, stops: string[], count = 16, size = 0.26) =>
+  ({ ...repeatLayer(), name, element: 'bead' as const, count, snapToCorners: false, at, size, fill, raised: true, effects: [...metalFx(stops, 0.6, 0.8), contact(0.7)] });
+const runeStone = (name: string, picture: Parameters<typeof photo>[0], scale: number, stops?: string[]) =>
+  ({ ...bandFillLayer(), name, paint: photo(picture, scale, { lighting: 0.4 }), effects: [...(stops ? [recolour(stops)] : []), DROP] });
+const carvedIn = (o: { size?: number; gloss?: number } = {}) => bevel({ direction: 'sunken', size: o.size ?? 0.5, gloss: o.gloss ?? 0.2 });
+const briar = (name: string, color: string, thorn: string, o: { count?: number; thickness?: number; amplitude?: number; waveLength?: number; size?: number; seed?: number } = {}) => ({
+  ...growthLayer('thorns'), name, count: o.count ?? 2, thickness: o.thickness ?? 0.09, amplitude: o.amplitude ?? 0.28, waveLength: o.waveLength ?? 1.6,
+  extraSize: o.size ?? 0.4, color, extraColor: thorn, seed: o.seed ?? 1,
+});
+const dragonScales = (name: string, color: string, o: { size?: number; gloss?: number; from?: number; to?: number } = {}) => ({
+  ...textureLayer('scales'), name, from: o.from ?? 0, to: o.to ?? 1, color, amount: 1, scale: o.size ?? 1.4, strength: 1 + (o.gloss ?? 0.6) * 0.4, seed: 0xd5a1,
+});
+const dragonUnder = (color: string) => ({ ...bandFillLayer(), name: 'Under', paint: { kind: 'solid' as const, color }, effects: [DROP] });
+const dragonEdge = (name: string, at: number) => ({ ...lineLayer(), name, at, width: 0.06, paint: { kind: 'solid' as const, color: '#d8a838' }, effects: [...metalFx(WARM_GOLD, 0.6, 0.9), contact(0.5)] });
+const celestialStars = (count = 24, at = 0.5, size = 0.2) => ({ ...repeatLayer(), name: 'Stars', element: 'star' as const, count, snapToCorners: false, at, size, fill: '#f4f0ff', raised: false, shaded: false, altSizes: [1, 0.6, 0.8], effects: [glow({ color: '#c0d0ff', opacity: 0.7, size: 0.06 })] });
+// Round, like a real rope: lit along the top edge and shaded underneath, from gradients rather than a bevel.
+const ropeRound = () => ({ ...bandFillLayer(), name: 'Round shading', blend: 'overlay' as const, opacity: 0.8, paint: across(['#000000', '#ffffff', '#808080', '#000000']) });
+const ropeStrand = (name: string, color: string, o: { from?: number; to?: number; seed?: number } = {}) => [
+  { ...bandFillLayer(), name, from: o.from ?? 0, to: o.to ?? 1, paint: { kind: 'solid' as const, color }, effects: [DROP] },
+  { ...textureLayer('rope'), name: name + ' twist', from: o.from ?? 0, to: o.to ?? 1, color, amount: 1, strength: 1.2, seed: o.seed ?? 0xbead },
+];
+const shieldPlanks = (stops?: string[]) => ({ ...bandFillLayer(), name: 'Planks', from: 0.4, to: 1, paint: photo('wood-planks', 1.6, { angle: 90, lighting: 0.3 }), effects: stops ? [recolour(stops)] : [] });
+const plankJoins = () => ({ ...repeatLayer(), name: 'Plank joins', element: 'tick' as const, count: 12, snapToCorners: false, at: 0.7, size: 0.6, stretch: 0.12, fill: '#2a1a0c', raised: false, shaded: false, opacity: 0.8, blend: 'multiply' as const });
+const shieldRim = (name: string, stops: string[], picture: 'hammered-metal' | 'metal-plate' = 'hammered-metal') =>
+  ({ ...bandFillLayer(), name, to: 0.42, paint: photo(picture, 1, { lighting: 0.3 }), effects: [recolour(stops), DROP] });
+const shieldNails = (fill: string, stops: string[], count = 12) => ({ ...repeatLayer(), name: 'Nails', element: 'bead' as const, count, snapToCorners: false, at: 0.21, size: 0.3, fill, raised: true, effects: [...metalFx(stops, 0.6, 0.8), contact(0.7)] });
+// Shades the rim and the planks separately, each with its own gradient pair.
+const shieldShading = () => [
+  { ...bandFillLayer(), name: 'Rim shading', to: 0.42, blend: 'overlay' as const, opacity: 0.7, paint: lin(['#ffffff', '#000000']) },
+  { ...bandFillLayer(), name: 'Plank shading', from: 0.42, blend: 'overlay' as const, opacity: 0.6, paint: lin(['#000000', '#ffffff']) },
+  { ...lineLayer(), name: 'Crease', at: 0.42, width: 0.03, opacity: 0.6, blend: 'overlay' as const, paint: { kind: 'solid' as const, color: '#190500' } },
+];
 
 const VERSIONS: Version[] = [
   // ── stamped ──
@@ -1708,6 +1751,432 @@ const VERSIONS: Version[] = [
       { ...repeatLayer(), name: 'Bolts', element: 'bead', count: 20, at: 0.2, size: 0.18, fill: '#b5813a', raised: true, effects: [recolour(BRONZE_STOPS), contact(0.6)] },
       { ...repeatLayer(), name: 'Bolts', element: 'bead', count: 20, at: 0.8, size: 0.18, fill: '#b5813a', raised: true, effects: [recolour(BRONZE_STOPS), contact(0.6)] },
       ...rims(),
+    ],
+  },
+  // ── gilded-laurel ──
+  {
+    id: 'gilded-laurel-enamel',
+    name: 'Laurel on enamel',
+    description: 'Gold laurel leaves laid on a deep green enamel band with a pressed-in step, like a victor’s medal.',
+    group: 'Crafted',
+    after: 'gilded-laurel',
+    stage: { thickness: 0.2, outerSpacing: 0.03 },
+    colours: [slot('band', 'Enamel colour', '#1e5a3a', ['Band', 'Pressed-in step']), slot('gold', 'Leaf colour', '#d8a838', ['Outer leaves', 'Inner leaves'])],
+    layers: () => [
+      ...base({ light: '#2e8a58', dark: '#04180c', step: 0.55 }),
+      laurelLeaves('Outer leaves', 0.3, -68, '#d8a838', WARM_GOLD),
+      laurelLeaves('Inner leaves', 0.72, 68, '#d8a838', WARM_GOLD, { offset: 0.5 }),
+    ],
+  },
+  {
+    id: 'gilded-laurel-wreath',
+    name: 'Victor’s wreath',
+    description: 'A real wreath: gilded laurel twigs growing round each other.',
+    group: 'Crafted',
+    after: 'gilded-laurel',
+    stage: { thickness: 0.2, outerSpacing: 0.03 },
+    colours: [slot('gold', 'Leaf colour', '#d8a838', ['Wreath', 'Second wreath'])],
+    layers: () => [
+      { ...growthLayer('vine'), name: 'Wreath', count: 2, thickness: 0.05, amplitude: 0.16, waveLength: 1.3, extra: 'leaves', extraSpacing: 0.1, extraSize: 0.55, color: '#a8782a', extraColor: '#d8a838', effects: [...goldFx(0.35, WARM_GOLD), DROP] },
+      { ...growthLayer('vine'), name: 'Second wreath', count: 1, thickness: 0.035, amplitude: 0.22, waveLength: 1.9, extra: 'leaves', extraSpacing: 0.13, extraSize: 0.45, color: '#a8782a', extraColor: '#e8c060', seed: 5, effects: [...goldFx(0.35, WARM_GOLD), contact(0.5)] },
+    ],
+  },
+  {
+    id: 'gilded-laurel-jewelled',
+    name: 'Jewelled wreath',
+    description: 'The gilded wreath with six sharply cut sapphires held in gold claws round it.',
+    group: 'Crafted',
+    after: 'gilded-laurel',
+    stage: { thickness: 0.2, outerSpacing: 0.03 },
+    colours: [slot('gold', 'Leaf colour', '#d8a838', ['Wreath', 'Second wreath', 'Gems']), slot('gems', 'Gem colour', '#1f4fd0', ['Gems'])],
+    layers: () => [
+      { ...growthLayer('vine'), name: 'Wreath', count: 2, thickness: 0.05, amplitude: 0.16, waveLength: 1.3, extra: 'leaves', extraSpacing: 0.1, extraSize: 0.55, color: '#a8782a', extraColor: '#d8a838', effects: [...goldFx(0.35, WARM_GOLD), DROP] },
+      { ...growthLayer('vine'), name: 'Second wreath', count: 1, thickness: 0.035, amplitude: 0.22, waveLength: 1.9, extra: 'leaves', extraSpacing: 0.13, extraSize: 0.45, color: '#a8782a', extraColor: '#e8c060', seed: 5, effects: [...goldFx(0.35, WARM_GOLD), contact(0.5)] },
+      { ...repeatLayer(), name: 'Gems', element: 'gem', count: 6, at: 0.5, size: 0.85, fill: '#1f4fd0', raised: false, gemCut: 'brilliant', gemFacets: 10, gemTable: 0.46, gemCrown: 1, gemSparkle: 0.8, setting: 'claws6', settingColor: '#d8a838', settingEffects: [...goldFx(0.3, WARM_GOLD)], effects: [contact(0.7)] },
+    ],
+  },
+  {
+    id: 'gilded-laurel-silver-olive',
+    name: 'Silver olive',
+    description: 'Slim silver olive leaves on a cool slate band, shaded with the twin gradients rather than a bevel.',
+    group: 'Crafted',
+    after: 'gilded-laurel',
+    stage: { thickness: 0.2, outerSpacing: 0.03 },
+    colours: [slot('band', 'Band colour', '#3a4652', ['Band', 'Pressed-in step']), slot('leaves', 'Leaf colour', '#c8ccd4', ['Outer leaves', 'Inner leaves'])],
+    layers: () => [
+      ...base({ light: '#62707e', dark: '#0a0e12', step: 0.55 }),
+      { ...laurelLeaves('Outer leaves', 0.3, -72, '#c8ccd4', SILVER_STOPS, { count: 30, size: 0.8 }), stretch: 0.32 },
+      { ...laurelLeaves('Inner leaves', 0.72, 72, '#c8ccd4', SILVER_STOPS, { count: 30, size: 0.8, offset: 0.5 }), stretch: 0.32 },
+    ],
+  },
+  {
+    id: 'gilded-laurel-oath',
+    name: 'Laurel oath',
+    description: 'A single row of laurel round the outside and a Yugurian oath engraved in the pressed-in step.',
+    group: 'Crafted',
+    after: 'gilded-laurel',
+    stage: { thickness: 0.2, outerSpacing: 0.03 },
+    colours: [slot('band', 'Band colour', '#7a1a1e', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Laurel', 'Oath'])],
+    layers: () => [
+      ...base({ light: '#b03038', dark: '#1a0204', step: 0.55 }),
+      laurelLeaves('Laurel', 0.28, -70, '#d8a838', WARM_GOLD, { count: 28, size: 0.75 }),
+      inscription('yugurian', '#f4d27a', { name: 'Oath', at: 0.78, size: 0.3, start: 4, effects: [...goldFx(0.4, WARM_GOLD), contact(0.5)] }),
+    ],
+  },
+  // ── iron-rivets ──
+  {
+    id: 'iron-rivets-blackened',
+    name: 'Blackened iron',
+    description: 'Dark hammered iron shaded with the twin gradient bands, with a ring of bright steel rivets.',
+    group: 'Crafted',
+    after: 'iron-rivets',
+    stage: { thickness: 0.2, outerSpacing: 0.02 },
+    colours: [slot('iron', 'Iron colour', '#4a5058', ['Iron plate']), slot('rivets', 'Rivet colour', '#a8b0ba', ['Rivets'])],
+    layers: () => bandShading([ironPlate('Iron plate', IRON_PLATE), ironRivets('Rivets', 0.3, '#a8b0ba', STEEL_STOPS)]),
+  },
+  {
+    id: 'iron-rivets-rusted',
+    name: 'Rusted plate',
+    description: 'Iron gone orange with rust at the edges, held together with dark rivets.',
+    group: 'Crafted',
+    after: 'iron-rivets',
+    stage: { thickness: 0.2, outerSpacing: 0.02 },
+    colours: [slot('rust', 'Rust colour', '#9a4a1e', ['Rust']), slot('rivets', 'Rivet colour', '#5a5e66', ['Rivets'])],
+    layers: () => bandShading([
+      ironPlate('Iron plate', IRON_PLATE),
+      { ...bandFillLayer(), name: 'Rust', paint: photo('rust', 1.2), opacity: 0.9, blend: 'color', clip: 'band' },
+      { ...bandFillLayer(), name: 'Rust', paint: photo('rust', 1.2), opacity: 0.35, blend: 'multiply', clip: 'band' },
+      ironRivets('Rivets', 0.3, '#5a5e66', IRON_PLATE),
+    ]),
+  },
+  {
+    id: 'iron-rivets-dwarven',
+    name: 'Dwarven strapwork',
+    description: 'Heavy iron plates with joins between them, two rows of rivets and a thin brass trim line.',
+    group: 'Crafted',
+    after: 'iron-rivets',
+    stage: { thickness: 0.2, outerSpacing: 0.02 },
+    colours: [slot('iron', 'Iron colour', '#4a5058', ['Iron plate']), slot('brass', 'Brass colour', '#b5813a', ['Brass trim', 'Rivets'])],
+    layers: () => bandShading([
+      ironPlate('Iron plate', IRON_PLATE, 'metal-plate'),
+      { ...repeatLayer(), name: 'Plate joins', element: 'tick', count: 8, at: 0.5, size: 1.1, stretch: 0.08, fill: '#050608', raised: false, shaded: false, opacity: 0.75 },
+      { ...lineLayer(), name: 'Brass trim', at: 0.5, width: 0.05, paint: { kind: 'solid', color: '#b5813a' }, effects: [...metalFx(BRONZE_STOPS, 0.6, 0.8), contact(0.5)] },
+      ironRivets('Rivets', 0.22, '#b5813a', BRONZE_STOPS, 24, 0.16),
+      ironRivets('Rivets', 0.78, '#b5813a', BRONZE_STOPS, 24, 0.16),
+    ]),
+  },
+  {
+    id: 'iron-rivets-forge-script',
+    name: 'Forge script',
+    description: 'Black iron with a Sith AF inscription glowing forge-orange between two rows of rivets.',
+    group: 'Crafted',
+    after: 'iron-rivets',
+    stage: { thickness: 0.2, outerSpacing: 0.02, bloom: 0.2 },
+    colours: [slot('iron', 'Iron colour', '#3a3e46', ['Iron plate']), slot('glow', 'Glow colour', '#ff7a2a', ['Forge script'])],
+    layers: () => bandShading([
+      ironPlate('Iron plate', ['#020203', '#0e1014', '#3a3e46', '#6a707a', '#a8b0b8']),
+      ironRivets('Rivets', 0.14, '#8a929c', STEEL_STOPS, 24, 0.14),
+      ironRivets('Rivets', 0.86, '#8a929c', STEEL_STOPS, 24, 0.14),
+      inscription('sith', '#ffd0a0', { name: 'Forge script', at: 0.5, size: 0.36, start: 6, effects: [glow({ color: '#ff7a2a', opacity: 0.9, size: 0.12 })] }),
+    ], { step: null }),
+  },
+  {
+    id: 'iron-rivets-gunmetal',
+    name: 'Gunmetal bolts',
+    description: 'Smooth blue-grey gunmetal with hex bolts and a fine brushed finish.',
+    group: 'Crafted',
+    after: 'iron-rivets',
+    stage: { thickness: 0.2, outerSpacing: 0.02 },
+    colours: [slot('metal', 'Metal colour', '#3a4450', ['Gunmetal', 'Brushing']), slot('bolts', 'Bolt colour', '#c8ced6', ['Bolts'])],
+    layers: () => bandShading([
+      { ...bandFillLayer(), name: 'Gunmetal', paint: { kind: 'linear', angle: 45, followLight: false, stops: [{ at: 0, color: '#6a7686', opacity: 1 }, { at: 1, color: '#0c1016', opacity: 1 }] }, effects: [DROP] },
+      { ...textureLayer('brushed'), name: 'Brushing', color: '#ffffff', opacity: 0.25, seed: 0xb707 },
+      { ...repeatLayer(), name: 'Bolts', element: 'bead', count: 12, at: 0.3, size: 0.3, fill: '#c8ced6', raised: true, effects: [...metalFx(STEEL_STOPS, 0.5, 0.9), contact(0.7)] },
+    ]),
+  },
+  // ── runestone ──
+  {
+    id: 'runestone-mossy',
+    name: 'Mossy runestone',
+    description: 'Old weathered stone with moss creeping over the outer edge and runes carved but long gone dark.',
+    group: 'Crafted',
+    after: 'runestone',
+    stage: { thickness: 0.2, outerSpacing: 0.02 },
+    colours: [slot('stone', 'Stone colour', '#7a786e', ['Stone']), slot('moss', 'Moss colour', '#5a7a2a', ['Moss'])],
+    layers: () => bandShading([
+      runeStone('Stone', 'mossy-rock', 1.4),
+      { ...bandFillLayer(), name: 'Moss', from: 0, to: 0.45, paint: photo('moss', 1), opacity: 0.85, clip: 'band', effects: [{ kind: 'distort', on: true, amount: 0.3, scale: 0.4, seed: 8 }, contact(0.4)] },
+      inscription('babelstone', '#3a382e', { name: 'Runes', at: 0.75, size: 0.32, start: 3, effects: [carvedIn({ size: 0.6 })] }),
+    ]),
+  },
+  {
+    id: 'runestone-ember',
+    name: 'Ember runes',
+    description: 'Dark volcanic rock split by glowing cracks, with Yugurian runes burning orange.',
+    group: 'Crafted',
+    after: 'runestone',
+    stage: { thickness: 0.2, outerSpacing: 0.02, bloom: 0.3 },
+    colours: [slot('stone', 'Stone colour', '#3a3430', ['Stone']), slot('glow', 'Glow colour', '#ff7a2a', ['Glowing cracks', 'Runes'])],
+    layers: () => bandShading([
+      runeStone('Stone', 'dark-rock', 1.4),
+      glowCracks('#1a0a04', '#ff7a2a', '#ffb05a', 7, 0.7),
+      inscription('yugurian', '#ffe0b0', { name: 'Runes', at: 0.3, size: 0.38, start: 1, effects: [carvedIn(), glow({ color: '#ff7a2a', opacity: 0.9, size: 0.12 })] }),
+    ]),
+  },
+  {
+    id: 'runestone-frost',
+    name: 'Frost runes',
+    description: 'Blue-grey stone furred with frost, with BabelStone runes glowing icy cyan.',
+    group: 'Crafted',
+    after: 'runestone',
+    stage: { thickness: 0.2, outerSpacing: 0.02, bloom: 0.25 },
+    colours: [slot('stone', 'Stone colour', '#6a7a88', ['Stone']), slot('glow', 'Rune colour', '#8af0ff', ['Runes'])],
+    layers: () => bandShading([
+      runeStone('Stone', 'granite', 1.4, ['#06080c', '#2a3440', '#6a7a88', '#b8c8d6', '#f0f8ff']),
+      { ...textureLayer('frost'), name: 'Frost', color: '#e8f8ff', opacity: 0.7, seed: 0xf205 },
+      inscription('babelstone', '#e8fcff', { name: 'Runes', at: 0.3, size: 0.4, start: 5, effects: [carvedIn(), glow({ color: '#8af0ff', opacity: 0.85, size: 0.12 })] }),
+    ]),
+  },
+  {
+    id: 'runestone-gilded-slate',
+    name: 'Gilded slate',
+    description: 'Smooth dark slate with runes carved in and filled with gold leaf, and a gold rune stone at each quarter.',
+    group: 'Crafted',
+    after: 'runestone',
+    stage: { thickness: 0.2, outerSpacing: 0.02 },
+    colours: [slot('stone', 'Slate colour', '#2e3238', ['Stone']), slot('gold', 'Gold colour', '#d8a838', ['Runes', 'Rune stones'])],
+    layers: () => bandShading([
+      runeStone('Stone', 'black-onyx', 3, ['#020304', '#121418', '#2e3238', '#5a606a', '#8a909a']),
+      inscription('babelstone', '#f4d27a', { name: 'Runes', at: 0.76, size: 0.28, start: 2, effects: [...goldFx(0.3, WARM_GOLD)] }),
+      { ...repeatLayer(), name: 'Rune stones', element: 'icon-rune-stone', count: 4, at: 0.2, size: 0.38, fill: '#d8a838', raised: false, effects: [...goldFx(0.4, WARM_GOLD), contact(0.5)] },
+    ]),
+  },
+  // ── thorns ──
+  {
+    id: 'thorns-rose-briar',
+    name: 'Rose briar',
+    description: 'Dark thorny stems wound round each other with deep red roses blooming at intervals.',
+    group: 'Crafted',
+    after: 'thorns',
+    stage: { thickness: 0.16, outerSpacing: 0.06 },
+    colours: [slot('stem', 'Stem colour', '#3a2a1a', ['Briar', 'Second briar']), slot('roses', 'Rose colour', '#a01828', ['Roses'])],
+    layers: () => [
+      { ...briar('Briar', '#3a2a1a', '#1a120a'), effects: [bevel({ size: 0.5, gloss: 0.3 }), DROP] },
+      { ...briar('Second briar', '#4a3420', '#1e140a', { count: 1, thickness: 0.06, waveLength: 2.2, seed: 7 }), effects: [bevel({ size: 0.5, gloss: 0.3 }), contact(0.6)] },
+      { ...growthLayer('vine'), name: 'Leaves', count: 1, thickness: 0.025, amplitude: 0.2, waveLength: 1.9, extra: 'leaves', extraSize: 0.3, color: '#2a3a1a', extraColor: '#2e5a22', seed: 3, effects: [bevel({ size: 0.4, gloss: 0.3 }), contact(0.5)] },
+      { ...repeatLayer(), name: 'Roses', element: 'icon-rose', count: 8, at: 0.5, size: 1.1, fill: '#a01828', raised: false, effects: [bevel({ size: 0.4, gloss: 0.5 }), contact(0.6)] },
+    ],
+  },
+  {
+    id: 'thorns-bark-bramble',
+    name: 'Bramble on bark',
+    description: 'A narrow ring of bark, shaded with gradient bands, with a thorny bramble climbing over it.',
+    group: 'Crafted',
+    after: 'thorns',
+    stage: { thickness: 0.16, outerSpacing: 0.04 },
+    colours: [slot('bark', 'Bark colour', '#5f5040', ['Bark']), slot('stem', 'Bramble colour', '#4a3020', ['Bramble'])],
+    layers: () => [
+      ...bandShading([{ ...bandFillLayer(), name: 'Bark', from: 0.2, to: 0.8, paint: photo('bark', 1.4, { angle: 90, lighting: 0.4 }), effects: [recolour(['#0a0604', '#2a1e14', '#5f5040', '#8a7a64', '#b8a888']), DROP] }], { step: null }),
+      { ...briar('Bramble', '#4a3020', '#24160a', { count: 2, thickness: 0.07, amplitude: 0.32, size: 0.35 }), effects: [bevel({ size: 0.5, gloss: 0.35 }), contact(0.7)] },
+    ],
+  },
+  {
+    id: 'thorns-silverwork',
+    name: 'Silverwork thorns',
+    description: 'A jeweller’s crown of thorns in polished silver, set with small amethysts.',
+    group: 'Crafted',
+    after: 'thorns',
+    stage: { thickness: 0.16, outerSpacing: 0.06 },
+    colours: [slot('metal', 'Metal colour', '#c8ccd4', ['Briar', 'Second briar']), slot('gems', 'Gem colour', '#8a3ac0', ['Gems'])],
+    layers: () => [
+      { ...briar('Briar', '#c8ccd4', '#e8ecf0', { thickness: 0.07 }), effects: [...metalFx(SILVER_STOPS, 0.5, 0.9), DROP] },
+      { ...briar('Second briar', '#a8aeb8', '#d8dce4', { count: 1, thickness: 0.05, waveLength: 2.2, seed: 7 }), effects: [...metalFx(SILVER_STOPS, 0.5, 0.9), contact(0.6)] },
+      { ...repeatLayer(), name: 'Gems', element: 'gem', count: 6, at: 0.5, size: 0.36, fill: '#8a3ac0', raised: false, gemSparkle: 0.7, effects: [contact(0.6)] },
+    ],
+  },
+  // ── dragon-scales ──
+  {
+    id: 'dragon-scales-red',
+    name: 'Red dragon',
+    description: 'Crimson scales, glossy and shaded with the twin gradient bands, between thin gold edges.',
+    group: 'Crafted',
+    after: 'dragon-scales',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('scales', 'Scale colour', '#b8322a', ['Scales']), slot('gold', 'Edge colour', '#d8a838', ['Outer edge', 'Inner edge'])],
+    layers: () => [...bandShading([dragonUnder('#200404'), dragonScales('Scales', '#e04a3a', { from: 0.06, to: 0.94 })]), dragonEdge('Outer edge', 0.03), dragonEdge('Inner edge', 0.97)],
+  },
+  {
+    id: 'dragon-scales-black',
+    name: 'Black dragon',
+    description: 'Glossy black scales with a violet sheen, like oil on obsidian.',
+    group: 'Crafted',
+    after: 'dragon-scales',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('scales', 'Scale colour', '#1a1620', ['Scales']), slot('sheen', 'Sheen colour', '#8a4ad0', ['Sheen'])],
+    layers: () => bandShading([
+      dragonUnder('#020104'),
+      dragonScales('Scales', '#1a1620', { gloss: 0.9 }),
+      { ...bandFillLayer(), name: 'Sheen', paint: lin(['#8a4ad0', '#000000', '#2a8ad0'], 30), opacity: 0.55, blend: 'screen' },
+    ]),
+  },
+  {
+    id: 'dragon-scales-wyrm-script',
+    name: 'Wyrm script',
+    description: 'Green scales on the outside and a gold band in the pressed-in step with draconic words in Sith AF.',
+    group: 'Crafted',
+    after: 'dragon-scales',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('scales', 'Scale colour', '#3a7a2a', ['Scales']), slot('band', 'Band colour', '#3a1a08', ['Script band']), slot('gold', 'Script colour', '#d8a838', ['Draconic'])],
+    layers: () => [
+      ...bandShading([dragonUnder('#081404'), dragonScales('Scales', '#3a7a2a', { to: 0.58 })], { step: null }),
+      { ...bandFillLayer(), name: 'Script band', from: 0.58, to: 1, paint: lin(['#6a3a14', '#140602'], 225) },
+      { ...lineLayer(), name: 'Crease', at: 0.58, width: 0.03, opacity: 0.55, blend: 'overlay', paint: { kind: 'solid', color: '#190500' } },
+      inscription('sith', '#f4d27a', { name: 'Draconic', at: 0.79, size: 0.3, start: 8, effects: [...goldFx(0.4, WARM_GOLD)] }),
+    ],
+  },
+  // ── celestial ──
+  {
+    id: 'celestial-sun-moon',
+    name: 'Sun & moon',
+    description: 'Day fading into night round the band: gold sun at the top, silver moon at the bottom, stars between.',
+    group: 'Crafted',
+    after: 'celestial',
+    stage: { thickness: 0.16, outerSpacing: 0.03, bloom: 0.2 },
+    colours: [slot('day', 'Day colour', '#e8a040', ['Band']), slot('night', 'Night colour', '#141a4a', ['Night'])],
+    layers: () => [
+      ...base({ light: '#f4c060', dark: '#a85020', step: null }),
+      { ...bandFillLayer(), name: 'Night', paint: { kind: 'linear', angle: 90, followLight: false, stops: [{ at: 0.3, color: '#141a4a', opacity: 0 }, { at: 0.7, color: '#141a4a', opacity: 1 }] } },
+      { ...celestialStars(16, 0.5, 0.18), offset: 0.5 },
+      { ...repeatLayer(), name: 'Sun', element: 'sun', count: 1, snapToCorners: false, at: 0.5, size: 1.15, fill: '#f4d27a', raised: false, effects: [...goldFx(0.4, WARM_GOLD), glow({ color: '#ffd080', opacity: 0.6, size: 0.1 })] },
+      { ...repeatLayer(), name: 'Moon', element: 'crescent', count: 1, snapToCorners: false, offset: 0.5, at: 0.5, size: 1, fill: '#d8dce4', raised: false, effects: [...metalFx(SILVER_STOPS, 0.4, 0.9), glow({ color: '#c0d0ff', opacity: 0.5, size: 0.08 })] },
+    ],
+  },
+  {
+    id: 'celestial-astrolabe',
+    name: 'Astrolabe',
+    description: 'A brass astrolabe ring with fine degree marks and star names in Outer Rim AF.',
+    group: 'Crafted',
+    after: 'celestial',
+    stage: { thickness: 0.16, outerSpacing: 0.03 },
+    colours: [slot('brass', 'Brass colour', '#b5813a', ['Band', 'Pressed-in step']), slot('marks', 'Mark colour', '#2a1a08', ['Degrees', 'Star names'])],
+    layers: () => [
+      ...base({ light: '#e0b060', dark: '#3a2208', step: 0.62 }),
+      { ...repeatLayer(), name: 'Degrees', element: 'tick', count: 72, at: 0.8, size: 0.3, stretch: 0.2, fill: '#2a1a08', raised: false, shaded: false, accentEvery: 6, accentScale: 1.7 },
+      inscription('outerRim', '#2a1a08', { name: 'Star names', at: 0.3, size: 0.34, start: 5, effects: [bevel({ direction: 'sunken', size: 0.5, gloss: 0.4 })] }),
+    ],
+  },
+  // ── rope ──
+  {
+    id: 'rope-sailors',
+    name: 'Sailor’s rope',
+    description: 'Tarred rope coiled over a navy band, with a brass ring lashed on at each quarter.',
+    group: 'Crafted',
+    after: 'rope',
+    stage: { thickness: 0.14, outerSpacing: 0.03 },
+    colours: [slot('band', 'Band colour', '#1a2a4a', ['Band']), slot('rope', 'Rope colour', '#c8a870', ['Rope', 'Rope twist']), slot('brass', 'Ring colour', '#b5813a', ['Rings'])],
+    layers: () => [
+      ...bandShading([{ ...bandFillLayer(), name: 'Band', paint: { kind: 'linear', angle: 45, followLight: false, stops: [{ at: 0, color: '#2a4a7a', opacity: 1 }, { at: 1, color: '#040a18', opacity: 1 }] }, effects: [DROP] }], { step: null }),
+      ...ropeStrand('Rope', '#c8a870', { from: 0.25, to: 0.75 }),
+      { ...ropeRound(), from: 0.25, to: 0.75 },
+      { ...repeatLayer(), name: 'Rings', element: 'circle', count: 4, at: 0.5, size: 0.8, fill: '#b5813a', outline: null, raised: true, effects: [...metalFx(BRONZE_STOPS, 0.5, 0.9), contact(0.7)] },
+    ],
+  },
+  {
+    id: 'rope-braided-leather',
+    name: 'Braided leather',
+    description: 'A tight plait of dark leather cord with a soft sheen, bound with a copper wire every so often.',
+    group: 'Crafted',
+    after: 'rope',
+    stage: { thickness: 0.14, outerSpacing: 0.03 },
+    colours: [slot('leather', 'Leather colour', '#5a3420', ['Cord', 'Cord twist']), slot('wire', 'Binding colour', '#c06a3a', ['Bindings'])],
+    layers: () => [
+      ...ropeStrand('Cord', '#5a3420', { seed: 0xbeef }),
+      { ...bandFillLayer(), name: 'Leather', paint: photo('leather', 0.8), opacity: 0.45, blend: 'overlay' },
+      ropeRound(),
+      { ...repeatLayer(), name: 'Bindings', element: 'square', count: 8, at: 0.5, size: 1, stretch: 0.22, fill: '#c06a3a', raised: true, effects: [...metalFx(['#1e0a04', '#6a3014', '#c06a3a', '#f0b08a', '#fff0e0'], 0.6, 0.9), contact(0.6)] },
+    ],
+  },
+  // ── shield-rim ──
+  {
+    id: 'shield-rim-viking',
+    name: 'Viking shield',
+    description: 'Planks painted deep red, an iron rim and iron nails, shaded with gradients instead of a bevel.',
+    group: 'Crafted',
+    after: 'shield-rim',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('paint', 'Paint colour', '#a01a1a', ['Paint']), slot('rim', 'Rim colour', '#6a7078', ['Steel rim'])],
+    layers: () => [
+      { ...shieldPlanks(['#1a0202', '#5a0a0a', '#a01a1a', '#d05a4a', '#f0b0a0']), name: 'Paint' },
+      plankJoins(),
+      shieldRim('Steel rim', ['#06080a', '#22262c', '#6a7078', '#a8b0b8', '#e0e6ec']),
+      shieldNails('#6a7078', STEEL_STOPS),
+      ...shieldShading(),
+    ],
+  },
+  {
+    id: 'shield-rim-hoplite',
+    name: 'Bronze hoplite',
+    description: 'A wide polished bronze rim with a Yugurian battle cry engraved round it, over dark oak.',
+    group: 'Crafted',
+    after: 'shield-rim',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('bronze', 'Bronze colour', '#a87a3a', ['Bronze rim']), slot('wood', 'Wood colour', '#4a2a14', ['Planks'])],
+    layers: () => [
+      shieldPlanks(['#0a0402', '#2a160a', '#4a2a14', '#7a5030', '#a8805a']),
+      plankJoins(),
+      { ...shieldRim('Bronze rim', BRONZE_STOPS), to: 0.5 },
+      inscription('yugurian', '#3a2208', { name: 'Battle cry', at: 0.25, size: 0.32, start: 9, effects: [bevel({ direction: 'sunken', size: 0.5, gloss: 0.4 })] }),
+      { ...shieldShading()[0], to: 0.5 }, { ...shieldShading()[1], from: 0.5 }, { ...shieldShading()[2], at: 0.5 },
+    ],
+  },
+  {
+    id: 'shield-rim-heraldry',
+    name: 'Knight’s heraldry',
+    description: 'Blue enamel field with a gold rim, gold nails and a fleur-de-lys at each quarter.',
+    group: 'Crafted',
+    after: 'shield-rim',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('field', 'Field colour', '#1a3a8a', ['Field']), slot('gold', 'Gold colour', '#d8a838', ['Gold rim', 'Nails', 'Fleurs'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Field', from: 0.4, to: 1, paint: lin(['#2a5ab0', '#081a48']) },
+      { ...repeatLayer(), name: 'Fleurs', element: 'icon-fleur-de-lys', count: 4, at: 0.71, size: 0.62, fill: '#d8a838', raised: false, effects: [...goldFx(0.4, WARM_GOLD)] },
+      { ...shieldRim('Gold rim', WARM_GOLD), paint: photo('gold', 1, { lighting: 0.3 }) },
+      shieldNails('#d8a838', WARM_GOLD),
+      ...shieldShading(),
+    ],
+  },
+  {
+    id: 'shield-rim-battle-worn',
+    name: 'Battle-worn',
+    description: 'A scarred shield: chipped steel rim, splintered planks, one nail missing.',
+    group: 'Crafted',
+    after: 'shield-rim',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('rim', 'Rim colour', '#6a7078', ['Steel rim'])],
+    layers: () => [
+      shieldPlanks(['#0a0602', '#2e1e10', '#5a4028', '#8a7050', '#b8a080']),
+      plankJoins(),
+      { ...shieldRim('Steel rim', ['#06080a', '#22262c', '#6a7078', '#a8b0b8', '#e0e6ec']), effects: [recolour(['#06080a', '#22262c', '#6a7078', '#a8b0b8', '#e0e6ec']), wear({ chips: 0.12, polish: 0.2, grime: 0.6, scale: 0.12, scratches: 0.5 }), DROP] },
+      { ...shieldNails('#8a8478', STEEL_STOPS), missing: 0.1 },
+      ...shieldShading(),
+    ],
+  },
+  {
+    id: 'shield-rim-leather-bound',
+    name: 'Leather-bound',
+    description: 'Oak planks with a stitched leather edge instead of metal, and brass studs.',
+    group: 'Crafted',
+    after: 'shield-rim',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('leather', 'Leather colour', '#5a3420', ['Leather edge']), slot('brass', 'Stud colour', '#b5813a', ['Nails'])],
+    layers: () => [
+      shieldPlanks(),
+      plankJoins(),
+      { ...bandFillLayer(), name: 'Leather edge', to: 0.42, paint: photo('leather', 1.2, { lighting: 0.3 }), effects: [recolour(['#0a0402', '#2a160a', '#5a3420', '#8a6040', '#b89070']), DROP] },
+      { ...lineLayer(), name: 'Stitching', at: 0.36, width: 0.03, dash: 'dashed', paint: { kind: 'solid', color: '#d8c8a0' } },
+      { ...lineLayer(), name: 'Stitching', at: 0.06, width: 0.03, dash: 'dashed', paint: { kind: 'solid', color: '#d8c8a0' } },
+      shieldNails('#b5813a', BRONZE_STOPS),
+      ...shieldShading(),
     ],
   },
   // ── next ──
