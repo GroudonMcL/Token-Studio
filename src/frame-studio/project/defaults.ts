@@ -4,7 +4,7 @@
 import { FRAME_PRESETS, framePresetById } from '../engine/legacy/catalog';
 import { frameAccent } from '../engine/legacy/frames';
 import { pictureById, type PictureId } from './pictures';
-import { bevel, glow, material, shadow, styleEffects, wear } from './styles';
+import { bevel, glow, material, shadow, styleEffects } from './styles';
 
 export { EFFECT_NAMES, NEW_EFFECT } from './effectDefaults';
 import {
@@ -378,18 +378,6 @@ export interface LayeredTemplate {
  */
 export const LAYERED_TEMPLATES: LayeredTemplate[] = [
   {
-    id: 'brass-beads',
-    name: 'Brass & beads',
-    description: 'A lit brass band, a pressed-in step, two rims and a ring of beads.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Brass band', paint: { kind: 'lit', color: '#b88635', light: 0.9, dark: 0.8, pressed: false, highlight: null } },
-      { ...bandFillLayer(), name: 'Pressed-in step', from: 0.6, to: 1, paint: { kind: 'lit', color: '#6e4a1c', light: 0.6, dark: 0.5, pressed: true, highlight: null } },
-      { ...lineLayer(), name: 'Outer rim', at: 0.02, width: 0.04, paint: { kind: 'linear', angle: 45, stops: [{ at: 0, color: '#fff6e0', opacity: 1 }, { at: 0.5, color: '#b88635', opacity: 1 }, { at: 1, color: '#2a1a08', opacity: 1 }], followLight: false } },
-      { ...lineLayer(), name: 'Inner rim', at: 0.99, width: 0.03, paint: { kind: 'solid', color: '#1a0e04' } },
-      { ...repeatLayer(), name: 'Beads', at: 0.6, size: 0.16, count: 24, fill: '#d9b060' },
-    ],
-  },
-  {
     id: 'glowing-runes',
     name: 'Glowing runes',
     description: 'A dark stone band with a glowing line and runes all the way round.',
@@ -411,31 +399,6 @@ export const LAYERED_TEMPLATES: LayeredTemplate[] = [
         glow: '#6fc3ff',
       },
       { ...lineLayer(), name: 'Outer rim', at: 0.02, width: 0.04, paint: { kind: 'solid', color: '#6a6f7c' } },
-    ],
-  },
-  {
-    id: 'jewelled',
-    name: 'Jewelled',
-    description: 'Silver with a vine, alternating diamonds and a pair of drawn gems, grouped.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Silver band', paint: { kind: 'lit', color: '#9aa3ad', light: 0.9, dark: 0.75, pressed: false, highlight: null } },
-      { ...lineLayer(), name: 'Vine', at: 0.5, width: 0.05, paint: { kind: 'solid', color: '#2f5d36' }, waveAmplitude: 0.18, waves: 16 },
-      { ...lineLayer(), name: 'Outer rim', at: 0.02, width: 0.04, paint: { kind: 'solid', color: '#e8ecf0' } },
-      { ...lineLayer(), name: 'Inner rim', at: 0.98, width: 0.04, paint: { kind: 'solid', color: '#2a2e36' } },
-      {
-        ...groupLayer([
-          { ...repeatLayer(), name: 'Diamonds', element: 'diamond', count: 24, size: 0.32, stretch: 0.7, fill: '#d94a4a', altColors: ['#3a7bd5'], altSizes: [1, 0.7] },
-          {
-            ...pathLayer(GEM_POINTS),
-            name: 'Gems',
-            along: 0.25,
-            size: 1.2,
-            fill: '#3fbf7f',
-            mirror: 'leftRight',
-          },
-        ]),
-        name: 'Jewels',
-      },
     ],
   },
   {
@@ -479,63 +442,6 @@ export const LAYERED_TEMPLATES: LayeredTemplate[] = [
   },
   // Phase 6: designs made with effects (DESIGN.md §6.4).
   {
-    id: 'dwarven-bronze',
-    name: 'Dwarven bronze',
-    description: 'Hammered bronze with faceted plates, engraved runes, rivets and a forge glow from its cracks.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Bronze band', paint: { kind: 'solid', color: '#808080' }, effects: styleEffects('hammered-bronze') },
-      { ...textureLayer('cracks'), name: 'Forge cracks', color: '#ff9a3a', amount: 0.5, strength: 0.8, clip: 'band', seed: 0xd3a, effects: [glow({ color: '#ff6a1a', opacity: 0.7, size: 0.12 })] },
-      { ...lineLayer(), name: 'Outer rim', at: 0.035, width: 0.08, paint: { kind: 'solid', color: '#808080' }, effects: [bevel({ size: 0.5, gloss: 0.5 }), material('bronze'), shadow({ distance: 0.03, blur: 0.04 })] },
-      { ...lineLayer(), name: 'Inner rim', at: 0.965, width: 0.08, paint: { kind: 'solid', color: '#808080' }, effects: [bevel({ size: 0.5, gloss: 0.5 }), material('bronze'), shadow({ distance: 0.03, blur: 0.04 })] },
-      { ...repeatLayer(), name: 'Runes', element: 'rune', count: 8, offset: 0.5, snapToCorners: false, size: 0.44, stretch: 0.75, outlineWidth: 0.14, fill: '#4a3018', raised: false, seed: 7, effects: styleEffects('engraved') },
-      { ...repeatLayer(), name: 'Plates', element: 'plate', count: 8, size: 0.62, fill: '#9a9a9a', raised: false, effects: [wear({ chips: 0.15, polish: 0.4, grime: 0.35, scale: 0.2 }), material('bronze'), shadow({ distance: 0.05, blur: 0.06, opacity: 0.7 })] },
-      { ...repeatLayer(), name: 'Rivets', count: 8, offset: 0.5, at: 0.17, size: 0.1, fill: '#c89858', raised: true },
-      { ...repeatLayer(), name: 'Inner rivets', count: 8, offset: 0.5, at: 0.83, size: 0.1, fill: '#c89858', raised: true },
-    ],
-  },
-  {
-    id: 'eldritch-crystal',
-    name: 'Eldritch crystal',
-    description: 'Obsidian wound with dark tendrils, ringed by glowing violet crystal shards.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Obsidian band', paint: { kind: 'solid', color: '#404040' }, effects: styleEffects('obsidian') },
-      {
-        ...groupLayer([
-          { ...lineLayer(), name: 'Tendril', at: 0.5, width: 0.14, paint: { kind: 'solid', color: '#4a1a66' }, waveAmplitude: 0.3, waves: 9, effects: [bevel({ size: 0.6, gloss: 0.35, highlightOpacity: 0.5 }), shadow({ distance: 0.05, blur: 0.06, opacity: 0.8 })] },
-          { ...lineLayer(), name: 'Tendril', at: 0.5, width: 0.11, paint: { kind: 'solid', color: '#5e2a7e' }, waveAmplitude: 0.26, waves: 7, wavePhase: 0.4, effects: [bevel({ size: 0.6, gloss: 0.35, highlightOpacity: 0.5 }), shadow({ distance: 0.05, blur: 0.06, opacity: 0.8 })] },
-        ]),
-        name: 'Tendrils',
-      },
-      { ...lineLayer(), name: 'Glow line', at: 0.94, width: 0.025, paint: { kind: 'solid', color: '#e0c0ff' }, effects: [glow({ color: '#9a5aff', opacity: 0.9, size: 0.15 })] },
-      {
-        ...repeatLayer(),
-        name: 'Crystals',
-        element: 'shard',
-        count: 14,
-        at: -0.02,
-        size: 0.85,
-        stretch: 0.55,
-        fill: '#9a5ad0',
-        altSizes: [1, 0.6],
-        raised: false,
-        snapToCorners: false,
-        effects: [glow({ inner: true, color: '#f0d8ff', opacity: 0.35, size: 0.08 }), glow({ color: '#a060ff', opacity: 0.55, size: 0.22 })],
-      },
-    ],
-  },
-  {
-    id: 'radiant-gold',
-    name: 'Radiant gold',
-    description: 'Polished gold with a stepped rim, faceted stars in holy light, sapphires and pearls.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Gold band', paint: { kind: 'solid', color: '#909090' }, effects: styleEffects('gold') },
-      { ...bandFillLayer(), name: 'Stepped rim', to: 0.24, paint: { kind: 'solid', color: '#909090' }, effects: [bevel({ profile: 'stepped', size: 0.7, depth: 1.6, gloss: 0.7 }), material('gold')] },
-      { ...repeatLayer(), name: 'Pearls', count: 36, at: 0.64, size: 0.11, fill: '#f2eee4', raised: true },
-      { ...repeatLayer(), name: 'Sapphires', element: 'gem', count: 8, offset: 0.5, at: 0.6, size: 0.42, fill: '#2a5ab8', raised: false, effects: [shadow({ distance: 0.04, blur: 0.04 })] },
-      { ...shapeLayer(), name: 'Stars', shape: 'star', sides: 4, innerRatio: 0.35, faceted: true, facetTable: 0, along: 0.125, across: 0.6, size: 1.3, fill: '#e8c050', outline: null, raised: false, mirror: 'four', effects: styleEffects('holy') },
-    ],
-  },
-  {
     id: 'hellforged-iron',
     name: 'Hellforged iron',
     description: 'Blackened, chipped iron split by burning cracks, with iron spikes round the edge.',
@@ -547,141 +453,7 @@ export const LAYERED_TEMPLATES: LayeredTemplate[] = [
     ],
   },
   // Phase 7: ornaments anywhere.
-  {
-    id: 'royal-inscription',
-    name: 'Royal inscription',
-    description: 'Gold with an engraved inscription, fine contour lines and rubies in claw settings riding a wave.',
-    make: () => {
-      const wave = { ...lineLayer(), name: 'Gem path', visible: false, at: 0.68, waveAmplitude: 0.13, waves: 8 };
-      return [
-        { ...bandFillLayer(), name: 'Gold band', paint: { kind: 'solid', color: '#909090' }, effects: styleEffects('gold') },
-        { ...contoursLayer(), name: 'Contour lines', count: 2, from: 0.06, spacing: 0.88, width: 0.035, taper: 0, paint: { kind: 'solid', color: '#5a3a10' }, effects: styleEffects('engraved') },
-        { ...textLayer(), name: 'Inscription', text: 'BY CROWN AND OATH · EVER LOYAL ·', size: 0.24, at: 0.24, spacing: 0.12, fill: '#6a4a18', effects: styleEffects('engraved') },
-        wave,
-        {
-          ...repeatLayer(),
-          name: 'Rubies',
-          element: 'gem',
-          follow: wave.id,
-          count: 24,
-          size: 0.3,
-          fill: '#b0182a',
-          raised: false,
-          gemSparkle: 0.6,
-          setting: 'claws4',
-          settingEffects: styleEffects('gold'),
-          effects: [shadow({ distance: 0.03, blur: 0.04, opacity: 0.6 })],
-        },
-      ];
-    },
-  },
   // Phase 9: a shared height map.
-  {
-    id: 'rune-plates',
-    name: 'Rune-carved plates',
-    description: 'Thick bronze plates with runes carved through them: the plates and the runes are lit as one sculpted surface.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Iron band', paint: { kind: 'solid', color: '#7a7a7a' }, effects: styleEffects('blackened-iron') },
-      {
-        ...groupLayer([
-          { ...repeatLayer(), name: 'Plates', element: 'square', count: 8, snapToCorners: true, size: 0.78, stretch: 1.6, fill: '#9a9a9a', shaded: false, raised: false },
-          { ...textLayer(), name: 'Carved runes', font: 'runes', text: 'ANSUZ RAIDO KAUNAN GEBO WUNJO HAGALAZ NAUDIZ ISAZ JERA EIHWAZ PERTH ALGIZ SOWILO TIWAZ BERKANAN EHWAZ MANNAZ LAGUZ INGWAZ DAGAZ OTHALA FEHU URUZ THURISAZ', size: 0.36, spacing: 0.3, at: 0.5, opacity: 0, heightMode: 'carve', heightDepth: 1.4, heightSize: 0.05 },
-        ]),
-        name: 'Runic plates',
-        effects: [bevel({ size: 0.12, gloss: 0.45, depth: 1.2 }), material('bronze'), { kind: 'extrude', on: true, depth: 0.07, shade: 0.6 }, shadow({ distance: 0.05, blur: 0.06 })],
-      },
-    ],
-  },
   // Phase 8: made only from generators and styles.
-  {
-    id: 'overgrown-ruin',
-    name: 'Overgrown ruin',
-    description: 'Cracked stone plates with missing pieces, a verdigris knotwork band and roots growing through.',
-    make: () => {
-      const plates = { ...cellsLayer(), name: 'Stone plates', from: 0.2, to: 1, size: 0.42, gap: 0.05, missing: 0.12, vary: 0.45, color: '#8a8478', seed: 7, effects: styleEffects('carved-stone') };
-      return [
-        plates,
-        { ...fractureLayer(), name: 'Cracks', from: 0.2, to: 1, count: 9, length: 1.4, width: 0.035, color: '#14100c', clip: 'below', seed: 3 },
-        { ...knotworkLayer(), name: 'Knotwork band', at: 0.1, width: 0.075, amplitude: 0.075, waveLength: 0.42, color: '#909090', outlineWidth: 0.02, shine: false, effects: styleEffects('verdigris') },
-        {
-          ...growthLayer('roots'),
-          name: 'Roots',
-          at: 0.62,
-          thickness: 0.09,
-          branchLength: 0.6,
-          color: '#5a3c22',
-          seed: 4,
-          effects: [bevel({ size: 0.4, gloss: 0.15, surface: 'grain', surfaceDepth: 0.4 }), shadow({ distance: 0.05, blur: 0.06, opacity: 0.7 })],
-        },
-        { ...growthLayer('vine'), name: 'Creeper', at: 0.45, count: 1, waveLength: 2.6, amplitude: 0.3, thickness: 0.035, branching: 0.2, extraSpacing: 1.1, extraSize: 0.4, color: '#2e4a1c', extraColor: '#5a8a32', seed: 9, effects: [shadow({ distance: 0.04, blur: 0.05, opacity: 0.6 })] },
-      ];
-    },
-  },
   // More to build with (from the Phase 6–7 branch, version 10): new ornaments, textures and wave shapes.
-  {
-    id: 'moon-stars',
-    name: 'Moon & stars',
-    description: 'Midnight blue with sparkles, crescent moons and stars in turn, and a scalloped silver edge.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Midnight', paint: { kind: 'lit', color: '#1f2a5a', light: 0.6, dark: 0.75, pressed: false, highlight: '#5a6ab0' } },
-      { ...textureLayer('sparkle'), name: 'Sparkles', color: '#fff6d0', seed: 0x5a2c, amount: 0.8, scale: 0.8 },
-      { ...lineLayer(), name: 'Scalloped edge', at: 0.08, width: 0.04, paint: { kind: 'solid', color: '#d8dcf0' }, waveAmplitude: 0.06, waveFit: 0.45, waveShape: 'scallop' },
-      { ...repeatLayer(), name: 'Moons', element: 'crescent', count: 8, at: 0.55, size: 0.5, fill: '#f4e7a8', glow: '#fff2b0', show: [true, false] },
-      { ...repeatLayer(), name: 'Stars', element: 'star', count: 8, at: 0.55, size: 0.36, fill: '#f4e7a8', glow: '#fff2b0', show: [false, true] },
-      { ...lineLayer(), name: 'Inner rim', at: 0.985, width: 0.03, paint: { kind: 'solid', color: '#0a0e24' } },
-    ],
-  },
-  {
-    id: 'frostbound',
-    name: 'Frostbound',
-    description: 'Icy steel with frost, snowflakes and a zigzag line.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Ice', paint: { kind: 'lit', color: '#6f93b8', light: 0.9, dark: 0.7, pressed: false, highlight: '#f0faff' } },
-      { ...textureLayer('frost'), name: 'Frost', color: '#e6f6ff', seed: 0xf205 },
-      { ...lineLayer(), name: 'Zigzag', at: 0.5, width: 0.035, paint: { kind: 'solid', color: '#dff4ff' }, waveAmplitude: 0.3, waveFit: 0.5, waveShape: 'zigzag', glow: '#9fd8ff' },
-      { ...repeatLayer(), name: 'Snowflakes', element: 'snowflake', count: 6, at: 0.5, size: 0.62, fill: '#ffffff', outlineWidth: 0.07, raised: false, glow: '#9fd8ff' },
-      { ...lineLayer(), name: 'Outer rim', at: 0.02, width: 0.04, paint: { kind: 'solid', color: '#f0faff' } },
-      { ...lineLayer(), name: 'Inner rim', at: 0.985, width: 0.03, paint: { kind: 'solid', color: '#1a2a3a' } },
-    ],
-  },
-  {
-    id: 'celtic',
-    name: 'Celtic knots',
-    description: 'Green and gold, with knots, a woven cord and battlement edges.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Green band', paint: { kind: 'lit', color: '#2f6a3c', light: 0.7, dark: 0.8, pressed: false, highlight: null } },
-      { ...lineLayer(), name: 'Battlements', at: 0.12, width: 0.05, paint: { kind: 'solid', color: '#d9b45a' }, waveAmplitude: 0.05, waveFit: 0.3, waveShape: 'square' },
-      { ...lineLayer(), name: 'Cord', at: 0.55, width: 0.08, paint: { kind: 'solid', color: '#d9b45a' }, waveAmplitude: 0.18, waveFit: 0.7, raised: true },
-      { ...lineLayer(), name: 'Cord (other strand)', at: 0.55, width: 0.08, paint: { kind: 'solid', color: '#b8923a' }, waveAmplitude: 0.18, waveFit: 0.7, wavePhase: 0.5, raised: true },
-      { ...repeatLayer(), name: 'Knots', element: 'knot', count: 8, at: 0.55, size: 0.7, fill: '#f0d080', detail: '#5a3a10', outlineWidth: 0.08 },
-      { ...lineLayer(), name: 'Inner rim', at: 0.985, width: 0.03, paint: { kind: 'solid', color: '#10200f' } },
-    ],
-  },
-  {
-    id: 'royal',
-    name: 'Royal',
-    description: 'Crimson and gold: gold dust, fleurs-de-lis between gems, and a crown at the top.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Crimson', paint: { kind: 'lit', color: '#8a1a2a', light: 0.75, dark: 0.8, pressed: false, highlight: null } },
-      { ...lineLayer(), name: 'Outer gold', at: 0.06, width: 0.1, paint: { kind: 'lit', color: '#d4a64a', light: 0.95, dark: 0.8, pressed: false, highlight: '#fff6c8' } },
-      { ...lineLayer(), name: 'Inner gold', at: 0.94, width: 0.1, paint: { kind: 'lit', color: '#d4a64a', light: 0.95, dark: 0.8, pressed: false, highlight: '#fff6c8' } },
-      { ...repeatLayer(), name: 'Fleurs-de-lis', element: 'fleur', count: 8, at: 0.5, size: 0.8, fill: '#e2b85a', show: [false, true] },
-      { ...repeatLayer(), name: 'Gems', element: 'jewel', count: 8, at: 0.5, size: 0.42, stretch: 0.8, fill: '#2a5ad8', show: [true, false] },
-      { ...shapeLayer(), name: 'Crown', shape: 'ornament', element: 'crown', across: 0.1, size: 1.1, stretch: 1.3, fill: '#e2b85a', outline: '#5a3a10', outlineWidth: 0.04, detail: '#a01a2a' },
-    ],
-  },
-  {
-    id: 'grim-iron',
-    name: 'Grim iron',
-    description: 'Rusty iron over chainmail, with skulls and paw prints in turn.',
-    make: () => [
-      { ...bandFillLayer(), name: 'Iron', paint: { kind: 'lit', color: '#55524f', light: 0.6, dark: 0.8, pressed: false, highlight: null } },
-      { ...textureLayer('chainmail'), name: 'Chainmail', color: '#9aa0aa', from: 0.2, to: 0.8, seed: 1 },
-      { ...textureLayer('rust'), name: 'Rust', color: '#8a3b12', seed: 0x2057 },
-      { ...lineLayer(), name: 'Outer band', at: 0.08, width: 0.16, paint: { kind: 'lit', color: '#55524f', light: 0.7, dark: 0.8, pressed: false, highlight: null } },
-      { ...lineLayer(), name: 'Inner band', at: 0.92, width: 0.16, paint: { kind: 'lit', color: '#55524f', light: 0.7, dark: 0.8, pressed: false, highlight: null } },
-      { ...repeatLayer(), name: 'Skulls', element: 'skull', count: 6, at: 0.5, size: 0.75, stretch: 0.85, fill: '#e8dcc0', show: [true, false] },
-      { ...repeatLayer(), name: 'Paw prints', element: 'paw', count: 6, at: 0.5, size: 0.55, fill: '#c9b48a', shaded: false, raised: false, opacity: 0.75, show: [false, true] },
-    ],
-  },
 ];

@@ -13,6 +13,8 @@ import { ESSENTIALS_DATA } from './essentialsData';
 import { FRAME_VERSIONS } from './frameVersions';
 import { fromLayers, slot, type BuiltInFrame } from './houseStyle';
 import { parseProject } from './migrate';
+import { categoryOf, categoryRank, FRAME_CATEGORIES, type FrameCategory } from './frameCategories';
+import type { Layer, StageSettings } from './types';
 import { PICTURE_FRAME_TEMPLATES } from './pictureFrameTemplates';
 
 // ── Essentials: the owner's designs ─────────────────────────────────────────
@@ -59,68 +61,33 @@ const ESSENTIALS: BuiltInFrame[] = ESSENTIALS_DATA.map((d) => ({
   },
 }));
 
-// ── The old picture frames ──────────────────────────────────────────────────
+// ── The kept originals of the other built-in designs ────────────────────────
+// The old picture frames, and Frame Studio's Crafted borders, Layered and
+// Themed designs: the ones the owner kept in the frame review (the rest were
+// removed from their template lists), each filed under its category.
 
-const CRAFTED: BuiltInFrame[] = PICTURE_FRAME_TEMPLATES.map((t) => ({
+const fromTemplate = (t: { id: string; name: string; description: string; make: () => Layer[]; stage?: Partial<StageSettings> }): BuiltInFrame => ({
   id: t.id,
   name: t.name,
   description: t.description,
-  group: 'Crafted',
+  group: categoryOf(t.id),
   colours: [],
-  project: fromLayers(t.name, t.make, t.stage),
-}));
+  project: fromLayers(t.name, t.make, t.stage ?? {}),
+});
+const ORIGINALS: BuiltInFrame[] = [...PICTURE_FRAME_TEMPLATES, ...CRAFTED_TEMPLATES, ...LAYERED_TEMPLATES, ...THEMED_TEMPLATES].map(fromTemplate);
 
-// ── Frame Studio's Crafted borders, reviewed the same way ───────────────────
-
-const BORDERS: BuiltInFrame[] = CRAFTED_TEMPLATES.map((t) => ({
-  id: t.id,
-  name: t.name,
-  description: t.description,
-  group: 'Crafted',
-  colours: [],
-  project: fromLayers(t.name, t.make, t.stage),
-}));
-/** The Crafted borders, by id: Frame Studio lists these and their new versions in their own section of New. */
-export const BORDER_IDS: ReadonlySet<string> = new Set(CRAFTED_TEMPLATES.map((t) => t.id));
-
-/**
- * Frames the owner retired in the frame review: Token Maker leaves them out of
- * its picker unless a token already uses one (their new versions stand on
- * their own), and Frame Studio leaves them out of New.
- */
-export const RETIRED_FRAMES: ReadonlySet<string> = new Set(['dragon-scales', 'raven-plume', 'riveted-plates', 'brass-beads', 'jewelled', 'dwarven-bronze', 'eldritch-crystal', 'radiant-gold', 'royal-inscription', 'rune-plates', 'moon-stars', 'frostbound', 'celtic', 'royal', 'grim-iron', 'enamel-gold', 'worn-iron', 'rose-wreath', 'starship', 'frost-ring', 'necropolis', 'dragon-scale', 'druid-circle', 'nautical', 'desert-tomb', 'amethyst-geode']);
-
-// ── Frame Studio's Layered starting designs, once reviewed ───────────────────
-
-/** The Layered designs the frame review has reached: Token Maker lists these (in Crafted) with their new versions. */
-const REVIEWED_LAYERED = new Set(['brass-beads', 'glowing-runes', 'jewelled', 'battle-steel', 'night-sky', 'dwarven-bronze', 'eldritch-crystal', 'radiant-gold', 'hellforged-iron', 'royal-inscription', 'rune-plates', 'moon-stars', 'frostbound', 'celtic', 'royal', 'grim-iron']);
-const LAYERED: BuiltInFrame[] = LAYERED_TEMPLATES.filter((t) => REVIEWED_LAYERED.has(t.id)).map((t) => ({
-  id: t.id,
-  name: t.name,
-  description: t.description,
-  group: 'Crafted',
-  colours: [],
-  project: fromLayers(t.name, t.make),
-}));
-/** Every Layered design's id: Frame Studio lists their new versions with them in the Layered section of New. */
-export const LAYERED_IDS: ReadonlySet<string> = new Set(LAYERED_TEMPLATES.map((t) => t.id));
-
-// ── Frame Studio's Themed starting designs, once reviewed ────────────────────
-
-/** The Themed designs the frame review has reached: Token Maker lists these (in Crafted) with their new versions. */
-/** Every Themed design has now been reviewed. */
-const REVIEWED_THEMED = new Set(THEMED_TEMPLATES.map((t) => t.id));
-const THEMED: BuiltInFrame[] = THEMED_TEMPLATES.filter((t) => REVIEWED_THEMED.has(t.id)).map((t) => ({
-  id: t.id,
-  name: t.name,
-  description: t.description,
-  group: 'Crafted',
-  colours: [],
-  project: fromLayers(t.name, t.make, t.stage),
-}));
-/** Every Themed design's id: Frame Studio lists their new versions with them in the Themed section of New. */
-export const THEMED_IDS: ReadonlySet<string> = new Set(THEMED_TEMPLATES.map((t) => t.id));
-
-export const BUILT_IN_FRAMES: readonly BuiltInFrame[] = [...ESSENTIALS, ...FRAME_VERSIONS, ...CRAFTED, ...BORDERS, ...LAYERED, ...THEMED];
+/** Every built-in frame: the Essentials, the versions of the drawn frames and the other designs, and the kept originals. */
+export const BUILT_IN_FRAMES: readonly BuiltInFrame[] = [...ESSENTIALS, ...FRAME_VERSIONS, ...ORIGINALS];
 export type { BuiltInFrame, BuiltInGroup } from './houseStyle';
 export const builtInFrameById = (id: string) => BUILT_IN_FRAMES.find((f) => f.id === id);
+
+/** The built-in frames by category, in order, each stack together: its first frame, then the versions made from it. */
+export function builtInFramesByCategory(): { category: FrameCategory; frames: BuiltInFrame[] }[] {
+  const stack = (f: BuiltInFrame) => f.after ?? f.id;
+  const first = new Map<string, number>();
+  BUILT_IN_FRAMES.forEach((f, i) => first.has(stack(f)) || first.set(stack(f), i));
+  const sorted = [...BUILT_IN_FRAMES].sort(
+    (a, b) => categoryRank(a.group) - categoryRank(b.group) || first.get(stack(a))! - first.get(stack(b))! || Number(!!a.after) - Number(!!b.after),
+  );
+  return FRAME_CATEGORIES.map((category) => ({ category, frames: sorted.filter((f) => f.group === category) })).filter((g) => g.frames.length > 0);
+}

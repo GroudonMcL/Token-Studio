@@ -132,7 +132,7 @@ describe('Frame section: built-in Frame Studio designs (v11)', () => {
   it("shows a frame's versions stacked behind it, opens on the chosen frame's group, and closes with Escape", () => {
     render(<FrameSection />);
     fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
-    expect(screen.getByRole('tab', { name: /Classic/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: /Metal & Gems/ })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('radio', { name: /^Stamped$/ })).toBeChecked();
     expect(screen.queryByRole('radio', { name: /^Ember stamp$/ })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /Show \d+ versions of Stamped/ }));
@@ -144,12 +144,16 @@ describe('Frame section: built-in Frame Studio designs (v11)', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('leaves a retired frame out of the gallery but finds its versions by its name', () => {
+  it('files frames under broad categories, with no class tabs, and stacks a removed frame’s versions behind the first of them', () => {
     render(<FrameSection />);
     fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
+    const tabs = screen.getAllByRole('tab').map((t) => t.textContent ?? '');
+    expect(tabs.some((t) => t.startsWith('Metal & Gems'))).toBe(true);
+    expect(tabs.some((t) => /Classes|Classic|Textures|Crafted/.test(t))).toBe(false);
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search frames' }), { target: { value: 'cleric' } });
     expect(screen.queryByRole('radio', { name: /^Cleric$/ })).toBeNull();
-    expect(screen.getByRole('radio', { name: /^Holy light$/ })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search frames' }), { target: { value: '' } });
+    expect(screen.getByRole('button', { name: /Show \d+ versions of Holy light/ })).toBeInTheDocument();
   });
 
   it('gives a built-in design a colour picker per colour slot and keeps the choice', () => {

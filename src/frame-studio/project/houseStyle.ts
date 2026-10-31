@@ -19,6 +19,7 @@ import { bevel, glow, shadow } from './styles';
 import type { Effect, FrameProject, GradientStop, Layer, Paint, StageSettings, TextFont } from './types';
 import type { PictureId } from './pictures';
 import type { ColourSlot } from './colourSlots';
+import type { FrameCategory } from './frameCategories';
 
 export { bandFillLayer, contoursLayer, fractureLayer, growthLayer, lineLayer, repeatLayer, shapeLayer, textLayer, textureLayer, bevel, glow, shadow };
 export type { Layer, Paint, Effect, StageSettings };
@@ -152,15 +153,15 @@ export const SILVER_STOPS = ['#1e2228', '#5a606a', '#a8aeb8', '#e4e8f0', '#fffff
 
 // ── Built-in frames ─────────────────────────────────────────────────────────
 
-/** Where a frame is listed in Token Maker's picker. */
-export type BuiltInGroup = 'Essentials' | 'Classic' | 'Textures' | 'Classes' | 'Crafted';
+/** Where a frame is listed in Token Maker's picker: one of the broad categories. */
+export type BuiltInGroup = FrameCategory;
 
 export interface BuiltInFrame {
   id: string;
   name: string;
   description: string;
   group: BuiltInGroup;
-  /** Listed straight after this Token Maker frame (its preset id), if any. */
+  /** Made from this frame (a drawn frame's preset id or a built-in design's id) and stacked behind it, if any. */
   after?: string;
   colours: ColourSlot[];
   /** The design in its own colours. */

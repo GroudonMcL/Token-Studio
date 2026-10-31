@@ -1,4 +1,5 @@
-// Shapes and the 27 code-drawn frames (DESIGN.md §2, ported from the extension).
+// Shapes and the 26 code-drawn frames (DESIGN.md §2, ported from the extension). Cleric was
+// removed in the frame review; its 'radiant' finish code is left in place, unused.
 
 import type { FinishStyle } from './finishes';
 
@@ -54,7 +55,6 @@ export const FRAME_PRESETS: FramePreset[] = [
 
   p('barbarian', 'Barbarian', 'Classes', 'claws', '#8a5a3a'),
   p('bard', 'Bard', 'Classes', 'notes', '#8e3b8f'),
-  p('cleric', 'Cleric', 'Classes', 'radiant', '#e0b84a'),
   p('druid', 'Druid', 'Classes', 'vines', '#6aa83a'),
   p('fighter', 'Fighter', 'Classes', 'riveted', '#8c929c'),
   p('monk', 'Monk', 'Classes', 'beads', '#c4622c'),

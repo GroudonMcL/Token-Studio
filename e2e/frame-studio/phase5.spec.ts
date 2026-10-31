@@ -6,6 +6,9 @@ import { bandGeometry } from '../../src/frame-studio/render/band';
 import { setCanvasFactory, type Ctx } from '../../src/frame-studio/render/canvas';
 import { compareFrames } from '../../src/frame-studio/render/compare';
 import { drawFrameDesign, previewOf, readFrameDesign } from '../../src/frame-studio/share/frameDesign';
+import { openSample } from './samples';
+
+
 
 // Phase 5: the layer library, copy and paste between tabs, the export
 // options, keyboard access and accessibility checks (axe), and a design
@@ -37,13 +40,13 @@ test.beforeEach(async ({ page }) => {
 
 test('done when: a design saved to the library, reused in another design, and opened as a Token Maker frame from its file', async ({ page }, info) => {
   // Save the beads of one design to the library.
-  await pick(page, 'Brass & beads');
+  await openSample(page, 'brass-beads');
   await page.getByRole('treeitem', { name: /Beads/ }).click();
   await page.getByRole('button', { name: 'Add to library' }).click();
   await expect(page.getByRole('status')).toContainText('Saved "Beads" to your library');
 
   // Reuse them in another design, after a reload (the library is kept).
-  await pick(page, 'Jewelled');
+  await openSample(page, 'jewelled');
   await page.waitForTimeout(800); // the autosave
   await page.reload();
   await expect(page.getByRole('img', { name: 'Preview of Jewelled' })).toBeVisible();
@@ -93,7 +96,7 @@ test('done when: a design saved to the library, reused in another design, and op
 
 test('copy layers in one tab and paste them into a different design in another', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await pick(page, 'Brass & beads');
+  await openSample(page, 'brass-beads');
   await page.getByRole('treeitem', { name: /Beads/ }).click();
   await page.keyboard.press('Control+c');
 
@@ -121,7 +124,7 @@ test('copy layers in one tab and paste them into a different design in another',
 });
 
 test('export a picture at any size and a sheet of every shape', async ({ page }) => {
-  await pick(page, 'Jewelled');
+  await openSample(page, 'jewelled');
   await page.getByRole('button', { name: 'Export' }).click();
   await page.getByLabel('Picture size').selectOption('custom');
   await page.getByLabel('Size in pixels').fill('300');
@@ -149,7 +152,7 @@ test('export a picture at any size and a sheet of every shape', async ({ page })
 });
 
 test('keyboard: reach the layers and move one on the canvas with the arrow keys', async ({ page }) => {
-  await pick(page, 'Jewelled');
+  await openSample(page, 'jewelled');
   await page.getByRole('treeitem', { name: /Gems/ }).click();
   const data = async () => {
     await page.getByRole('radio', { name: 'Advanced' }).click();
@@ -173,7 +176,9 @@ test('keyboard: reach the layers and move one on the canvas with the arrow keys'
 });
 
 test('accessibility: no serious problems in the editor, its menus and dialogs, or the welcome card', async ({ page }) => {
-  await pick(page, 'Brass & beads');
+  // Scanning New, which lists every built-in frame, takes a while under load.
+  test.setTimeout(60_000);
+  await openSample(page, 'brass-beads');
   await page.getByRole('treeitem', { name: /Beads/ }).click();
   expect(await axe(page)).toEqual([]);
 

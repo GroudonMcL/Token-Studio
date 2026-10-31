@@ -6,6 +6,9 @@ import { parseProject } from '../../src/frame-studio/project/migrate';
 import { setCanvasFactory, type Ctx } from '../../src/frame-studio/render/canvas';
 import { compareFrames } from '../../src/frame-studio/render/compare';
 import { renderProject } from '../../src/frame-studio/render/renderProject';
+import { openSample } from './samples';
+
+
 
 // Phase 9: precise control. Runes carved through raised plates share one
 // height map with them, seen in the height-map view and in the export;
@@ -26,12 +29,6 @@ async function preview(page: Page): Promise<number[]> {
 }
 const changed = (a: number[], b: number[]) => a.length !== b.length || a.some((v, i) => v !== b[i]);
 
-async function pick(page: Page, name: string) {
-  await page.getByRole('button', { name: 'New' }).click();
-  const dialog = page.getByRole('dialog', { name: 'New project' });
-  await dialog.getByRole('button', { name, exact: true }).click();
-  await expect(dialog).toBeHidden();
-}
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/frame-studio/');
@@ -42,7 +39,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('done when: runes cut through raised plates share one height map, in the height-map view and in the export', async ({ page }, info) => {
-  await pick(page, 'Rune-carved plates');
+  await openSample(page, 'rune-plates');
   const picture = await preview(page);
 
   // The height-map view shows the carving.
@@ -95,7 +92,7 @@ test('done when: runes cut through raised plates share one height map, in the he
 });
 
 test('a mask, combining shapes, moving and turning a group, and zoom', async ({ page }) => {
-  await pick(page, 'Jewelled');
+  await openSample(page, 'jewelled');
   // Turn the group of jewels round the token, then drag it.
   await page.getByRole('treeitem', { name: /Jewels/ }).click();
   const before = (await data(page)).layers.find((l: { name: string }) => l.name === 'Jewels');

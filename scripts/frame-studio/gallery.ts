@@ -6,7 +6,8 @@ import { createCanvas } from '@napi-rs/canvas';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { FRAME_PRESETS } from '../../src/frame-studio/engine/legacy/catalog';
-import { BUILT_IN_FRAMES, RETIRED_FRAMES } from '../../src/frame-studio/project/builtInFrames';
+import { BUILT_IN_FRAMES, builtInFramesByCategory } from '../../src/frame-studio/project/builtInFrames';
+import { categoryOf, categoryRank } from '../../src/frame-studio/project/frameCategories';
 import { projectFromFrame } from '../../src/frame-studio/project/defaults';
 import type { FrameProject } from '../../src/frame-studio/project/types';
 import type { Ctx } from '../../src/frame-studio/render/canvas';
@@ -19,25 +20,29 @@ registerShippedFonts();
 const out = process.argv[2];
 mkdirSync(out, { recursive: true });
 const art = sampleArt((w, h) => createCanvas(w, h) as unknown as HTMLCanvasElement, 600);
-const RETIRED_PRESETS = new Set(['cleric']);
 const TILE = 200, LABEL = 34, PER_ROW = 6;
 
 interface Item { name: string; project: () => FrameProject; original?: boolean }
 interface Sheet { id: string; group: string; title: string; items: Item[] }
+// One sheet per stack, like Token Maker's picker: a drawn frame or design and its versions,
+// in category order; versions whose frame was removed are stacked behind the first of them.
 const sheets: Sheet[] = [];
-const ess = BUILT_IN_FRAMES.filter((f) => f.group === 'Essentials');
-sheets.push({ id: 'essentials', group: 'Essentials', title: 'Essentials', items: ess.map((f) => ({ name: f.name, project: f.project })) });
+const versionsOf = (key: string) => BUILT_IN_FRAMES.filter((f) => f.after === key);
 for (const p of FRAME_PRESETS) {
   if (p.id === 'none') continue;
-  const versions = BUILT_IN_FRAMES.filter((f) => f.after === p.id);
-  const items: Item[] = [...(RETIRED_PRESETS.has(p.id) ? [] : [{ name: p.name, project: () => projectFromFrame(p.id), original: true }]), ...versions.map((f) => ({ name: f.name, project: f.project }))];
-  if (items.length) sheets.push({ id: p.id, group: p.group, title: p.name, items });
+  sheets.push({ id: p.id, group: categoryOf(p.id), title: p.name, items: [{ name: p.name, project: () => projectFromFrame(p.id), original: true }, ...versionsOf(p.id).map((f) => ({ name: f.name, project: f.project }))] });
 }
-for (const f of BUILT_IN_FRAMES.filter((b) => b.group !== 'Essentials' && !b.after)) {
-  const versions = BUILT_IN_FRAMES.filter((v) => v.after === f.id);
-  const items: Item[] = [...(RETIRED_FRAMES.has(f.id) ? [] : [{ name: f.name, project: f.project, original: true }]), ...versions.map((v) => ({ name: v.name, project: v.project }))];
-  if (items.length) sheets.push({ id: f.id, group: 'Crafted', title: f.name, items });
+for (const { frames } of builtInFramesByCategory()) {
+  for (const f of frames.filter((x) => !x.after)) sheets.push({ id: f.id, group: f.group, title: f.name, items: [{ name: f.name, project: f.project, original: f.group !== 'Essentials' }, ...versionsOf(f.id).map((v) => ({ name: v.name, project: v.project }))] });
 }
+const placed = new Set(sheets.map((s) => s.id));
+const orphans = new Map<string, Item[]>();
+for (const v of BUILT_IN_FRAMES) if (v.after && !placed.has(v.after)) orphans.set(v.after, [...(orphans.get(v.after) ?? []), { name: v.name, project: v.project }]);
+for (const [key, items] of orphans) sheets.push({ id: key, group: categoryOf(key), title: items[0].name, items });
+// Essentials as one sheet.
+const ess = sheets.filter((s) => s.group === 'Essentials');
+const merged: Sheet[] = ess.length ? [{ id: 'essentials', group: 'Essentials', title: 'Essentials', items: ess.flatMap((s) => s.items) }] : [];
+sheets.splice(0, sheets.length, ...merged, ...sheets.filter((s) => s.group !== 'Essentials').sort((a, b) => categoryRank(a.group) - categoryRank(b.group)));
 
 for (const s of sheets) {
   const cols = Math.min(PER_ROW, s.items.length), rows = Math.ceil(s.items.length / PER_ROW);

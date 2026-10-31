@@ -1,6 +1,6 @@
 import { createDocument, MAX_DECORATIONS, MAX_EFFECTS, newDecoration, newEffect, newLabel } from './defaults';
 import { DocumentVersionError, migrateDocument } from './migrate';
-import { BUILT_IN_DESIGNS } from '../render/builtInDesigns';
+import { PICTURE_FRAME_TEMPLATES } from '../frameStudio/project/pictureFrameTemplates';
 import { SCHEMA_VERSION } from './types';
 
 describe('migrateDocument', () => {
@@ -373,7 +373,7 @@ describe('v11: background colours, and the built-in picture frames as Frame Stud
     expect(doc.background.adjust).toEqual({ brightness: 100, contrast: -100, saturation: 0, hue: 180, temperature: 20 });
   });
 
-  it.each(BUILT_IN_DESIGNS.filter((b) => b.group === 'Crafted').map((b) => b.id.replace('builtin:', '')))('a token with the old %s picture frame gets its Frame Studio design', (id) => {
+  it.each(PICTURE_FRAME_TEMPLATES.map((t) => t.id))('a token with the old %s picture frame gets its Frame Studio design', (id) => {
     const old = v10();
     old.frame = { ...old.frame, kind: 'image', image: { source: { type: 'library', id }, name: id, hole: [0.7, 0, 0, 0.7, -0.7, 0, 0, -0.7], outer: 0.96, nudge: { x: 0, y: 0, scale: 1 } } };
     const doc = migrateDocument(old);

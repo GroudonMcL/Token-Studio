@@ -8,6 +8,7 @@ import { parseProject } from '../../src/frame-studio/project/migrate';
 import { setCanvasFactory, type Ctx } from '../../src/frame-studio/render/canvas';
 import { compareFrames } from '../../src/frame-studio/render/compare';
 import { renderProject } from '../../src/frame-studio/render/renderProject';
+import { openSample } from './samples';
 
 // Phase 7: ornaments anywhere. Gems in claw settings follow a path drawn on
 // the canvas and an engraved inscription runs round the band, both with
@@ -151,9 +152,7 @@ test('a radial array of a shape, contours and the Royal inscription template', a
   await page.getByLabel('Lines value').press('Enter');
   expect((await data(page)).layers[1]).toMatchObject({ type: 'contours', count: 5 });
 
-  await page.getByRole('button', { name: 'New' }).click();
-  await page.getByRole('dialog', { name: 'New project' }).getByRole('button', { name: 'Royal inscription', exact: true }).click();
-  await expect(page.getByRole('img', { name: 'Preview of Royal inscription' })).toBeVisible();
+  await openSample(page, 'royal-inscription');
   await page.getByRole('treeitem', { name: /Rubies/ }).click();
   await expect(page.getByLabel('Follow')).toHaveValue(/.+/);
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']).analyze();

@@ -187,7 +187,7 @@ describe('the crafted borders', () => {
     const all = CRAFTED_TEMPLATES.flatMap((t) => flatten(t.make()));
     expect(all.some((l) => l.blend !== 'source-over')).toBe(true);
     expect(all.some((l) => l.effects.some((e) => e.kind === 'blur'))).toBe(true);
-    for (const kind of ['crystal', 'lava', 'smoke', 'feathers', 'filigree', 'mottled'] as const) expect(all.some((l) => l.type === 'texture' && l.kind === kind)).toBe(true);
+    for (const kind of ['crystal', 'lava', 'smoke', 'filigree', 'mottled'] as const) expect(all.some((l) => l.type === 'texture' && l.kind === kind)).toBe(true);
   });
 
   it.each(CRAFTED_TEMPLATES.map((t) => [t.name, t] as const))('%s survives a file round trip and draws on every shape', (_n, t) => {
@@ -205,10 +205,10 @@ describe('the crafted borders', () => {
 });
 
 describe("Token Maker's built-in frames (once picture frames)", () => {
-  it('are the eight Token Maker had as pictures, and most use photo textures', () => {
-    expect(PICTURE_FRAME_TEMPLATES.map((t) => t.id)).toEqual(['gilded-laurel', 'iron-rivets', 'runestone', 'thorns', 'dragon-scales', 'celestial', 'rope', 'shield-rim']);
+  it('are the seven kept of the eight Token Maker had as pictures, and most use photo textures', () => {
+    expect(PICTURE_FRAME_TEMPLATES.map((t) => t.id)).toEqual(['gilded-laurel', 'iron-rivets', 'runestone', 'thorns', 'celestial', 'rope', 'shield-rim']);
     const photos = PICTURE_FRAME_TEMPLATES.filter((t) => JSON.stringify(t.make()).includes('"kind":"picture"'));
-    expect(photos.length).toBeGreaterThanOrEqual(6);
+    expect(photos.length).toBeGreaterThanOrEqual(5);
   });
 
   it.each(PICTURE_FRAME_TEMPLATES.map((t) => [t.name, t] as const))('%s survives a file round trip and draws on every shape', (_n, t) => {

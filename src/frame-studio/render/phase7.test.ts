@@ -6,7 +6,8 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { registerShippedFonts } from '../../../scripts/frame-studio/nodeFonts';
 import { SHAPES } from '../engine/legacy/catalog';
-import { contoursLayer, createProject, GEM_POINTS, LAYERED_TEMPLATES, lineLayer, NEW_EFFECT, pathLayer, repeatLayer, shapeLayer, textLayer } from '../project/defaults';
+import { contoursLayer, createProject, GEM_POINTS, lineLayer, NEW_EFFECT, pathLayer, repeatLayer, shapeLayer, textLayer } from '../project/defaults';
+import { SAMPLE_LAYERED as LAYERED_TEMPLATES } from '../test/sampleDesigns';
 import { cloneAllWithNewIds } from '../project/tree';
 import { GEM_CUTS, GEM_SETTINGS, type FrameProject, type Layer, type PathLayer, type RepeatLayer } from '../project/types';
 import { acrossOfPoint, bandGeometry, bandWidthPx } from './band';

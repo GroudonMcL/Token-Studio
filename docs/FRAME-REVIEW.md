@@ -8,10 +8,21 @@ crease, a lit outer rim, a shadowed inner rim and one soft drop shadow, with
 photo textures (through blend modes and recolouring), blurred layered glows,
 and bevels only on real materials (gold, enamel, chiselled stone).
 
-Chosen designs go in `src/frame-studio/project/builtInFrames.ts` with their
-**colour slots** (`colourSlots.ts`), which Token Maker shows as one colour
-picker each. Candidates are drawn with
-`npx tsx scripts/frame-studio/candidates/build.ts <frame> <outDir>`.
+Chosen designs go in `src/frame-studio/project/builtInFrames.ts` (versions in
+`frameVersions.ts`) with their **colour slots** (`colourSlots.ts`), which
+Token Maker shows as one colour picker each.
+
+**The review is complete.** Every frame the owner did not keep has been
+removed from the app for good (no tokens exist yet to keep them for); the
+removed starting designs survive only as test fixtures
+(`src/frame-studio/test/sampleDesigns.ts`, `e2e/frame-studio/fixtures/`).
+The frames are filed under broad categories, not classes
+(`src/frame-studio/project/frameCategories.ts`): Essentials, Metal & Gems,
+Stone & Earth, Wood & Nature, Elements, Magic, Sky & Stars, Dark & Grim, and
+Hide, Cloth & Rope. Each frame keeps its versions stacked behind it; versions
+whose original was removed are stacked behind the first of them. Token
+Maker's picker has a tab per category, and Frame Studio's New lists them the
+same way. `npx tsx scripts/frame-studio/gallery.ts <outDir>` draws them all.
 
 ## The owner's preferences so far
 
@@ -63,7 +74,7 @@ picker each. Candidates are drawn with
 | Starfield | Textures | Kept, plus Deep space, Star chart, Galaxy swirl, Moon phases, Aurora. |
 | Barbarian | Classes | Kept, plus Fur trim, Gnarled bone, War club. |
 | Bard | Classes | Kept, plus Lute, Velvet & gold, Starlit song, Golden lyre, Outer Rim chorus, Crimson aria, Moonlit verse. |
-| Cleric | Classes | Original retired from the picker; Holy light, Silver & sapphire, Temple marble, Dawn. |
+| Cleric | Classes | Original removed; Holy light, Silver & sapphire, Temple marble, Dawn. |
 | Druid | Classes | Kept, plus Glowing stone circle, Bramble & berries, Wildflower meadow. |
 | Fighter | Classes | Kept, plus Battle steel, Shield wall, Chainmail, Champion. |
 | Monk | Classes | Kept, plus Saffron robe, Jade & gold, Ink circle. |
@@ -74,54 +85,54 @@ picker each. Candidates are drawn with
 | Iron rivets | Crafted | Kept, plus Blackened iron, Rusted plate, Dwarven strapwork, Forge script, Gunmetal bolts. |
 | Runestone | Crafted | Kept (cracks softened), plus Mossy runestone, Ember runes, Frost runes, Gilded slate. |
 | Thorns | Crafted | Kept, plus Rose briar, Bramble on bark, Silverwork thorns. |
-| Dragon scales | Crafted | Original retired; Red dragon, Black dragon, Wyrm script. Overlapping-row scales tried and dropped. |
+| Dragon scales | Crafted | Original removed; Red dragon, Black dragon, Wyrm script. Overlapping-row scales tried and dropped. |
 | Celestial star | Crafted | Kept, plus Sun & moon, Astrolabe. |
 | Rope | Crafted | Kept, plus Sailor’s rope, Braided leather. |
 | Shield rim | Crafted | Kept, plus all five. |
 | Gilded filigree | Crafted borders | Kept, plus Sapphire filigree, Emerald script. |
 | Guild ring | Crafted borders | Kept (gold and silver), plus Gold guild ring, Silver & sapphire, Bronze & enamel. |
-| Raven plume | Crafted borders | Retired; Raven sheen, Plume & bone, Owl plume, with gradient rings and a grained band for depth. |
+| Raven plume | Crafted borders | Removed; Raven sheen, Plume & bone, Owl plume, with gradient rings and a grained band for depth. |
 | Emberforged | Crafted borders | Kept, plus Molten ring, Forge runes, Frostfire. |
 | Storm wisps | Crafted borders | Kept, plus Arcane storm, Sea squall. |
-| Riveted plates | Crafted borders | Retired; Ordered plates, Forge seams, Dwarven bulwark (curved plates with gaps, rivets over plate centres and gaps), Curved ordered plates, Curved forge seams. |
-| Brass & beads | Layered | Retired; Polished brass, Brass & jet. |
+| Riveted plates | Crafted borders | Removed; Ordered plates, Forge seams, Dwarven bulwark (curved plates with gaps, rivets over plate centres and gaps), Curved ordered plates, Curved forge seams. |
+| Brass & beads | Layered | Removed; Polished brass, Brass & jet. |
 | Glowing runes | Layered | Kept, plus Runic glow, Emerald runes, Fire runes, Twin circle. |
-| Jewelled | Layered | Retired; Silver & jewels, Pavé band, Art deco, Victorian garnets, Eternity band. |
+| Jewelled | Layered | Removed; Silver & jewels, Pavé band, Art deco, Victorian garnets, Eternity band. |
 | Battle-worn steel | Layered | Kept, plus Notched blade, Bloodied steel (blood spatter). |
 | Night sky | Layered | Kept, plus Dusk to midnight, Constellations, Aurora (with depth). |
-| Dwarven bronze | Layered | Retired; Forged bronze, Steel & gold (runes between the plates), Runic bronze (no plates, big runes). |
-| Eldritch crystal | Layered | Retired; Amethyst geode. |
-| Radiant gold | Layered | Retired; Holy gold, Rose gold & pearls, Divine script. |
+| Dwarven bronze | Layered | Removed; Forged bronze, Steel & gold (runes between the plates), Runic bronze (no plates, big runes). |
+| Eldritch crystal | Layered | Removed; Amethyst geode. |
+| Radiant gold | Layered | Removed; Holy gold, Rose gold & pearls, Divine script. |
 | Hellforged iron | Layered | Kept, plus Hellforged. |
-| Royal inscription | Layered | Retired; Royal gold, Crimson & gold, Silver & sapphire, Royal velvet. |
-| Rune-carved plates | Layered | Retired; four curved-plate versions, one rune word inside each plate. |
+| Royal inscription | Layered | Removed; Royal gold, Crimson & gold, Silver & sapphire, Royal velvet. |
+| Rune-carved plates | Layered | Removed; four curved-plate versions, one rune word inside each plate. |
 | Overgrown ruin | Layered | Kept as it is; new versions dropped. |
-| Moon & stars | Layered | Retired; Midnight moons, Moon phases. |
-| Frostbound | Layered | Retired; Frost steel, Glacier, Snowfall. |
-| Celtic knots | Layered | Retired; Emerald & gold, Carved stone. |
-| Royal | Layered | Retired; Crimson royal, Royal blue, Purple & silver, Ermine (crown raised over the top gem). |
-| Grim iron | Layered | Retired; Bone ring, Crowned skulls. |
-| Enamelled gold | Themed | Retired; Sapphire enamel, Ruby cloisonné, Silver & green enamel. |
-| Worn iron ring | Themed | Retired; Battered iron, Smouldering iron, Rust-eaten iron. |
-| Rose wreath | Themed | Retired; Red rose wreath, Briar rose, Golden roses. |
+| Moon & stars | Layered | Removed; Midnight moons, Moon phases. |
+| Frostbound | Layered | Removed; Frost steel, Glacier, Snowfall. |
+| Celtic knots | Layered | Removed; Emerald & gold, Carved stone. |
+| Royal | Layered | Removed; Crimson royal, Royal blue, Purple & silver, Ermine (crown raised over the top gem). |
+| Grim iron | Layered | Removed; Bone ring, Crowned skulls. |
+| Enamelled gold | Themed | Removed; Sapphire enamel, Ruby cloisonné, Silver & green enamel. |
+| Worn iron ring | Themed | Removed; Battered iron, Smouldering iron, Rust-eaten iron. |
+| Rose wreath | Themed | Removed; Red rose wreath, Briar rose, Golden roses. |
 | Fey glade | Themed | Kept, plus Fey twilight, Moonlit glade, Firefly glade. |
 | Gothic thorns | Themed | Kept, plus Gothic thorns, Blood roses, Bone thorns. |
 | Tidal ring | Themed | Kept, plus Lagoon. |
 | Archmage's sigil ring | Themed | Kept, plus Midnight sigils, Sigil panels, Blood sigils (words between the sigils). |
-| Starship hull | Themed | Retired; Gunmetal hull, Living hull, White armour. |
+| Starship hull | Themed | Removed; Gunmetal hull, Living hull, White armour. |
 | Hellfire ring | Themed | Kept, plus Hellfire, Blue hellfire, Lava flow. |
-| Frostbound ring | Themed | Retired; Glacier crystal, Frozen silver. |
+| Frostbound ring | Themed | Removed; Glacier crystal, Frozen silver. |
 | Stormcaller | Themed | Kept, plus Thunderhead, Arcane tempest, Blood storm. |
-| Necropolis | Themed | Retired; Bone & chain, Gilded tomb. |
+| Necropolis | Themed | Removed; Bone & chain, Gilded tomb. |
 | Clockwork brass | Themed | Kept (gears over the chain, gradient depth), plus Brass clockwork, Silver watchwork (a jewel in each gear), Steampunk. |
 | Celtic knot | Themed | Kept, plus Silver on green, Gold on red, Bronze on blue. |
-| Dragonscale | Themed | Retired; Crimson, Emerald and Shadow dragon. |
-| Mossy stone circle | Themed | Retired; Standing stones, Rune stones (gradient rings over stones and ground). |
-| Nautical rope | Themed | Retired; Ship's timber, Driftwood & shells, Pirate's hoard. |
+| Dragonscale | Themed | Removed; Crimson, Emerald and Shadow dragon. |
+| Mossy stone circle | Themed | Removed; Standing stones, Rune stones (gradient rings over stones and ground). |
+| Nautical rope | Themed | Removed; Ship's timber, Driftwood & shells, Pirate's hoard. |
 | Autumn leaves | Themed | Kept, plus Birch & autumn, Maple red, Gilded leaves (thick, varied leaves). |
 | Celestial halo | Themed | Kept, plus White-gold halo, Golden halo. |
-| Desert tomb | Themed | Retired; Sandstone tomb (scarabs over every other joint), Lapis & gold. |
-| Amethyst geode | Themed | Retired; Amethyst and Banded agate, colour changing inward. |
+| Desert tomb | Themed | Removed; Sandstone tomb (scarabs over every other joint), Lapis & gold. |
+| Amethyst geode | Themed | Removed; Amethyst and Banded agate, colour changing inward. |
 
 Every frame has now been reviewed; scripts/frame-studio/gallery.ts draws them all.
 | Dragon scales | Crafted | Also Serpent coil: overlapping rows (third steps) with soft outlines, row shadows and clipped gradient bands. |

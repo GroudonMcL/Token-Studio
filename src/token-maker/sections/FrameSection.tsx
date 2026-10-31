@@ -6,7 +6,7 @@ import { nudgeHole, pickImageFrame, uploadFrame } from '../editor/frameActions';
 import { applyBuiltInDesign, applyDesignFrame, openDesignFile } from '../editor/designActions';
 import type { DesignFrame, FrameSettings, ImageFrame } from '../document/types';
 import { loadFrameDesignPictures } from '../frameStudio/share/frameDesign';
-import { RETIRED_FRAMES } from '../frameStudio/project/builtInFrames';
+import { categoryOf, categoryRank } from '../frameStudio/project/frameCategories';
 import { refreshDesigns, removeDesign, useDesignLibrary } from '../state/designLibrary';
 import { BUILT_IN_DESIGNS, builtInDesignById, builtInDesignFrame, isBuiltInDesign } from '../render/builtInDesigns';
 import { refreshUploadedFrames, removeUploadedFrame, useUploadedFrames } from '../state/frameLibrary';
@@ -346,39 +346,25 @@ function BandSliders() {
 }
 
 /**
- * Every frame in the picker, in order: the Essentials designs, then the drawn
- * frames by group with any new versions of a frame straight after it, then
- * the other built-in designs (Crafted).
+ * Every frame in the picker, by category (frameCategories.ts): the drawn
+ * frames and built-in designs, each followed by the versions made from it.
+ * Versions whose frame was removed in the frame review are stacked behind the
+ * first of them.
  */
-/**
- * Drawn frames the owner retired in the frame review: left out of the picker
- * (their new versions stand on their own) but still drawn for tokens that
- * use them, and listed while one is the chosen frame.
- */
-const RETIRED_PRESETS = new Set(['cleric']);
-/** Built-in designs retired the same way (by their Frame Studio id). */
-const RETIRED_DESIGNS = RETIRED_FRAMES;
-
-function frameTiles(current: string): FrameTile[] {
-  const tile = (b: (typeof BUILT_IN_DESIGNS)[number]) => ({ id: b.id, label: b.name, group: b.group });
-  const placed = new Set(FRAME_PRESETS.map((p) => p.id));
-  return [
-    ...BUILT_IN_DESIGNS.filter((b) => b.group === 'Essentials').map(tile),
-    ...FRAME_PRESETS.flatMap((p) => {
-      const versions = BUILT_IN_DESIGNS.filter((b) => b.after === p.id);
-      if (RETIRED_PRESETS.has(p.id) && current !== p.id) return versions.map((b) => ({ ...tile(b), group: p.group, aka: p.name }));
-      return [{ id: p.id, label: p.name, group: p.group }, ...versions.map((b) => ({ ...tile(b), group: p.group, parent: p.id }))];
-    }),
-    // The Crafted designs, each with its new versions stacked behind it.
-    ...BUILT_IN_DESIGNS.filter((b) => b.group !== 'Essentials' && !b.after).flatMap((b) => {
-      const key = b.id.replace(/^builtin:/, '');
-      const versions = BUILT_IN_DESIGNS.filter((v) => v.after === key);
-      if (RETIRED_DESIGNS.has(key) && current !== b.id) return versions.map((v) => ({ ...tile(v), group: b.group, aka: b.name }));
-      return [tile(b), ...versions.map((v) => ({ ...tile(v), group: b.group, parent: b.id }))];
-    }),
-    // Anything else (a version of a frame that isn't listed).
-    ...BUILT_IN_DESIGNS.filter((b) => b.after && !placed.has(b.after) && !BUILT_IN_DESIGNS.some((d) => d.id === 'builtin:' + b.after)).map(tile),
-  ];
+function frameTiles(): FrameTile[] {
+  const tile = (b: (typeof BUILT_IN_DESIGNS)[number]): FrameTile => ({ id: b.id, label: b.name, group: b.group });
+  const versionsOf = (key: string) => BUILT_IN_DESIGNS.filter((v) => v.after === key);
+  const stacks: { key: string; group: string; tiles: FrameTile[] }[] = [];
+  const add = (key: string, head: FrameTile, versions: (typeof BUILT_IN_DESIGNS)[number][]) =>
+    stacks.push({ key, group: head.group, tiles: [head, ...versions.map((v) => ({ ...tile(v), group: head.group, parent: head.id }))] });
+  for (const b of BUILT_IN_DESIGNS.filter((b) => !b.after)) if (b.group === 'Essentials') add(b.id, tile(b), []);
+  for (const p of FRAME_PRESETS) add(p.id, { id: p.id, label: p.name, group: categoryOf(p.id) }, versionsOf(p.id));
+  for (const b of BUILT_IN_DESIGNS.filter((b) => !b.after && b.group !== 'Essentials')) add(b.id.replace(/^builtin:/, ''), tile(b), versionsOf(b.id.replace(/^builtin:/, '')));
+  const placed = new Set(stacks.map((st) => st.key));
+  const orphans = new Map<string, (typeof BUILT_IN_DESIGNS)[number][]>();
+  for (const v of BUILT_IN_DESIGNS) if (v.after && !placed.has(v.after)) orphans.set(v.after, [...(orphans.get(v.after) ?? []), v]);
+  for (const [key, [head, ...rest]] of orphans) add(key, tile(head), rest);
+  return stacks.sort((x, y) => categoryRank(x.group) - categoryRank(y.group)).flatMap((st) => st.tiles);
 }
 
 /** A colour picker for each of a built-in design's colour slots (its band, its highlights…). */
@@ -452,7 +438,7 @@ function DrawnFrame() {
     <>
       <ShapeControl />
       <FramePicker
-        tiles={frameTiles(builtIn ?? frame.presetId)}
+        tiles={frameTiles()}
         thumbs={thumbs}
         value={builtIn ?? frame.presetId}
         onChange={(id) => {

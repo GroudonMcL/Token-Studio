@@ -37,7 +37,6 @@ const LIMITS: Record<string, { mean: number; over: number }> = {
   magma: { mean: 0.5, over: 0.25 },
   harlequin: { mean: 0.75, over: 1 },
   starfield: { mean: 0.25, over: 0.05 },
-  cleric: { mean: 5.5, over: 12 },
   fighter: { mean: 0.25, over: 0.1 },
   monk: { mean: 1.1, over: 0.8 },
   rogue: { mean: 1.4, over: 1.5 },

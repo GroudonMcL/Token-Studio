@@ -6,6 +6,7 @@ import { parseProject } from '../../src/frame-studio/project/migrate';
 import { setCanvasFactory, type Ctx } from '../../src/frame-studio/render/canvas';
 import { compareFrames } from '../../src/frame-studio/render/compare';
 import { renderProject } from '../../src/frame-studio/render/renderProject';
+import { openSample } from './samples';
 
 // Phase 8: generators. The Overgrown ruin is made only from generators and
 // styles; generators are added and changed in the editor; the four Token
@@ -25,12 +26,6 @@ async function preview(page: Page): Promise<number[]> {
 }
 const changed = (a: number[], b: number[]) => a.some((v, i) => v !== b[i]);
 
-async function pick(page: Page, name: string) {
-  await page.getByRole('button', { name: 'New' }).click();
-  const dialog = page.getByRole('dialog', { name: 'New project' });
-  await dialog.getByRole('button', { name, exact: true }).click();
-  await expect(dialog).toBeHidden();
-}
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/frame-studio/');
@@ -41,7 +36,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('done when: the Overgrown ruin is built only from generators and styles, can be changed, and exports as the renderer draws it', async ({ page }, info) => {
-  await pick(page, 'Overgrown ruin');
+  await openSample(page, 'overgrown-ruin');
   const layers = (await data(page)).layers;
   expect(new Set(layers.map((l: { type: string }) => l.type))).toEqual(new Set(['cells', 'fracture', 'knotwork', 'growth']));
   const plates = layers.find((l: { type: string }) => l.type === 'cells');

@@ -70,19 +70,6 @@ export const PICTURE_FRAME_TEMPLATES: ThemedTemplate[] = [
     ],
   },
   {
-    id: 'dragon-scales',
-    name: 'Dragon scales',
-    description: 'Overlapping green dragon scales between two thin gold edges.',
-    stage: { thickness: 0.18, outerSpacing: 0.02 },
-    make: () => [
-      { ...bandFillLayer(), name: 'Hide', paint: solid('#2a4a1c') },
-      { ...textureLayer('scales'), name: 'Scales', color: '#8ab83a', amount: 1, scale: 1.4, strength: 1, seed: 0xd5a1 },
-      { ...bandFillLayer(), name: 'Sheen', paint: photo('green-rust', 1.5), opacity: 0.35, blend: 'overlay' },
-      { ...lineLayer(), name: 'Outer edge', at: 0.03, width: 0.06, paint: solid('#c8a040'), effects: [bevel({ size: 0.6, gloss: 0.8 }), material('gold', 0.6)] },
-      { ...lineLayer(), name: 'Inner edge', at: 0.97, width: 0.06, paint: solid('#c8a040'), effects: [bevel({ size: 0.6, gloss: 0.8 }), material('gold', 0.6), soft(0.6)] },
-    ],
-  },
-  {
     id: 'celestial',
     name: 'Celestial star',
     description: 'A deep blue band scattered with stars between silver rims, with eight silver points like a compass star.',

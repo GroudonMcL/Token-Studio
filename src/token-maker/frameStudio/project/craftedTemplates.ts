@@ -7,7 +7,7 @@
 // part is an ordinary editable layer.
 
 import { bandFillLayer, contoursLayer, groupLayer, lineLayer, NEW_EFFECT, repeatLayer, textureLayer } from './defaults';
-import { bevel, glow, material, shadow, styleEffects, wear } from './styles';
+import { bevel, material, shadow, styleEffects } from './styles';
 import type { ThemedTemplate } from './themedTemplates';
 import type { BlurEffect, Effect, Paint } from './types';
 
@@ -19,28 +19,8 @@ const soft = (opacity = 0.6) => shadow({ distance: 0.04, blur: 0.05, opacity });
 /** A material colour from five stops, dark to light. */
 const ramp = (...colors: string[]): Effect => ({ kind: 'recolour', on: true, amount: 1, stops: colors.map((color, i) => ({ at: i / (colors.length - 1), color, opacity: 1 })) });
 const paleGold = () => ramp('#3a2c12', '#8a7444', '#ccb47e', '#f0e4bc', '#fffcf2');
-/** A riveted iron plate: chipped and grimy, bevelled, casting a shadow on what is under it. */
-const plate = (): Effect[] => [
-  wear({ chips: 0.08, polish: 0.4, grime: 0.2, scale: 0.12, scratches: 0.4 }),
-  bevel({ profile: 'chisel', size: 0.035, gloss: 0.7, surface: 'brushed', surfaceDepth: 0.15, surfaceScale: 0.08 }),
-  { kind: 'recolour', on: true, amount: 1, stops: [0, 0.3, 0.55, 0.8, 1].map((at, i) => ({ at, color: ['#0c0c08', '#34342a', '#66665a', '#a6a69a', '#e8e8e0'][i], opacity: 1 })) },
-  shadow({ distance: 0.05, blur: 0.04, opacity: 0.8 }),
-];
 const yellowGold = () => ramp('#2e1800', '#8a5600', '#dca214', '#ffd850', '#fff8c8');
 const blackIron = () => ramp('#020203', '#0c0d10', '#24262c', '#6a6e78', '#e0e4ec');
-/** Old iron with a hint of olive, as a material colour. */
-const oldIron = (): Effect => ({
-  kind: 'recolour',
-  on: true,
-  amount: 1,
-  stops: [
-    { at: 0, color: '#0c0c08', opacity: 1 },
-    { at: 0.3, color: '#34342a', opacity: 1 },
-    { at: 0.55, color: '#66665a', opacity: 1 },
-    { at: 0.8, color: '#a6a69a', opacity: 1 },
-    { at: 1, color: '#e8e8e0', opacity: 1 },
-  ],
-});
 
 /** A gold or silver guild ring: a rounded band cut into blocks, with four arrow studs pointing in. */
 function guildRing(metal: 'gold' | 'silver'): ThemedTemplate {
@@ -64,7 +44,7 @@ function guildRing(metal: 'gold' | 'silver'): ThemedTemplate {
 
 export const CRAFTED_TEMPLATES: ThemedTemplate[] = [
   {
-    id: 'gilded-filigree',
+    id: 'filigree-border',
     name: 'Gilded filigree',
     description: 'Pale gold bands chased with scrolling filigree round a channel of red enamel mottled with gold leaf.',
     stage: { thickness: 0.25, outerSpacing: 0.01 },
@@ -80,20 +60,6 @@ export const CRAFTED_TEMPLATES: ThemedTemplate[] = [
     ],
   },
   guildRing('gold'),
-  guildRing('silver'),
-  {
-    id: 'raven-plume',
-    name: 'Raven plume',
-    description: 'Black feathers lying across the band between two thin glowing copper rims.',
-    stage: { thickness: 0.18, outerSpacing: 0.01, backingColor: '#000000' },
-    make: () => [
-      { ...bandFillLayer(), name: 'Black band', paint: solid('#060608') },
-      { ...textureLayer('feathers'), name: 'Feathers', color: '#4e525c', amount: 0.55, scale: 1.5, strength: 1, seed: 0xfea7 },
-      { ...textureLayer('feathers'), name: 'Pale feathers', color: '#8a8e98', amount: 0.25, scale: 1.2, strength: 0.7, seed: 0xfea8, blend: 'screen', effects: [blur(0.015)] },
-      { ...lineLayer(), name: 'Outer copper', at: 0.03, width: 0.03, paint: solid('#c8502a'), effects: [glow({ color: '#ff5a2a', opacity: 0.5, size: 0.08 })] },
-      { ...lineLayer(), name: 'Inner copper', at: 0.97, width: 0.03, paint: solid('#e0902a'), effects: [glow({ color: '#ff8a2a', opacity: 0.5, size: 0.08 })] },
-    ],
-  },
   {
     id: 'emberforged',
     name: 'Emberforged',
@@ -129,20 +95,6 @@ export const CRAFTED_TEMPLATES: ThemedTemplate[] = [
         name: 'Storm',
         effects: [distort(0.2, 2.2, 7), blur(0.3, 'spin'), blur(0.08)],
       },
-    ],
-  },
-  {
-    id: 'riveted-plates',
-    name: 'Riveted plates',
-    description: 'Scuffed iron plates riveted at odd angles round a dark band, casting a deep shadow into the middle.',
-    stage: { thickness: 0.27, outerSpacing: 0.02 },
-    make: () => [
-      { ...lineLayer(), name: 'Shadow inside', at: 1.08, width: 0.3, paint: solid('#000000'), effects: [blur(0.1)] },
-      { ...bandFillLayer(), name: 'Iron ring', paint: grey, effects: [bevel({ size: 0.3, gloss: 0.3, surface: 'hammered', surfaceDepth: 0.5, surfaceScale: 0.15 }), oldIron(), { kind: 'adjust', on: true, hue: 0, saturation: -0.3, brightness: -0.1, contrast: 0.15 }, soft(0.5)] },
-      { ...repeatLayer(), name: 'Outer plates', element: 'square', count: 16, snapToCorners: false, at: 0.16, size: 0.55, stretch: 1.6, fill: '#a4a49e', shaded: false, raised: false, jitterSize: 0.3, jitterAngle: 14, wander: 0.08, skipChance: 0.15, seed: 11, effects: plate() },
-      { ...repeatLayer(), name: 'Inner plates', element: 'square', count: 12, snapToCorners: false, at: 0.86, offset: 0.5, size: 0.45, stretch: 1.5, fill: '#9c9c96', shaded: false, raised: false, jitterSize: 0.3, jitterAngle: 14, wander: 0.06, skipChance: 0.35, seed: 12, effects: plate() },
-      { ...repeatLayer(), name: 'Rivets', element: 'bead', count: 32, snapToCorners: false, at: 0.16, offset: 0.25, size: 0.06, fill: '#a6a69e', raised: true, jitterSize: 0.3, skipChance: 0.15, wander: 0.12, seed: 3 },
-      { ...repeatLayer(), name: 'Inner rivets', element: 'bead', count: 24, snapToCorners: false, at: 0.86, offset: 0.75, size: 0.06, fill: '#a6a69e', raised: true, jitterSize: 0.3, skipChance: 0.3, wander: 0.1, seed: 5 },
     ],
   },
 ];

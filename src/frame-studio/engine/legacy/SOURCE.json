@@ -3,7 +3,7 @@
   "commit": "d83f99a77d71edc463e038279ecb71fd89534441",
   "from": "src/render",
   "files": {
-    "catalog.ts": "3636feec379857f9e2700b5a90eb3dae5601ab2d8b20ba9cc2058a0a7f1f0e98",
+    "catalog.ts": "fc64aa0530966914d3f04310a30021286e390a501e6d0b569fdcdf10999b83c4",
     "color.ts": "143021f90a893acece8e2da3d94625a20b392b41dc9db163d933821974ae3266",
     "finishes.ts": "ed31a5adb9ef792d57abf6374f7150eb59d007f14bd17789f2477c772a166ede",
     "frameKit.ts": "0048328dd3d8b4c9af00bd3ee71ddae80fdd16a01477d5cb1945dec5f4d988bb",

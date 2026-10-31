@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
-import { createProject, LAYERED_TEMPLATES } from '../project/defaults';
+import { createProject } from '../project/defaults';
+import { SAMPLE_LAYERED as LAYERED_TEMPLATES } from '../test/sampleDesigns';
 import { loadAutosave, saveNow, startAutosave } from './autosave';
 import { addLayer, loadProject } from './projectStore';
 
