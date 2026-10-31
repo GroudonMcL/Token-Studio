@@ -69,6 +69,7 @@ picker each. Candidates are drawn with
 | Paladin, Ranger, Rogue, Warlock | Classes | Kept, plus all five versions each. |
 | Sorcerer | Classes | Kept, plus Wild magic, Draconic bloodline, Storm sorcery, Crystal heart. |
 | Artificer | Classes | Kept, plus Copper pipework, Workshop iron. |
+| Gilded laurel, Iron rivets, Runestone, Thorns, Dragon scales, Celestial star, Rope, Shield rim | Crafted | Five candidates each, waiting for picks (scripts/frame-studio/candidates). |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.
