@@ -30,7 +30,7 @@ picker each. Candidates are drawn with
   are free for personal use only, so they can't be bundled.
 - No bevel lighting over a whole band: shade with the twin gradient bands
   (houseStyle.ts: bandShading, a version's `shading` flag). 39 versions use
-  it. A whole-band bevel stays where it suits the material: Scrollwork steel,
+  it. A whole-band bevel stays where it suits the material: Tooled leather, Scrollwork steel,
   Damascus, Brimstone, Infernal iron, Gold lines on enamel, Anodised titanium,
   Volcanic script, Velvet & gold, Golden lyre, Jade & gold, Crimson aria and
   Workshop iron (mostly polished metal, enamel and glossy surfaces).
