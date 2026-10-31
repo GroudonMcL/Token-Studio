@@ -29,8 +29,11 @@ picker each. Candidates are drawn with
   (houseStyle.ts: INSCRIPTION_WORDS). Rellanic, Davek, Iokharic and Barazhad
   are free for personal use only, so they can't be bundled.
 - No bevel lighting over a whole band: shade with the twin gradient bands
-  (houseStyle.ts: bandShading, a version's `shading` flag). Choosing which
-  existing versions to switch.
+  (houseStyle.ts: bandShading, a version's `shading` flag). 39 versions use
+  it. A whole-band bevel stays where it suits the material: Scrollwork steel,
+  Damascus, Brimstone, Infernal iron, Gold lines on enamel, Anodised titanium,
+  Volcanic script, Velvet & gold, Golden lyre, Jade & gold, Crimson aria and
+  Workshop iron (mostly polished metal, enamel and glossy surfaces).
 - Ornaments stay inside the band unless reaching out is the point.
 - Prefers organic, natural textures for nature and primal frames.
 - Usually keeps the current frame and most new versions; drops busy or matt ones.

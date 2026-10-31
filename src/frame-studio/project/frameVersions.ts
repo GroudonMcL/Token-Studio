@@ -294,6 +294,7 @@ const VERSIONS: Version[] = [
   // ── gilded ──
   {
     id: 'gilded-filigree',
+    shading: {},
     name: 'Filigree',
     description: 'Gold chased with scrolling filigree between bright lit rims.',
     group: 'Classic',
@@ -338,6 +339,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'engraved-inlay',
+    shading: {},
     name: 'Silver inlay',
     description: 'Blackened gunmetal with an inscription in Sith AF inlaid in bright silver.',
     group: 'Classic',
@@ -365,6 +367,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'engraved-knotwork',
+    shading: {},
     name: 'Etched knotwork',
     description: 'Steel etched with an interlaced knot band in a darker colour.',
     group: 'Classic',
@@ -378,6 +381,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'engraved-bronze',
+    shading: {},
     name: 'Engraved bronze',
     description: 'Warm bronze with a deep-cut Yugurian inscription and a pressed-in step.',
     group: 'Classic',
@@ -408,6 +412,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'arcane-crystal',
+    shading: {},
     name: 'Arcane crystal',
     description: 'Cracked crystal lit from within, with soft glowing rings.',
     group: 'Classic',
@@ -498,6 +503,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'infernal-blood-pact',
+    shading: {},
     name: 'Blood pact',
     description: 'Glossy blood-red enamel between black iron rims, with glowing sigils at the quarters.',
     group: 'Classic',
@@ -612,6 +618,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'polished-obsidian',
+    shading: {},
     name: 'Obsidian',
     description: 'Black volcanic glass polished to a sharp highlight, with a coloured glint.',
     group: 'Classic',
@@ -627,6 +634,7 @@ const VERSIONS: Version[] = [
   // ── oak ──
   {
     id: 'oak-varnished',
+    shading: {},
     name: 'Varnished oak',
     description: 'Real oak grain under a glossy varnish, with a pressed-in step.',
     group: 'Textures',
@@ -655,6 +663,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'oak-rune-carved',
+    shading: {},
     name: 'Rune-carved oak',
     description: 'Dark oak with a BabelStone runic inscription carved deep into it.',
     group: 'Textures',
@@ -668,6 +677,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'oak-living-bark',
+    shading: {},
     name: 'Living bark',
     description: 'Rough tree bark with patches of moss growing over it.',
     group: 'Textures',
@@ -709,6 +719,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'magma-embers',
+    shading: {},
     name: 'Ember streaks',
     description: 'Streaks of embers round the band, with sparks drifting off them.',
     group: 'Textures',
@@ -752,6 +763,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'harlequin-velvet',
+    shading: {},
     name: 'Velvet harlequin',
     description: 'Patterned velvet with a satin sheen and gold cord edges.',
     group: 'Textures',
@@ -808,6 +820,7 @@ const VERSIONS: Version[] = [
   // ── knotwork ──
   {
     id: 'knotwork-celtic-gold',
+    shading: {},
     name: 'Celtic gold',
     description: 'Gold knotwork woven over and under on green enamel, between gold rims.',
     group: 'Textures',
@@ -835,6 +848,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'knotwork-carved-stone',
+    shading: {},
     name: 'Carved stone knot',
     description: 'Knotwork carved into weathered stone, with BabelStone runes along the inner edge.',
     group: 'Textures',
@@ -953,6 +967,7 @@ const VERSIONS: Version[] = [
   // ── bard ──
   {
     id: 'bard-lute',
+    shading: {},
     name: 'Lute',
     description: 'Polished lute wood with strings running round it and gold notes along them.',
     group: 'Classes',
@@ -1026,6 +1041,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'cleric-silver',
+    shading: {},
     name: 'Silver & sapphire',
     description: 'Polished silver with holy symbols at the quarters between cut sapphires.',
     group: 'Classes',
@@ -1069,6 +1085,7 @@ const VERSIONS: Version[] = [
   // ── druid ──
   {
     id: 'druid-stone-circle',
+    shading: {},
     name: 'Glowing stone circle',
     description: 'Mossy standing stone with green BabelStone runes glowing in it.',
     group: 'Classes',
@@ -1083,6 +1100,7 @@ const VERSIONS: Version[] = [
   // ── fighter ──
   {
     id: 'fighter-battle-steel',
+    shading: {},
     name: 'Battle steel',
     description: 'Bright steel with battle scratches and a ring of domed rivets.',
     group: 'Classes',
@@ -1124,6 +1142,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'fighter-champion',
+    shading: {},
     name: 'Champion',
     description: 'Red enamel between gold rims, studded with gold rivets.',
     group: 'Classes',
@@ -1139,6 +1158,7 @@ const VERSIONS: Version[] = [
   // ── monk ──
   {
     id: 'monk-saffron',
+    shading: {},
     name: 'Saffron robe',
     description: 'Folded saffron cloth with a knotted cord round its middle.',
     group: 'Classes',
@@ -1195,6 +1215,7 @@ const VERSIONS: Version[] = [
   // ── barbarian ──
   {
     id: 'barbarian-fur',
+    shading: {},
     name: 'Fur trim',
     description: 'A thick ruff of fur over a leather band, with soft uneven edges like a real pelt.',
     group: 'Classes',
@@ -1219,6 +1240,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'barbarian-club',
+    shading: {},
     name: 'War club',
     description: 'A ring of rough, gnarled wood like a war club, studded with iron nails.',
     group: 'Classes',
@@ -1232,6 +1254,7 @@ const VERSIONS: Version[] = [
   // ── bard ──
   {
     id: 'bard-chorus',
+    shading: {},
     name: 'Outer Rim chorus',
     description: 'Deep teal enamel with lyrics in Outer Rim AF glowing between gold lines.',
     group: 'Classes',
@@ -1288,6 +1311,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'druid-meadow',
+    shading: {},
     name: 'Wildflower meadow',
     description: 'A strip of meadow grass dotted with small white and yellow flowers.',
     group: 'Classes',
@@ -1332,6 +1356,7 @@ const VERSIONS: Version[] = [
   // ── paladin ──
   {
     id: 'paladin-oathbound',
+    shading: {},
     name: 'Oathbound silver',
     description: 'White silver with a gold oath in BabelStone runes and gold crosses at the quarters.',
     group: 'Classes',
@@ -1345,6 +1370,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'paladin-tabard',
+    shading: {},
     name: 'Tabard',
     description: 'A blue cloth tabard band trimmed with gold braid.',
     group: 'Classes',
@@ -1370,6 +1396,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'paladin-crowns',
+    shading: {},
     name: 'Royal crowns',
     description: 'Royal blue enamel between gold rims, with gold crowns at the quarters.',
     group: 'Classes',
@@ -1397,6 +1424,7 @@ const VERSIONS: Version[] = [
   // ── ranger ──
   {
     id: 'ranger-fletching',
+    shading: {},
     name: 'Arrow fletching',
     description: 'Grey-green feathers along a leather quiver strap.',
     group: 'Classes',
@@ -1409,6 +1437,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'ranger-cloak',
+    shading: {},
     name: 'Woodland cloak',
     description: 'Green woollen cloak cloth with an oak-leaf clasp and stitched edges.',
     group: 'Classes',
@@ -1422,6 +1451,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'ranger-bowstave',
+    shading: {},
     name: 'Yew bowstave',
     description: 'Honey-coloured yew bound with green cord, like a longbow\'s grip.',
     group: 'Classes',
@@ -1434,6 +1464,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'ranger-trail',
+    shading: {},
     name: 'Trail markings',
     description: 'Weathered bark with Yugurian trail markings carved into it.',
     group: 'Classes',
@@ -1459,6 +1490,7 @@ const VERSIONS: Version[] = [
   // ── rogue ──
   {
     id: 'rogue-shadow-leather',
+    shading: {},
     name: 'Shadow leather',
     description: 'Supple black leather with neat grey stitching.',
     group: 'Classes',
@@ -1471,6 +1503,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'rogue-daggers',
+    shading: {},
     name: 'Dagger belt',
     description: 'A dark leather belt with four daggers sheathed along it.',
     group: 'Classes',
@@ -1495,6 +1528,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'rogue-poison',
+    shading: {},
     name: 'Poisoner',
     description: 'Black leather with a glowing seam of green poison.',
     group: 'Classes',
@@ -1508,6 +1542,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'rogue-smoke',
+    shading: {},
     name: 'Smoke & steel',
     description: 'Dark gunmetal veiled in drifting smoke.',
     group: 'Classes',
@@ -1606,6 +1641,7 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'warlock-eyes',
+    shading: {},
     name: 'Watching eyes',
     description: 'Eyes of every size half open in a dark violet hide.',
     group: 'Classes',
