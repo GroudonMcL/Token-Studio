@@ -224,3 +224,39 @@ export const metalFx = (stops: string[], size = 0.35, gloss = 0.7): Effect[] => 
 ];
 /** A warmer, deeper gold than the Essentials' champagne gold. */
 export const WARM_GOLD = ['#241402', '#6e4a0e', '#c8952e', '#f4d27a', '#fff8e0'];
+
+// ── Shading with gradient bands (owner's preference) ─────────────────────────
+
+export interface BandShading {
+  /** Where the pressed-in step starts (0 outside – 1 inside); null for one band. */
+  step?: number | null;
+  /** How strong the shading bands are (their opacity). */
+  strength?: number;
+}
+
+const SURFACE_TYPES = new Set(['bandFill', 'texture', 'cells', 'fracture']);
+const RIM_NAMES = new Set(['Outer rim (lit)', 'Inner rim (shadow)', 'Crease']);
+const coversBand = (l: Layer) => l.type === 'bandFill' && l.from <= 0.02 && l.to >= 0.98;
+
+/**
+ * The owner's twin-band shading instead of a bevel over the whole band: the
+ * material's full-band bevels come off, and a lit-to-shaded gradient band
+ * (and a reversed one on the pressed-in step) shade it through the overlay
+ * blend, with a crease and the lit and shadowed rims. Ornaments drawn after
+ * the band's surface keep their own bevels and sit on top.
+ */
+export function bandShading(layers: Layer[], o: BandShading = {}): Layer[] {
+  const step = o.step === undefined ? 0.55 : o.step;
+  const strength = o.strength ?? 0.7;
+  const kept = layers
+    .filter((l) => !RIM_NAMES.has(l.name))
+    .map((l) => (coversBand(l) ? { ...l, effects: l.effects.filter((e) => e.kind !== 'bevel') } : l));
+  let at = 0;
+  while (at < kept.length && SURFACE_TYPES.has(kept[at].type)) at++;
+  const shading: Layer[] = [{ ...bandFillLayer(), name: 'Shading', blend: 'overlay', opacity: strength, paint: lin(['#ffffff', '#000000']) }];
+  if (step !== null) {
+    shading.push({ ...bandFillLayer(), name: 'Pressed-in shading', from: step, to: 1, blend: 'overlay', opacity: strength, paint: lin(['#000000', '#ffffff']) });
+    shading.push({ ...lineLayer(), name: 'Crease', at: step, width: 0.03, opacity: 0.55, blend: 'overlay', paint: solid('#190500') });
+  }
+  return [...kept.slice(0, at), ...shading, ...rims(), ...kept.slice(at)];
+}

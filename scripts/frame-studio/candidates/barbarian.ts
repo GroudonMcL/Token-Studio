@@ -19,7 +19,7 @@ export const CANDIDATES: Candidate[] = [
       hide(),
       { ...repeatLayer(), name: 'Holes', element: 'circle', count: 32, at: 0.2, size: 0.1, fill: '#1a0a04', raised: false, shaded: false },
       { ...repeatLayer(), name: 'Holes', element: 'circle', count: 32, offset: 0.5, at: 0.8, size: 0.1, fill: '#1a0a04', raised: false, shaded: false },
-      { ...lineLayer(), name: 'Lacing', at: 0.5, width: 0.05, paint: { kind: 'solid', color: '#d8b888' }, waveAmplitude: 0.3, waves: 32, waveShape: 'triangle', effects: [bevel({ size: 0.7, gloss: 0.3 }), contact(0.5)] },
+      { ...lineLayer(), name: 'Lacing', at: 0.5, width: 0.05, paint: { kind: 'solid', color: '#d8b888' }, waveAmplitude: 0.3, waves: 32, waveShape: 'zigzag', effects: [bevel({ size: 0.7, gloss: 0.3 }), contact(0.5)] },
     ],
   },
   {
@@ -61,7 +61,7 @@ export const CANDIDATES: Candidate[] = [
     colours: [slot('hide', 'Hide colour', '#a87a50', ['Hide']), slot('paint', 'Paint colour', '#b0401a', ['Spirals', 'Dots'])],
     layers: () => [
       hide('Hide', ['#1a0e06', '#5a3a20', '#a87a50', '#d8b088', '#f4e0c0']),
-      { ...growthLayer('tendrils'), name: 'Spirals', count: 2, thickness: 0.045, amplitude: 0.22, waveLength: 2.2, curl: 520, branching: 0.6, branchLength: 0.6, color: '#a0301a', thickness: 0.07, opacity: 0.95 },
+      { ...growthLayer('tendrils'), name: 'Spirals', count: 2, amplitude: 0.22, waveLength: 2.2, curl: 520, branching: 0.6, branchLength: 0.6, color: '#a0301a', thickness: 0.07, opacity: 0.95 },
       { ...repeatLayer(), name: 'Dots', element: 'circle', count: 24, at: 0.15, size: 0.09, fill: '#b0401a', raised: false, shaded: false, opacity: 0.8, blend: 'multiply' },
       { ...repeatLayer(), name: 'Dots', element: 'circle', count: 24, offset: 0.5, at: 0.85, size: 0.09, fill: '#b0401a', raised: false, shaded: false, opacity: 0.8, blend: 'multiply' },
     ],

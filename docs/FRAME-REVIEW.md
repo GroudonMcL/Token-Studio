@@ -28,6 +28,9 @@ picker each. Candidates are drawn with
   Frog Maps, Greyhawk and Sammy Smells with made-up phrases
   (houseStyle.ts: INSCRIPTION_WORDS). Rellanic, Davek, Iokharic and Barazhad
   are free for personal use only, so they can't be bundled.
+- No bevel lighting over a whole band: shade with the twin gradient bands
+  (houseStyle.ts: bandShading, a version's `shading` flag). Choosing which
+  existing versions to switch.
 - Ornaments stay inside the band unless reaching out is the point.
 - Prefers organic, natural textures for nature and primal frames.
 - Usually keeps the current frame and most new versions; drops busy or matt ones.
@@ -49,18 +52,20 @@ picker each. Candidates are drawn with
 | Double line | Classic | Kept, with its diamonds now set into the band; plus Gold lines on enamel, Twin rings, Studded double, Fine lines, Cord between gold. |
 | Polished | Classic | Kept, plus Anodised titanium, Pearl, Obsidian. |
 | Oak | Textures | Kept, plus Varnished oak, Brass-bound oak, Rune-carved oak, Living bark. |
-| Cobblestone | Textures | Kept, plus Mossy cobbles; round 3. |
+| Cobblestone | Textures | Kept, plus Mossy cobbles, Forest path, Lichen granite (shaded with gradient bands). |
 | Magma | Textures | Kept, plus Cooling crust, Obsidian & fire, Ember streaks, Volcanic script. |
 | Harlequin | Textures | Kept, with its diamonds now inside the band and meeting tip to tip; plus Jester's diamonds, Velvet harlequin, Checkered enamel (tiles line up on every shape), Stained glass, Carnival. |
 | Knotwork | Textures | Kept, plus Celtic gold, Silver on black, Carved stone knot, Braided leather, Fey knot. |
 | Starfield | Textures | Kept, plus Deep space, Star chart, Galaxy swirl, Moon phases, Aurora. |
-| Barbarian | Classes | Kept; round 2 (more organic, nothing outside the band). |
-| Bard | Classes | Kept, plus Lute, Velvet & gold, Starlit song, Golden lyre; round 2 with more fonts. |
+| Barbarian | Classes | Kept, plus Fur trim, Gnarled bone, War club. |
+| Bard | Classes | Kept, plus Lute, Velvet & gold, Starlit song, Golden lyre, Outer Rim chorus, Crimson aria, Moonlit verse. |
 | Cleric | Classes | Original retired from the picker; Holy light, Silver & sapphire, Temple marble, Dawn. |
-| Druid | Classes | Kept, plus Glowing stone circle; round 2 (more natural). |
+| Druid | Classes | Kept, plus Glowing stone circle, Bramble & berries, Wildflower meadow. |
 | Fighter | Classes | Kept, plus Battle steel, Shield wall, Chainmail, Champion. |
 | Monk | Classes | Kept, plus Saffron robe, Jade & gold, Ink circle. |
-| Paladin, Ranger, Rogue, Sorcerer, Warlock, Artificer | Classes | Choosing: five candidates each. |
+| Paladin, Ranger, Rogue, Warlock | Classes | Kept, plus all five versions each. |
+| Sorcerer | Classes | Kept, plus Wild magic, Draconic bloodline, Storm sorcery, Crystal heart. |
+| Artificer | Classes | Kept, plus Copper pipework, Workshop iron. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.
