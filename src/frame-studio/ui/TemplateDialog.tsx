@@ -1,23 +1,27 @@
-// Picking a starting point: designs built from editable layers, Token Maker
-// frames converted into editable layers, the 27 Token Maker frames as their
-// original code draws them (one composite layer each), or a blank project.
+// Picking a starting point: a blank project, Token Studio's frames (by
+// category), Token Maker frames converted into editable layers, or the Token
+// Maker frames as their original code draws them (one composite layer each).
 // The same dialog adds a Token Maker frame to the open project, as editable
 // layers (a group) or as the original.
 
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { FRAME_GROUPS, FRAME_PRESETS } from '../engine/legacy/catalog';
+import { FRAME_PRESETS } from '../engine/legacy/catalog';
 import { canConvert, differenceNote, editableGroup, editableProject } from '../project/convert';
-import { createProject, LAYERED_TEMPLATES, legacyFrameLayer, projectFromFrame } from '../project/defaults';
-import { CRAFTED_TEMPLATES } from '../project/craftedTemplates';
-import { PICTURE_FRAME_TEMPLATES } from '../project/pictureFrameTemplates';
-import { THEMED_TEMPLATES, themedProject } from '../project/themedTemplates';
+import { createProject, legacyFrameLayer, projectFromFrame } from '../project/defaults';
+import { builtInFramesByCategory } from '../project/builtInFrames';
+import { categoryOf, categoryRank } from '../project/frameCategories';
 import { addLayer, loadProject } from '../state/projectStore';
 import { THUMB, Tile } from './Thumbnail';
 
+/** Token Studio's frames by category, each frame followed by its versions. */
+const byCategory = builtInFramesByCategory();
+
 const frameMakers = new Map(FRAME_PRESETS.map((p) => [p.id, () => projectFromFrame(p.id)]));
 const editableMakers = new Map(FRAME_PRESETS.filter((p) => canConvert(p.style)).map((p) => [p.id, () => editableProject(p.id)!]));
-const layeredMakers = new Map(LAYERED_TEMPLATES.map((t) => [t.id, () => createProject(t.make(), t.name)]));
+
+/** The categories the drawn frames fall into, in order. */
+const presetCategories = [...new Set(FRAME_PRESETS.map((p) => categoryOf(p.id)))].sort((a, b) => categoryRank(a) - categoryRank(b));
 
 const editableNote = (style: (typeof FRAME_PRESETS)[number]['style']) => `Editable layers drawn to look like the Token Maker frame. ${differenceNote(style)}`.trim();
 
@@ -50,8 +54,6 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
       <div className="dialog-body">
         {mode === 'new' && (
           <>
-            <h3>Built from editable layers</h3>
-            <p className="note">Every part of these can be changed: colours, positions, how many beads…</p>
             <div className="tiles">
               <button
                 type="button"
@@ -66,77 +68,29 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
                 </span>
                 <span>Blank project</span>
               </button>
-              {LAYERED_TEMPLATES.map((t) => (
-                <Tile
-                  key={t.id}
-                  id={`layered:${t.id}`}
-                  name={t.name}
-                  description={t.description}
-                  make={layeredMakers.get(t.id)!}
-                  onPick={() => {
-                    loadProject(createProject(t.make(), t.name));
-                    onClose();
-                  }}
-                />
-              ))}
             </div>
-            <section aria-label="Token Maker's built-in frames">
-              <h3>Token Maker's built-in frames</h3>
-              <p className="note">The designs Token Maker lists with its drawn frames (Gilded laurel, Iron rivets, Runestone…), made from layers and photo textures. Open one to change it, save it, and open the file in Token Maker.</p>
-              <div className="tiles">
-                {PICTURE_FRAME_TEMPLATES.map((t) => (
-                  <Tile
-                    key={t.id}
-                    id={`builtin:${t.id}`}
-                    name={t.name}
-                    description={t.description}
-                    make={() => themedProject(t)}
-                    onPick={() => {
-                      loadProject(themedProject(t));
-                      onClose();
-                    }}
-                  />
-                ))}
-              </div>
-            </section>
-            <section aria-label="Crafted borders">
-              <h3>Crafted borders</h3>
-              <p className="note">Rings in the style of hand-painted token frames, made with blend modes, blur, the crystal, lava, smoke, feather, filigree and mottled textures and the new shapes. Each comes with the band thickness it was made for.</p>
-              <div className="tiles">
-                {CRAFTED_TEMPLATES.map((t) => (
-                  <Tile
-                    key={t.id}
-                    id={`crafted:${t.id}`}
-                    name={t.name}
-                    description={t.description}
-                    make={() => themedProject(t)}
-                    onPick={() => {
-                      loadProject(themedProject(t));
-                      onClose();
-                    }}
-                  />
-                ))}
-              </div>
-            </section>
-            <section aria-label="Themed borders">
-              <h3>Themed borders</h3>
-              <p className="note">Ready-made borders in popular styles (metal and enamel, wreaths, gothic, elemental, clockwork, knotwork…), every part editable. A few come with their own lighting (Lighting… over the canvas).</p>
-              <div className="tiles">
-                {THEMED_TEMPLATES.map((t) => (
-                  <Tile
-                    key={t.id}
-                    id={`themed:${t.id}`}
-                    name={t.name}
-                    description={t.description}
-                    make={() => themedProject(t)}
-                    onPick={() => {
-                      loadProject(themedProject(t));
-                      onClose();
-                    }}
-                  />
-                ))}
-              </div>
-            </section>
+            <h3>Token Studio's frames</h3>
+            <p className="note">Every frame Token Maker lists, by category, each followed by its versions. Open one to change it, save it, and open the file in Token Maker.</p>
+            {byCategory.map(({ category, frames }) => (
+              <section key={category} aria-label={`Token Studio's frames: ${category}`}>
+                <h4>{category}</h4>
+                <div className="tiles">
+                  {frames.map((t) => (
+                    <Tile
+                      key={t.id}
+                      id={`builtin:${t.id}`}
+                      name={t.name}
+                      description={t.description}
+                      make={t.project}
+                      onPick={() => {
+                        loadProject(t.project());
+                        onClose();
+                      }}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
           </>
         )}
         <section aria-label="Token Maker frames as editable layers">
@@ -153,14 +107,14 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
         </section>
         <h3>Token Maker frames, as the originals</h3>
         <p className="note">
-          All 27 frames, drawn by Token Maker's own code. Each is one layer: you can change its colour and add layers over or under it. Frames marked Editable above can
-          also be turned into layers later, from their Properties.
+          All {FRAME_PRESETS.length} frames, drawn by Token Maker's own code. Each is one layer: you can change its colour and add layers over or under it. Frames marked
+          Editable above can also be turned into layers later, from their Properties.
         </p>
-        {FRAME_GROUPS.map((group) => (
-          <section key={group} aria-label={group}>
-            <h4>{group}</h4>
+        {presetCategories.map((category) => (
+          <section key={category} aria-label={category}>
+            <h4>{category}</h4>
             <div className="tiles">
-              {FRAME_PRESETS.filter((p) => p.group === group).map((p) => (
+              {FRAME_PRESETS.filter((p) => categoryOf(p.id) === category).map((p) => (
                 <Tile key={p.id} id={`frame:${p.id}`} name={p.name} make={frameMakers.get(p.id)!} onPick={() => pickFrame(p.id)} />
               ))}
             </div>

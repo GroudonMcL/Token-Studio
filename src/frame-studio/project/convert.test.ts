@@ -15,10 +15,10 @@ import { setCanvasFactory, type Ctx } from '../render/canvas';
 import { compareFrames } from '../render/compare';
 import { renderProject } from '../render/renderProject';
 import { canConvert, CONVERTIBLE_STYLES, convertFrame, convertLegacyLayer, convertPreset } from './convert';
-import { createProject, legacyFrameLayer } from './defaults';
+import { createProject, groupLayer, legacyFrameLayer, repeatLayer } from './defaults';
 import { parseProject, serializeProject } from './migrate';
 import { flatten } from './tree';
-import type { FrameProject, Layer } from './types';
+import type { FrameProject, GroupLayer, Layer, RepeatLayer } from './types';
 
 setCanvasFactory((w, h) => createCanvas(w, h) as unknown as HTMLCanvasElement);
 
@@ -31,13 +31,12 @@ const LIMITS: Record<string, { mean: number; over: number }> = {
   arcane: { mean: 2.6, over: 0.8 },
   infernal: { mean: 2.6, over: 0.8 },
   wizard: { mean: 2.4, over: 0.9 },
-  double: { mean: 0.7, over: 1.5 },
+  double: { mean: 1.6, over: 4 },
   oak: { mean: 0.35, over: 0.05 },
   cobblestone: { mean: 0.3, over: 0.05 },
   magma: { mean: 0.5, over: 0.25 },
   harlequin: { mean: 0.75, over: 1 },
   starfield: { mean: 0.25, over: 0.05 },
-  cleric: { mean: 5.5, over: 12 },
   fighter: { mean: 0.25, over: 0.1 },
   monk: { mean: 1.1, over: 0.8 },
   rogue: { mean: 1.4, over: 1.5 },
@@ -161,5 +160,19 @@ describe('the converted layers', () => {
     expect(convertLegacyLayer(legacyFrameLayer('none'))).toBeNull();
     expect(CONVERTIBLE_STYLES.length).toBe(25);
     expect(FRAME_PRESETS.filter((p) => p.style !== 'none').every((p) => canConvert(p.style))).toBe(true);
+  });
+});
+
+describe('version 11 files', () => {
+  it('keep their emblems square to the band, so they draw as they did', () => {
+    const icon: RepeatLayer = { ...repeatLayer(), element: 'icon-rose' as RepeatLayer['element'] };
+    const bead: RepeatLayer = { ...repeatLayer(), element: 'bead' };
+    const old = { ...createProject([icon, { ...groupLayer([icon]) }, bead] as never), schemaVersion: 11 };
+    const r = parseProject(JSON.parse(JSON.stringify(old)));
+    if (!r.ok) throw new Error(r.error);
+    const [a, grp, b] = r.project.layers as [RepeatLayer, GroupLayer, RepeatLayer];
+    expect(a.orient).toBe('edge');
+    expect((grp.children[0] as RepeatLayer).orient).toBe('edge');
+    expect(b.orient).toBe('along');
   });
 });

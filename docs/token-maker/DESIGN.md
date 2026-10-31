@@ -30,7 +30,7 @@ Reuse its proven parts, but **do not** copy anything about LegendKeeper, Owlbear
 
 **Worth reusing (read the code in `extension/` before building the renderer):**
 
-- The canvas token renderer: 5 shapes (Circle, Rounded, Square, Hexagon, Flat hex) and 27 code-drawn frames in three groups — **Classic** (Stamped, Gilded, Engraved, Arcane, Infernal, Double line, Polished, No frame), **Textures** (Oak, Cobblestone, Magma, Harlequin, Knotwork, Starfield) and **Classes** (one per D&D class plus Artificer). All are built like Stamped: a band lit from the top left, a pressed-in inner step, a drop shadow and a shadow cast onto the art. Every frame takes any colour, thickness, spacing and backing.
+- The canvas token renderer: 5 shapes (Circle, Rounded, Square, Hexagon, Flat hex) and 26 code-drawn frames (Stamped, Gilded, Engraved, Arcane, Infernal, Double line, Polished, No frame; Oak, Cobblestone, Magma, Harlequin, Knotwork, Starfield; and the class-themed frames from Barbarian to Artificer, Cleric having been removed in the frame review). The frame picker files them, with the built-in Frame Studio designs, under broad categories (see docs/FRAME-REVIEW.md). All are built like Stamped: a band lit from the top left, a pressed-in inner step, a drop shadow and a shadow cast onto the art. Every frame takes any colour, thickness, spacing and backing.
 - "The export comes from the same renderer as the preview" — keep this rule.
 - Crop geometry (drag, pinch zoom, rotate, flip, fit/fill/reset, dimmed art outside the frame).
 - Brightness/contrast/saturation and flat-background removal.

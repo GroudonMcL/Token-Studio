@@ -61,7 +61,8 @@ function loadBundledFace(id: string, weight: 400 | 700, style: 'normal' | 'itali
   const key = `${info.family}|${weight}|${style}`;
   let p = faces.get(key);
   if (!p) {
-    const face = new FontFace(info.family, `url(${file.url}) format('woff2')`, { weight: String(weight), style });
+    const format = file.url.endsWith('.otf') ? 'opentype' : file.url.endsWith('.ttf') ? 'truetype' : 'woff2';
+    const face = new FontFace(info.family, `url(${file.url}) format('${format}')`, { weight: String(weight), style });
     p = face.load().then(
       (loaded) => {
         document.fonts.add(loaded);

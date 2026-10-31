@@ -4,7 +4,8 @@ import { createCanvas } from '@napi-rs/canvas';
 import { FRAME_PRESETS, SHAPES } from '../engine/legacy/catalog';
 import { drawFrame } from '../engine/legacy/frames';
 import { sampleArt } from '../engine/legacy/sampleArt';
-import { bandFillLayer, createProject, LAYERED_TEMPLATES, legacyFrameLayer, lineLayer, projectFromFrame, repeatLayer } from '../project/defaults';
+import { bandFillLayer, createProject, legacyFrameLayer, lineLayer, projectFromFrame, repeatLayer } from '../project/defaults';
+import { SAMPLE_LAYERED as LAYERED_TEMPLATES } from '../test/sampleDesigns';
 import { ELEMENT_KINDS, type FrameProject, type Layer, type Paint } from '../project/types';
 import { bandGeometry, bandInsets, acrossOfPoint } from './band';
 import { setCanvasFactory, type Ctx } from './canvas';
@@ -32,8 +33,8 @@ const differs = (a: Uint8ClampedArray, b: Uint8ClampedArray) => a.some((v, i) =>
 const pixel = (d: Uint8ClampedArray, size: number, x: number, y: number) => Array.from(d.slice((y * size + x) * 4, (y * size + x) * 4 + 4));
 
 describe('legacy frames (token-maker templates)', () => {
-  it('has all 27 frames', () => {
-    expect(FRAME_PRESETS).toHaveLength(27);
+  it('has all 26 frames (Cleric was removed in the frame review)', () => {
+    expect(FRAME_PRESETS).toHaveLength(26);
   });
 
   it.each(FRAME_PRESETS.filter((p) => p.style !== 'none').map((p) => p.id))('%s draws pixel for pixel what token-maker draws', (id) => {

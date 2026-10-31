@@ -7,6 +7,9 @@ import { setCanvasFactory, type Ctx } from '../../src/frame-studio/render/canvas
 import { compareFrames } from '../../src/frame-studio/render/compare';
 import { renderProject } from '../../src/frame-studio/render/renderProject';
 import { SCHEMA_VERSION } from '../../src/frame-studio/project/types';
+import { openSample } from './samples';
+
+
 
 // Phase 6: effects and the style library in the real editor, the templates
 // made with effects, and an exported picture drawn by the browser matching
@@ -42,7 +45,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('done when: a band styled as hammered bronze follows the light, and its export is the picture the renderer draws', async ({ page }, info) => {
-  await pick(page, 'Brass & beads');
+  await openSample(page, 'brass-beads');
   await page.getByRole('treeitem', { name: /Brass band/ }).click();
   const before = await preview(page);
 
@@ -102,11 +105,10 @@ test('done when: a band styled as hammered bronze follows the light, and its exp
 });
 
 test('the templates made with effects open, and effects can be copied onto other layers', async ({ page }) => {
-  for (const name of ['Dwarven bronze', 'Eldritch crystal', 'Radiant gold', 'Hellforged iron']) {
-    await pick(page, name);
-    await expect(page.getByRole('img', { name: `Preview of ${name}` })).toBeVisible();
-  }
-  await pick(page, 'Dwarven bronze');
+  for (const id of ['dwarven-bronze', 'eldritch-crystal', 'radiant-gold']) await openSample(page, id);
+  await pick(page, 'Hellforged iron');
+  await expect(page.getByRole('img', { name: 'Preview of Hellforged iron' })).toBeVisible();
+  await openSample(page, 'dwarven-bronze');
   await page.getByRole('treeitem', { name: /Plates/ }).click();
   await page.getByRole('button', { name: 'Copy effects' }).click();
   // "Rivets", not "Inner rivets".
@@ -134,7 +136,7 @@ test('add effects one by one, switch one off and cut a shape into facets', async
 });
 
 test('accessibility: no serious problems in the Effects section or the style library', async ({ page }) => {
-  await pick(page, 'Dwarven bronze');
+  await openSample(page, 'dwarven-bronze');
   await page.getByRole('treeitem', { name: /Bronze band/ }).click();
   await page.getByRole('radio', { name: 'Advanced' }).click();
   expect(await axe(page)).toEqual([]);

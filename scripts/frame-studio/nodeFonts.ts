@@ -2,6 +2,7 @@
 // browser loads the same files through @fontsource.
 import { GlobalFonts } from '@napi-rs/canvas';
 import { join } from 'node:path';
+import { FONT_FAMILIES } from '../../src/frame-studio/render/text';
 
 let done = false;
 export function registerShippedFonts(): void {
@@ -10,4 +11,5 @@ export function registerShippedFonts(): void {
   const files = join(process.cwd(), 'node_modules', '@fontsource');
   GlobalFonts.registerFromPath(join(files, 'grenze', 'files', 'grenze-latin-600-normal.woff2'), 'Grenze');
   GlobalFonts.registerFromPath(join(files, 'atkinson-hyperlegible', 'files', 'atkinson-hyperlegible-latin-700-normal.woff2'), 'Atkinson Hyperlegible');
+  for (const f of Object.values(FONT_FAMILIES)) if (f.file) GlobalFonts.registerFromPath(join(process.cwd(), 'public', 'fonts', f.file), f.family);
 }

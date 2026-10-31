@@ -72,7 +72,7 @@ const designs: [string, FrameProject][] = [
   ['Jewelled (a Phase 2 file)', fixture('jewelled')],
   ['Night sky (a Phase 3 file)', fixture('night-sky')],
   ['Paladin as editable layers, lit from the bottom right', { ...editableProject('paladin')!, stage: { ...editableProject('paladin')!.stage, light: 45 } }],
-  ['Enamel and gold (a themed border with effects)', themed('enamel-gold')],
+  ['Gothic thorns (a themed border with effects)', themed('gothic-thorns')],
   ['Clockwork (a themed border with generators)', themed('clockwork')],
 ];
 

@@ -6,7 +6,8 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { registerShippedFonts } from '../../../scripts/frame-studio/nodeFonts';
 import { SHAPES } from '../engine/legacy/catalog';
-import { contoursLayer, createProject, GEM_POINTS, LAYERED_TEMPLATES, lineLayer, NEW_EFFECT, pathLayer, repeatLayer, shapeLayer, textLayer } from '../project/defaults';
+import { contoursLayer, createProject, GEM_POINTS, lineLayer, NEW_EFFECT, pathLayer, repeatLayer, shapeLayer, textLayer } from '../project/defaults';
+import { SAMPLE_LAYERED as LAYERED_TEMPLATES } from '../test/sampleDesigns';
 import { cloneAllWithNewIds } from '../project/tree';
 import { GEM_CUTS, GEM_SETTINGS, type FrameProject, type Layer, type PathLayer, type RepeatLayer } from '../project/types';
 import { acrossOfPoint, bandGeometry, bandWidthPx } from './band';
@@ -339,5 +340,36 @@ describe('done when (renderer)', () => {
       expect(text.effects.length).toBeGreaterThan(0);
       expect(painted(draw(p))).toBeGreaterThan(5000);
     }
+  });
+});
+
+describe('emblems on a hexagon (version 12)', () => {
+  const hex = (r: RepeatLayer) => project([r], { shape: 'hexagon' });
+  const outward = (e: { p: { x: number; y: number; angle: number } }) => {
+    const a = Math.atan2(e.p.y, e.p.x) + Math.PI / 2 - e.p.angle;
+    return Math.abs(Math.sin(a)) < 1e-6 && Math.cos(a) > 0;
+  };
+
+  it('points icons and emblems out from the centre instead of square to each side', () => {
+    const r: RepeatLayer = { ...repeatLayer(), element: 'crescent', count: 12, snapToCorners: false };
+    const placed = repeatPlacements(r, g(hex(r)), finder(hex(r)));
+    expect(placed.every(outward)).toBe(true);
+    const icons = { ...r, element: 'icon-rose' as RepeatLayer['element'] };
+    expect(repeatPlacements(icons, g(hex(icons)), finder(hex(icons))).every(outward)).toBe(true);
+  });
+
+  it('keeps plain shapes, and emblems set to "square to the edge", turned with the band', () => {
+    const beads: RepeatLayer = { ...repeatLayer(), element: 'tick', count: 12, snapToCorners: false };
+    expect(repeatPlacements(beads, g(hex(beads)), finder(hex(beads))).every(outward)).toBe(false);
+    const edge: RepeatLayer = { ...beads, element: 'crescent', orient: 'edge' };
+    expect(repeatPlacements(edge, g(hex(edge)), finder(hex(edge))).every(outward)).toBe(false);
+  });
+
+  it('faces the same way as before on a circle', () => {
+    const r: RepeatLayer = { ...repeatLayer(), element: 'sun', count: 8 };
+    const p = project([r]);
+    const now = repeatPlacements(r, g(p), finder(p));
+    const before = repeatPlacements({ ...r, orient: 'edge' }, g(p), finder(p));
+    now.forEach((e, i) => expect(Math.abs(Math.sin(e.p.angle - before[i].p.angle))).toBeLessThan(0.02));
   });
 });

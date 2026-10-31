@@ -26,6 +26,7 @@ import {
   GEM_SETTINGS,
   MIRROR_MODES,
   REPEAT_ORIENTS,
+  pointsOutward,
   TEXT_FONTS,
   PROJECT_FORMAT,
   SCHEMA_VERSION,
@@ -44,6 +45,9 @@ import {
   type PlacedStyle,
   type StageSettings,
 } from './types';
+
+/** Most characters a text layer keeps (enough to go round a big band twice). */
+const MAX_TEXT = 600;
 
 export type ParseResult = { ok: true; project: FrameProject; warnings: string[] } | { ok: false; error: string };
 
@@ -168,7 +172,18 @@ const MIGRATIONS: Record<number, (p: Obj) => Obj> = {
   // Version 10 → 11: the new textures, shapes and the blur effect are new kinds, and a shape's seed (for the
   // irregular shapes) is 1 when left out, so nothing changes.
   10: (p) => ({ ...p, schemaVersion: 11 }),
+  // Version 11 → 12: on the band, 'along' now points emblems (icons, moons, crowns…) out from the centre;
+  // older files keep them square to the edge, so they draw as they did.
+  11: (p) => ({ ...p, schemaVersion: 12, layers: Array.isArray(p.layers) ? p.layers.map(keepEmblemsSquare) : p.layers }),
 };
+
+function keepEmblemsSquare(layer: unknown): unknown {
+  if (!isObj(layer)) return layer;
+  const out: Obj = { ...layer };
+  if (Array.isArray(layer.children)) out.children = layer.children.map(keepEmblemsSquare);
+  if (layer.type === 'repeat' && (layer.orient ?? 'along') === 'along' && typeof layer.element === 'string' && pointsOutward(layer.element)) out.orient = 'edge';
+  return out;
+}
 
 export function parseProject(input: unknown): ParseResult {
   let raw = input;
@@ -545,7 +560,7 @@ function checkLayer(l: unknown, index: number, warnings: string[], ids: Set<stri
       return {
         ...common,
         type,
-        text: typeof o.text === 'string' ? o.text.slice(0, 200) : d.text,
+        text: typeof o.text === 'string' ? o.text.slice(0, MAX_TEXT) : d.text,
         font: oneOf(o.font, TEXT_FONTS, d.font),
         size: num(o.size, d.size, 0.05, 3),
         spacing: num(o.spacing, d.spacing, -0.5, 3),
@@ -553,6 +568,7 @@ function checkLayer(l: unknown, index: number, warnings: string[], ids: Set<stri
         along: (((num(o.along, d.along, -10, 10) % 1) + 1) % 1),
         align: oneOf(o.align, ['centre', 'start'] as const, d.align),
         reverse: bool(o.reverse, d.reverse),
+        fit: bool(o.fit, false),
         follow: idOrNull(o.follow),
         fill: hex(o.fill, d.fill),
         outline: hexOrNull(o.outline, d.outline),

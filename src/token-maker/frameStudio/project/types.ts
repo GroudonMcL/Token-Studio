@@ -16,7 +16,7 @@ import { ICON_GLYPHS, type IconKind } from './iconGlyphs';
 import type { PictureId } from './pictures';
 
 export const PROJECT_FORMAT = 'frame-studio-project';
-export const SCHEMA_VERSION = 11;
+export const SCHEMA_VERSION = 12;
 
 export interface FrameProject {
   format: typeof PROJECT_FORMAT;
@@ -526,7 +526,21 @@ export interface RepeatLayer extends LayerBase {
   paintEach: boolean;
 }
 
-export const REPEAT_ORIENTS = ['along', 'upright'] as const;
+/**
+ * 'along': turned with the band (or path). On the band, emblems (icons, moons,
+ * crowns, roses…) point straight out from the centre, so on a hexagon or square
+ * they don't swing round to face each side; plain shapes (beads, ticks,
+ * spikes, leaves) stay square to the edge.
+ * 'upright': all standing upright on the screen.
+ * 'edge': everything square to the band's edge, emblems included (version 12 option).
+ */
+export const REPEAT_ORIENTS = ['along', 'upright', 'edge'] as const;
+/** Ornaments with an obvious top, which 'along' points out from the centre on the band. */
+export const EMBLEM_ELEMENTS: ReadonlySet<string> = new Set([
+  'star', 'cross', 'eye', 'note', 'claw', 'bardNote', 'watchEye', 'heart', 'crescent', 'flame', 'fleur', 'shield', 'sun',
+  'snowflake', 'crown', 'jewel', 'drop', 'shell', 'paw', 'feather', 'skull',
+]);
+export const pointsOutward = (element: string) => element.startsWith('icon-') || EMBLEM_ELEMENTS.has(element);
 export type RepeatOrient = (typeof REPEAT_ORIENTS)[number];
 export const GEM_CUTS = ['brilliant', 'rose', 'emerald', 'cabochon', 'rough'] as const;
 export type GemCut = (typeof GEM_CUTS)[number];
@@ -729,7 +743,9 @@ export interface TextureLayer extends LayerBase {
   seed: number;
 }
 
-export const TEXT_FONTS = ['runes', 'grenze', 'atkinson'] as const;
+// Version 11 (owner's request): fictional alphabets with open licences,
+// bundled in public/fonts/ (see LICENSES.md there).
+export const TEXT_FONTS = ['runes', 'grenze', 'atkinson', 'babelstone', 'outerRim', 'sith', 'yugurian'] as const;
 export type TextFont = (typeof TEXT_FONTS)[number];
 
 /**
@@ -753,6 +769,12 @@ export interface TextLayer extends LayerBase {
   /** `along` is the middle of the text, or where it starts. */
   align: 'centre' | 'start';
   reverse: boolean;
+  /**
+   * Text longer than the way round a closed track ends at the last whole
+   * phrase or word that fits, spread out to meet its start (version 11; off
+   * in older files, which cut it off).
+   */
+  fit: boolean;
   /** A path or line layer to follow instead of the band. */
   follow: string | null;
   fill: string;

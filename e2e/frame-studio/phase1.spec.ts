@@ -1,6 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { SCHEMA_VERSION } from '../../src/frame-studio/project/types';
+import { openSample } from './samples';
+
+
 
 // A fingerprint of the preview canvas, to tell whether the picture changed.
 const previewHash = (page: Page) =>
@@ -46,8 +49,7 @@ test('start from a Token Maker frame, add layers, edit, undo and redo', async ({
 });
 
 test('layer visibility, order, duplicate and delete change the picture predictably', async ({ page }) => {
-  await page.getByRole('button', { name: 'New' }).click();
-  await page.getByRole('button', { name: 'Brass & beads' }).click();
+  await openSample(page, 'brass-beads');
   const full = await previewHash(page);
   await page.getByRole('button', { name: 'Hide Beads' }).click();
   const noBeads = await previewHash(page);
@@ -68,8 +70,7 @@ test('layer visibility, order, duplicate and delete change the picture predictab
 });
 
 test('clicking the canvas picks a layer, and dragging moves it', async ({ page }) => {
-  await page.getByRole('button', { name: 'New' }).click();
-  await page.getByRole('button', { name: 'Brass & beads' }).click();
+  await openSample(page, 'brass-beads');
   await page.getByRole('treeitem', { name: /Brass band/ }).click();
   const box = (await page.getByTestId('overlay').boundingBox())!;
   // The bead at the top of the ring, 60% across a band that starts 10% in and is 14% thick.

@@ -5,7 +5,8 @@
 // paths; the distortion effect and scratches; lines whose waves fit the band.
 import { createCanvas } from '@napi-rs/canvas';
 import { SHAPES } from '../engine/legacy/catalog';
-import { bandFillLayer, cellsLayer, chainLayer, createProject, fractureLayer, gearsLayer, growthLayer, knotworkLayer, LAYERED_TEMPLATES, lineLayer, NEW_EFFECT, pathLayer } from '../project/defaults';
+import { bandFillLayer, cellsLayer, chainLayer, createProject, fractureLayer, gearsLayer, growthLayer, knotworkLayer, lineLayer, NEW_EFFECT, pathLayer } from '../project/defaults';
+import { SAMPLE_LAYERED as LAYERED_TEMPLATES } from '../test/sampleDesigns';
 import { CELL_PATTERNS, GROWTH_KINDS, type Effect, type FrameProject, type Layer } from '../project/types';
 import { acrossOfPoint, bandGeometry, bandWidthPx, outlineAt } from './band';
 import { setCanvasFactory, type Ctx } from './canvas';

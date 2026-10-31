@@ -13,9 +13,9 @@ import { frameAccent } from '../../render/frames';
 import { seededRandom } from '../../render/frameKit';
 import { bandFillLayer, createProject, gearsLayer, groupLayer, growthLayer, knotworkLayer, lineLayer, newId, repeatLayer, textureLayer } from './defaults';
 import { STAMPED_OUTER, STAMPED_STEP, stampedStops } from './stamped';
-import { shadow } from './styles';
+import { bevel, shadow } from './styles';
 import { cloneAllWithNewIds } from './tree';
-import type { BandFillLayer, FrameProject, GroupLayer, Layer, LegacyFrameLayer, LineLayer, RepeatLayer, TextureKind, TextureLayer } from './types';
+import { pointsOutward, type BandFillLayer, type FrameProject, type GroupLayer, type Layer, type LegacyFrameLayer, type LineLayer, type RepeatLayer, type TextureKind, type TextureLayer } from './types';
 
 /**
  * Token Maker's random sizes for each of a frame's ornaments, in its order
@@ -188,7 +188,8 @@ const CONVERTERS: Partial<Record<FrameStyle, Converter>> = {
 
   double: ({ color }) =>
     stack({ ...DEFAULT_LIGHTING, base: color, step: 0 }, [groove(0.22, color, 0.08, 'Outer groove'), groove(0.78, color, 0.08, 'Inner groove')], [
-      repeat('Raised diamonds', { element: 'diamond', count: 12, snapToCorners: true, at: 0.5, size: 0.4, stretch: 1.3, fill: color, raised: true }),
+      repeat('Diamond seats', { element: 'diamond', count: 12, snapToCorners: true, at: 0.5, size: 0.58, stretch: 1.3, fill: shade(color, -0.4), shaded: false, effects: [bevel({ direction: 'sunken', size: 0.5, gloss: 0.3, highlightOpacity: 0.5 })] }),
+      repeat('Set diamonds', { element: 'diamond', count: 12, snapToCorners: true, at: 0.5, size: 0.37, stretch: 1.3, fill: color, shaded: true }),
     ]),
 
   wood: ({ color }) => stack({ base: color, light: 0.55, dark: 0.75, highlight: null, step: 0.3 }, [texture('wood', 'Wood grain', { color, seed: 0x0a4 })], []),
@@ -205,7 +206,8 @@ const CONVERTERS: Partial<Record<FrameStyle, Converter>> = {
   },
 
   harlequin: ({ color }) => {
-    const diamonds = { element: 'diamond' as const, mode: 'spacing' as const, spacing: 0.7, snapToCorners: true, at: 0.5, size: 1.1, stretch: 0.8 / 1.1, shaded: false, outline: shade(color, -0.85), outlineWidth: 0.02 / 1.1, clip: 'band' as const };
+    // Inside the band and meeting tip to tip, an even number so the colours alternate all round.
+    const diamonds = { element: 'diamond' as const, mode: 'spacing' as const, spacing: 0.7, snapToCorners: true, multipleOf: 2, at: 0.5, size: 0.88, stretch: 0.672 / 0.88, shaded: false, outline: shade(color, -0.85), outlineWidth: 0.02 / 0.88 };
     return stack(
       { base: color, light: 0.6, dark: 0.75, highlight: null, step: 0 },
       [
@@ -415,7 +417,7 @@ export const CONVERSION_NOTES: Partial<Record<FrameStyle, string>> = {
   engraved: 'The tick marks are flat bars with square ends.',
   arcane: 'The marbling falls in slightly different places.',
   wizard: 'The marbling falls in slightly different places.',
-  double: 'The diamonds are lit from the light you choose, with softer shading.',
+  double: 'The diamonds and their seats are lit from the light you choose, with softer shading.',
   magma: 'The bright flecks in the rock are a little stronger.',
   harlequin: 'The diamonds’ outlines are fainter on the light diamonds.',
   radiant: 'The rays are counted along a slightly different line, so there may be one or two more or fewer.',
@@ -445,7 +447,14 @@ export const CONVERTIBLE_STYLES = Object.keys(CONVERTERS) as FrameStyle[];
 /** A frame's parts as editable layers, bottom first, or null if it has no converter yet. Every call gives fresh ids. */
 export function convertFrame(style: FrameStyle, colours: FrameColours): Layer[] | null {
   const convert = CONVERTERS[style];
-  return convert ? cloneAllWithNewIds(convert(colours), newId) : null;
+  return convert ? cloneAllWithNewIds(convert(colours), newId).map(squareLikeTokenMaker) : null;
+}
+
+/** Token Maker draws its ornaments square to the band's edge, so converted emblems keep that facing. */
+function squareLikeTokenMaker(layer: Layer): Layer {
+  if (layer.type === 'group') return { ...layer, children: layer.children.map(squareLikeTokenMaker) };
+  if (layer.type === 'repeat' && layer.orient === 'along' && pointsOutward(layer.element)) return { ...layer, orient: 'edge' };
+  return layer;
 }
 
 /**

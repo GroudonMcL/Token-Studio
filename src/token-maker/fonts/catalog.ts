@@ -45,6 +45,10 @@ export const FONTS: readonly FontInfo[] = [
   font('spectral', 'Spectral', 'serif', true, true, 'Production Type'),
   font('germania-one', 'Germania One', 'cursive', false, false, 'John Vargas Beltrán'),
   font('eagle-lake', 'Eagle Lake', 'cursive', false, false, 'Astigmatic'),
+  // Fictional alphabets (public/fonts/, see LICENSES.md there): CC0, CC BY and public domain.
+  font('outer-rim', 'Outer Rim AF (alien script)', 'sans-serif', false, false, 'AurekFonts (CC0)'),
+  font('sith', 'Sith AF (ancient script)', 'sans-serif', false, false, 'Ender Smith, AurekFonts (CC BY 3.0 US)'),
+  font('yugurian', 'Yugurian (fantasy script)', 'sans-serif', false, false, 'Dreaming Fantasies (public domain)'),
 ];
 
 export const DEFAULT_FONT = 'cinzel';

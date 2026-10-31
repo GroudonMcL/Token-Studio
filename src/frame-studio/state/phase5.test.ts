@@ -3,7 +3,8 @@
 // between projects and tabs (localStorage stands in for another tab).
 import 'fake-indexeddb/auto';
 import { del } from 'idb-keyval';
-import { bandFillLayer, createProject, groupLayer, LAYERED_TEMPLATES, lineLayer, repeatLayer } from '../project/defaults';
+import { bandFillLayer, createProject, groupLayer, lineLayer, repeatLayer } from '../project/defaults';
+import { SAMPLE_LAYERED as LAYERED_TEMPLATES } from '../test/sampleDesigns';
 import { serializeProject } from '../project/migrate';
 import { flatten } from '../project/tree';
 import { LAYERS_FORMAT, LIBRARY_FORMAT, parseLayers, parseLibrary, serializeLayers, serializeLibrary } from '../project/transfer';

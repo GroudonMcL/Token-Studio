@@ -6,7 +6,8 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { registerShippedFonts } from '../../../scripts/frame-studio/nodeFonts';
 import { SHAPES } from '../engine/legacy/catalog';
-import { bandFillLayer, createProject, groupLayer, LAYERED_TEMPLATES, lineLayer, NEW_EFFECT, pathLayer, repeatLayer, shapeLayer, textLayer } from '../project/defaults';
+import { bandFillLayer, createProject, groupLayer, lineLayer, NEW_EFFECT, pathLayer, repeatLayer, shapeLayer, textLayer } from '../project/defaults';
+import { SAMPLE_LAYERED as LAYERED_TEMPLATES } from '../test/sampleDesigns';
 import type { Effect, FrameProject, GroupLayer, Layer, PathPoint } from '../project/types';
 import { bandGeometry } from './band';
 import { setCanvasFactory, type Ctx } from './canvas';

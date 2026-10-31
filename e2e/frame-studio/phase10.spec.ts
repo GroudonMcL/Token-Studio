@@ -4,6 +4,9 @@ import { readFileSync } from 'node:fs';
 import { SHAPES } from '../../src/frame-studio/engine/legacy/catalog';
 import { unzip } from '../../src/frame-studio/io/zip';
 import { parseProject } from '../../src/frame-studio/project/migrate';
+import { openSample } from './samples';
+
+
 
 // Phase 10: workflow. A design randomised into three variations, each
 // recoloured from a theme colour and exported as a pack on every shape; your
@@ -21,12 +24,6 @@ async function preview(page: Page): Promise<number[]> {
 }
 const changed = (a: number[], b: number[]) => a.some((v, i) => v !== b[i]);
 
-async function pick(page: Page, name: string) {
-  await page.getByRole('button', { name: 'New' }).click();
-  const dialog = page.getByRole('dialog', { name: 'New project' });
-  await dialog.getByRole('button', { name, exact: true }).click();
-  await expect(dialog).toBeHidden();
-}
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/frame-studio/');
@@ -38,7 +35,7 @@ test.beforeEach(async ({ page }) => {
 
 test('done when: a design is randomised into three variations, each recoloured from a theme colour and exported as a pack on every shape', async ({ page }) => {
   test.setTimeout(120_000);
-  await pick(page, 'Brass & beads');
+  await openSample(page, 'brass-beads');
   const original = await data(page);
   const seen: string[] = [];
   for (const [i, colour] of [
@@ -92,7 +89,7 @@ test('done when: a design is randomised into three variations, each recoloured f
 });
 
 test('your own style, varying a style, the lighting rig, and axe on the new dialogs', async ({ page }) => {
-  await pick(page, 'Brass & beads');
+  await openSample(page, 'brass-beads');
   await page.getByRole('treeitem', { name: /Brass band/ }).click();
   await page.getByRole('button', { name: /Styles/ }).click();
   await page.getByRole('dialog', { name: 'Styles' }).getByRole('button', { name: 'Hammered bronze' }).click();

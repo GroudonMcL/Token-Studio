@@ -53,10 +53,14 @@ test('Large tokens export at 512 px with the size shown', async ({ page, isMobil
 test('pick a frame and undo it', async ({ page }) => {
   await upload(page);
   const panel = await openSection(page, 'Frame & shape');
-  await panel.getByRole('radio', { name: 'Oak' }).click();
-  await expect(panel.getByRole('radio', { name: 'Oak' })).toHaveAttribute('aria-checked', 'true');
+  await panel.getByRole('button', { name: 'Change frame' }).click();
+  const gallery = page.getByRole('dialog', { name: 'Choose a frame' });
+  await gallery.getByRole('tab', { name: /Wood & Nature/ }).click();
+  await gallery.getByRole('radio', { name: 'Oak' }).click();
+  await expect(gallery).toBeHidden();
+  await expect(panel.getByTestId('current-frame')).toContainText('Oak');
   await page.getByRole('button', { name: 'Undo' }).first().click();
-  await expect(panel.getByRole('radio', { name: 'Stamped' })).toHaveAttribute('aria-checked', 'true');
+  await expect(panel.getByTestId('current-frame')).toContainText('Stamped');
 });
 
 test('drag the art, then use the scale and rotate handles', async ({ page }) => {
@@ -116,7 +120,23 @@ test('the token survives a page reload (autosave)', async ({ page }) => {
   await upload(page);
   const panel = await openSection(page, 'Frame & shape');
   await panel.getByRole('radio', { name: 'Hexagon' }).click();
-  await page.waitForTimeout(800); // autosave runs shortly after changes
+  // Autosave runs shortly after changes: wait until the saved token has the new shape.
+  const savedShape = () =>
+    page.evaluate(
+      () =>
+        new Promise<string | null>((resolve) => {
+          const open = indexedDB.open('token-maker');
+          open.onerror = () => resolve(null);
+          open.onsuccess = () => {
+            const db = open.result;
+            if (!db.objectStoreNames.contains('autosave')) return resolve(null);
+            const get = db.transaction('autosave').objectStore('autosave').get('current-doc');
+            get.onsuccess = () => resolve((get.result as { shape?: string } | undefined)?.shape ?? null);
+            get.onerror = () => resolve(null);
+          };
+        }),
+    );
+  await expect.poll(savedShape, { timeout: 10_000 }).toBe('hexagon');
   await page.reload();
   await expect(page.locator('.token-summary__name').first()).toHaveText('Goblin Boss');
   const panel2 = await openSection(page, 'Frame & shape');

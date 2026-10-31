@@ -1,5 +1,6 @@
 import { FRAME_PRESETS } from '../engine/legacy/catalog';
-import { lineLayer, bandFillLayer, createProject, EFFECT_NAMES, NEW_EFFECT, GEM_POINTS, TEXTURES, textureFromPreset, textureLayer, groupLayer, LAYERED_TEMPLATES, NEW_LAYER, pathLayer, projectFromFrame, repeatLayer, shapeLayer } from './defaults';
+import { lineLayer, bandFillLayer, createProject, EFFECT_NAMES, NEW_EFFECT, GEM_POINTS, TEXTURES, textureFromPreset, textureLayer, groupLayer, NEW_LAYER, pathLayer, projectFromFrame, repeatLayer, shapeLayer } from './defaults';
+import { SAMPLE_LAYERED as LAYERED_TEMPLATES } from '../test/sampleDesigns';
 import { parseProject, serializeProject } from './migrate';
 import { EFFECT_KINDS, SCHEMA_VERSION, type Effect, type FrameProject, type Layer } from './types';
 
