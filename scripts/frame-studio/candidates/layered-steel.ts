@@ -1,5 +1,5 @@
 // Battle-worn steel (Frame Studio's Layered starting designs): candidates.
-import { bandFillLayer, bandShading, BRONZE_STOPS, contact, DROP, lin, metalFx, recolour, repeatLayer, slot, STEEL_STOPS, textureLayer, type Candidate, type Layer } from './common';
+import { bandFillLayer, bevel, bandShading, BRONZE_STOPS, contact, DROP, lin, metalFx, recolour, repeatLayer, slot, STEEL_STOPS, textureLayer, type Candidate, type Layer } from './common';
 import { layered } from './crafted';
 
 export const CURRENT = layered('battle-steel');
@@ -38,9 +38,14 @@ export const CANDIDATES: Candidate[] = [
   {
     id: 'd-bloodied',
     name: 'D · Bloodied steel',
-    pitch: 'Dark steel stained red in its scratches and dents.',
+    pitch: 'Dark steel spattered with blood: red in its scratches and dents, and glossy drops across the band.',
     colours: [slot('steel', 'Steel colour', '#6a707a', ['Steel band', 'Hammered']), slot('stain', 'Stain colour', '#8a1010', ['Battle wear'])],
-    layers: () => [...bandShading(steel('#8a909a', '#14161a', { tint: '#8a1010', wear: 1.3 }), { step: 0.62 }), rivets('#a8b0ba', STEEL_STOPS)],
+    layers: () => [
+      ...bandShading(steel('#8a909a', '#14161a', { tint: '#8a1010', wear: 1.3 }), { step: 0.62 }),
+      { ...textureLayer('scatter'), name: 'Blood spatter', color: '#7a0a0a', color2: '#b01a14', amount: 2.4, scale: 0.7, strength: 1.4, seed: 0xb100d, clip: 'band', effects: [{ kind: 'distort', on: true, amount: 0.35, scale: 0.15, seed: 4 } as never] },
+      { ...repeatLayer(), name: 'Blood spatter', element: 'drop', count: 28, snapToCorners: false, at: 0.45, size: 0.34, fill: '#9a0c0c', altSizes: [1, 0.5, 0.7, 0.35], wander: 0.7, jitterAngle: 180, jitterSize: 0.4, skipChance: 0.1, seed: 21, raised: false, shaded: false, clip: 'band', effects: [bevel({ profile: 'rounded', size: 0.6, gloss: 0.9, highlightOpacity: 0.6 })] },
+      rivets('#a8b0ba', STEEL_STOPS),
+    ],
   },
 ];
 export { recolour };

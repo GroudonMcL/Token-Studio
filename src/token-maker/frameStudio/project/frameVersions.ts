@@ -32,6 +32,7 @@ import {
   recolour,
   repeatLayer,
   rims,
+  shadow,
   shapeLayer,
   SILVER_STOPS,
   slot,
@@ -368,6 +369,59 @@ const curvedPlates = (name: string, count: number, fill: string, stops: string[]
 });
 const plateRivets = (name: string, at: number, count: number, fill: string, stops: string[], offset = 0): Layer => ({
   ...repeatLayer(), name, element: 'bead', count, snapToCorners: false, at, offset, size: 0.09, fill, raised: true, effects: [...metalFx(stops, 0.6, 0.8), contact(0.7)],
+});
+
+// ── Layered designs (Frame Studio starting designs) ──
+// layered-brass
+const layeredBeads = (name: string, fill: string, effects: Layer['effects'], o: { at?: number; size?: number; count?: number; alt?: string[]; altSizes?: number[] } = {}): Layer =>
+  ({ ...repeatLayer(), name, element: 'bead', count: o.count ?? 24, snapToCorners: false, at: o.at ?? 0.78, size: o.size ?? 0.27, fill, altColors: o.alt ?? [], altSizes: o.altSizes ?? [], raised: true, effects: [...effects, contact(0.6)] });
+// layered-runes
+
+// layered-jewelled
+const setGems = (fill: string, alt: string[], setting: string, settingStops: string[], o: { count?: number; at?: number; size?: number; glowColor?: string } = {}): Layer => ({
+  ...repeatLayer(), name: 'Gems', element: 'gem', count: o.count ?? 12, snapToCorners: false, at: o.at ?? 0.5, size: o.size ?? 0.5, fill, altColors: alt, altSizes: [1, 0.75], raised: false,
+  gemFacets: 10, gemSparkle: 0.7, setting: 'claws4', settingColor: setting, settingEffects: metalFx(settingStops, 0.3, 0.9),
+  effects: [contact(0.7), ...(o.glowColor ? [glow({ color: o.glowColor, opacity: 0.5, size: 0.08 })] : [])],
+});
+const silverVine = (color: string, leaf: string): Layer => ({ ...growthLayer('vine'), name: 'Vine', count: 1, thickness: 0.035, amplitude: 0.22, waveLength: 1.6, extra: 'leaves', extraSize: 0.3, color, extraColor: leaf, effects: metalFx(SILVER_STOPS, 0.4, 0.8) });
+// layered-steel
+const battleSteel = (light: string, dark: string, o: { wear?: number; tint?: string } = {}): Layer[] => [
+  { ...bandFillLayer(), name: 'Steel band', paint: lin([light, dark]), effects: [DROP] },
+  { ...textureLayer('hammered'), name: 'Hammered', color: light, amount: 0.6, seed: 0x2e3d },
+  { ...textureLayer('wear'), name: 'Battle wear', color: o.tint ?? light, amount: o.wear ?? 1, seed: 0xf16 },
+];
+const steelRivets = (fill: string, stops: string[], at = 0.3, count = 16): Layer => ({ ...repeatLayer(), name: 'Rivets', element: 'bead', count, snapToCorners: false, at, size: 0.22, fill, raised: true, effects: [...metalFx(stops, 0.6, 0.8), contact(0.7)] });
+// layered-night
+const duskGlow = (): Layer => ({
+  ...bandFillLayer(), name: 'Dusk', blend: 'overlay', opacity: 0.8,
+  paint: { kind: 'ring', stops: [{ angle: 0, color: '#1a1a4a' }, { angle: 90, color: '#0b0d1e' }, { angle: 180, color: '#3a2a6a' }, { angle: 225, color: '#c06aa0' }, { angle: 270, color: '#3a2a6a' }], followLight: true },
+});
+const nightStars = (count = 30): Layer => ({ ...repeatLayer(), name: 'Stars', element: 'star', count, snapToCorners: false, at: 0.4, size: 0.18, fill: '#fff8f0', altSizes: [1, 0.5, 0.75, 0.4], wander: 0.5, seed: 9, raised: false, shaded: false, effects: [glow({ color: '#c0d0ff', opacity: 0.7, size: 0.06 })] });
+// layered-dwarven
+const dwarvenBand = (name: string, stops: string[], picture: 'hammered-metal' | 'granite' = 'hammered-metal'): Layer =>
+  ({ ...bandFillLayer(), name, paint: photo(picture, 1.4, { lighting: 0.3 }), effects: [recolour(stops), DROP] });
+const dwarvenPlates = (fill: string, stops: string[]): Layer => ({ ...repeatLayer(), name: 'Plates', element: 'plate', count: 8, snapToCorners: false, at: 0.5, size: 0.62, fill, raised: false, effects: [...metalFx(stops, 0.2, 0.7), contact(0.7)] });
+const dwarvenRivets = (fill: string, stops: string[]): Layer[] => [0.17, 0.83].map((at) => ({ ...repeatLayer(), name: 'Rivets', element: 'bead' as const, count: 8, offset: 0.5, snapToCorners: false, at, size: 0.12, fill, raised: true, effects: [...metalFx(stops, 0.6, 0.8), contact(0.6)] }));
+const dwarvenRunes = (fill: string, effects: Layer['effects'], font: 'yugurian' | 'babelstone' = 'yugurian', size = 0.3) => inscription(font, fill, { name: 'Runes', at: 0.5, size, start: 10, effects });
+
+// dragon scales, overlapping rows
+/** Overlapping rows of outlined scales, each row offset along the band and clipped to it; each row shades the one beneath. */
+const overlapScales = (color: string, outline: string, offsets: number[] = [0, 0.5]): Layer => ({
+  ...groupLayer(Array.from({ length: 4 }, (_v, r) => ({
+    ...repeatLayer(), name: 'Scale row', element: 'drop' as const, mode: 'spacing' as const, spacing: 0.42, at: 0.2 + (r * 0.6) / 3, size: 0.6,
+    rotation: 90, offset: offsets[r % offsets.length], fill: color, clip: 'band' as const, outline, outlineWidth: 0.03, raised: false, shaded: true,
+    effects: [shadow({ opacity: 0.75, distance: 0.05, blur: 0.06 })],
+  }))),
+  name: 'Scales',
+});
+/** The twin gradient bands, only on the scales (clipped to the layer below). */
+const scaleShading = (strength = 0.75): Layer => ({
+  ...groupLayer([
+    { ...bandFillLayer(), name: 'Shading', paint: lin(['#ffffff', '#000000']) },
+    { ...bandFillLayer(), name: 'Pressed-in shading', from: 0.55, paint: lin(['#000000', '#ffffff']) },
+    { ...lineLayer(), name: 'Crease', at: 0.55, width: 0.03, paint: { kind: 'solid', color: '#000000' }, opacity: 0.6 },
+  ]),
+  name: 'Scale shading', blend: 'overlay', opacity: strength, clip: 'below',
 });
 
 const VERSIONS: Version[] = [
@@ -2520,6 +2574,213 @@ const VERSIONS: Version[] = [
       { ...lineLayer(), name: 'Seam glow', at: 0.5, width: 0.9, paint: { kind: 'solid', color: '#ff5a1a' }, opacity: 0.6, effects: [glow({ color: '#ff3a0a', opacity: 0.6, size: 0.1 })] },
       curvedPlates('Plates', 12, '#3a3e46', ['#020203', '#0e1014', '#3a3e46', '#7a808a', '#c0c8d0'], { from: 0.06, to: 0.94, gap: 0.08 }),
       plateRivets('Rivets', 0.5, 12, '#8a929c', STEEL_STOPS, 0.5),
+    ],
+  },
+  // ── layered-brass ──
+  {
+    id: 'brass-beads-polished',
+    name: 'Polished brass',
+    description: 'Warm brass in the twin gradient bands, with a ring of polished brass beads in the pressed-in step.',
+    group: 'Crafted',
+    after: 'brass-beads',
+    colours: [slot('brass', 'Brass colour', '#c8952e', ['Band', 'Pressed-in step', 'Beads'])],
+    layers: () => [...base({ light: '#f0c060', dark: '#4a2a06', step: 0.58 }), layeredBeads('Beads', '#d8a838', metalFx(WARM_GOLD, 0.6, 0.9))],
+  },
+  {
+    id: 'brass-beads-jet',
+    name: 'Brass & jet',
+    description: 'A black enamel step set with glossy jet beads, framed by brass.',
+    group: 'Crafted',
+    after: 'brass-beads',
+    colours: [slot('brass', 'Brass colour', '#c8952e', ['Band']), slot('enamel', 'Enamel colour', '#14141a', ['Pressed-in step', 'Jet beads'])],
+    layers: () => [...base({ light: '#f0c060', dark: '#4a2a06', step: 0.55, stepLight: '#3a3a44', stepDark: '#020204' }), layeredBeads('Jet beads', '#14141a', [bevel({ profile: 'rounded', size: 0.8, gloss: 1, highlightOpacity: 0.8 })])],
+  },
+  // ── layered-runes ──
+  {
+    id: 'glowing-runes-runic',
+    name: 'Runic glow',
+    description: 'Dark slate in the twin gradient bands, BabelStone runes and a soft glowing line in the pressed-in step.',
+    group: 'Crafted',
+    after: 'glowing-runes',
+    stage: { bloom: 0.25 },
+    colours: [slot('stone', 'Stone colour', '#2a2c36', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#6fc3ff', ['Runes', 'Glowing lines'])],
+    layers: () => [
+      ...base({ light: '#4a4e5c', dark: '#06070a', step: 0.62 }),
+      overlay('black-onyx', 5, 'overlay', 0.4),
+      inscription('babelstone', '#d0f0ff', { name: 'Runes', at: 0.32, size: 0.4, start: 0, effects: [glow({ color: '#6fc3ff', opacity: 0.9, size: 0.12 })] }),
+      glowLines(['#e8f8ff', '#8ad0ff'], '#4aa0ff', { count: 1, from: 0.8, width: 0.035, size: 0.12 }),
+    ],
+  },
+  {
+    id: 'glowing-runes-emerald',
+    name: 'Emerald runes',
+    description: 'Deep green stone with Yugurian runes glowing emerald.',
+    group: 'Crafted',
+    after: 'glowing-runes',
+    stage: { bloom: 0.25 },
+    colours: [slot('stone', 'Stone colour', '#1a3a2a', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#4aff9a', ['Runes', 'Glowing lines'])],
+    layers: () => [
+      ...base({ light: '#2e5a44', dark: '#020a06', step: 0.62 }),
+      inscription('yugurian', '#d0ffe0', { name: 'Runes', at: 0.32, size: 0.4, start: 2, effects: [glow({ color: '#4aff9a', opacity: 0.85, size: 0.12 })] }),
+      glowLines(['#e8fff0', '#8affb0'], '#2aff7a', { count: 1, from: 0.8, width: 0.035, size: 0.12 }),
+    ],
+  },
+  {
+    id: 'glowing-runes-fire',
+    name: 'Fire runes',
+    description: 'Black basalt with Sith AF runes burning orange-red.',
+    group: 'Crafted',
+    after: 'glowing-runes',
+    stage: { bloom: 0.3 },
+    colours: [slot('stone', 'Stone colour', '#2a2220', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#ff6a2a', ['Runes', 'Glowing lines'])],
+    layers: () => [
+      ...base({ light: '#4a3a34', dark: '#060302', step: 0.62 }),
+      overlay('dark-rock', 2, 'overlay', 0.5),
+      inscription('sith', '#ffe0b0', { name: 'Runes', at: 0.32, size: 0.38, start: 6, effects: [glow({ color: '#ff6a2a', opacity: 0.9, size: 0.12 })] }),
+      glowLines(['#ffe0b0', '#ff8a3a'], '#ff4a1a', { count: 1, from: 0.8, width: 0.035, size: 0.12 }),
+    ],
+  },
+  {
+    id: 'glowing-runes-twin-circle',
+    name: 'Twin circle',
+    description: 'Two rings of runes, BabelStone outside and Outer Rim AF inside, either side of a glowing line.',
+    group: 'Crafted',
+    after: 'glowing-runes',
+    stage: { bloom: 0.25 },
+    colours: [slot('stone', 'Stone colour', '#2a2c40', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#b08aff', ['Outer runes', 'Inner runes', 'Glowing lines'])],
+    layers: () => [
+      ...base({ light: '#4a4c6a', dark: '#06060e', step: 0.5 }),
+      inscription('babelstone', '#f0e0ff', { name: 'Outer runes', at: 0.26, size: 0.3, start: 4, effects: [glow({ color: '#b08aff', opacity: 0.85, size: 0.1 })] }),
+      glowLines(['#f8f0ff', '#c8a8ff'], '#9a6aff', { count: 1, from: 0.48, width: 0.03, size: 0.1 }),
+      inscription('outerRim', '#f0e0ff', { name: 'Inner runes', at: 0.74, size: 0.28, start: 8, effects: [glow({ color: '#b08aff', opacity: 0.85, size: 0.1 })] }),
+    ],
+  },
+  // ── layered-jewelled ──
+  {
+    id: 'jewelled-silver',
+    name: 'Silver & jewels',
+    description: 'Silver in the twin gradient bands with a silver vine and rubies and sapphires in claw settings.',
+    group: 'Crafted',
+    after: 'jewelled',
+    colours: [slot('metal', 'Metal colour', '#a8aeb8', ['Band', 'Pressed-in step', 'Vine']), slot('gems', 'Gem colour', '#c0182a', ['Gems'])],
+    layers: () => [...base({ light: '#e8ecf0', dark: '#2a2e36', step: 0.6 }), silverVine('#c8ccd4', '#e8ecf0'), setGems('#c0182a', ['#1f4fd0'], '#d8dce4', SILVER_STOPS)],
+  },
+  // ── layered-steel ──
+  {
+    id: 'battle-steel-notched',
+    name: 'Notched blade',
+    description: 'Steel cut with sword notches along the outer edge, as if it took a hundred blows.',
+    group: 'Crafted',
+    after: 'battle-steel',
+    colours: [slot('steel', 'Steel colour', '#8a8f99', ['Steel band', 'Hammered', 'Battle wear'])],
+    layers: () => [
+      ...bandShading(battleSteel('#b8bec8', '#2a2e36', { wear: 1.4 }), { step: 0.62 }),
+      { ...repeatLayer(), name: 'Notches', element: 'gash', count: 10, snapToCorners: false, at: 0.22, size: 0.4, fill: '#14161a', raised: false, shaded: false, jitterAngle: 25, jitterSize: 0.3, seed: 4, opacity: 0.85 },
+    ],
+  },
+  {
+    id: 'battle-steel-bloodied',
+    name: 'Bloodied steel',
+    description: 'Dark steel spattered with blood: red in its scratches and dents, and glossy drops across the band.',
+    group: 'Crafted',
+    after: 'battle-steel',
+    colours: [slot('steel', 'Steel colour', '#6a707a', ['Steel band', 'Hammered']), slot('stain', 'Stain colour', '#8a1010', ['Battle wear'])],
+    layers: () => [
+      ...bandShading(battleSteel('#8a909a', '#14161a', { tint: '#8a1010', wear: 1.3 }), { step: 0.62 }),
+      { ...textureLayer('scatter'), name: 'Blood spatter', color: '#7a0a0a', color2: '#b01a14', amount: 2.4, scale: 0.7, strength: 1.4, seed: 0xb100d, clip: 'band', effects: [{ kind: 'distort', on: true, amount: 0.35, scale: 0.15, seed: 4 } as never] },
+      { ...repeatLayer(), name: 'Blood spatter', element: 'drop', count: 28, snapToCorners: false, at: 0.45, size: 0.34, fill: '#9a0c0c', altSizes: [1, 0.5, 0.7, 0.35], wander: 0.7, jitterAngle: 180, jitterSize: 0.4, skipChance: 0.1, seed: 21, raised: false, shaded: false, clip: 'band', effects: [bevel({ profile: 'rounded', size: 0.6, gloss: 0.9, highlightOpacity: 0.6 })] },
+      steelRivets('#a8b0ba', STEEL_STOPS),
+    ],
+  },
+  // ── layered-night ──
+  {
+    id: 'night-sky-dusk',
+    name: 'Dusk to midnight',
+    description: 'Twin gradient bands in deep blue, with a dusk glow round one side, a nebula haze, stars and a glowing line.',
+    group: 'Crafted',
+    after: 'night-sky',
+    stage: { bloom: 0.25 },
+    colours: [slot('sky', 'Sky colour', '#1a1a4a', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#cfc4ff', ['Glowing lines'])],
+    layers: () => [
+      ...base({ light: '#2a2a6a', dark: '#04040e', step: 0.66 }),
+      duskGlow(),
+      { ...textureLayer('nebula'), name: 'Haze', color: '#6a4ad0', color2: '#2a6ad0', opacity: 0.35, blend: 'screen', seed: 0x2f1 },
+      nightStars(),
+      glowLines(['#f0ecff', '#cfc4ff'], '#8a7aff', { count: 1, from: 0.76, width: 0.03, size: 0.1 }),
+    ],
+  },
+  {
+    id: 'night-sky-constellations',
+    name: 'Constellations',
+    description: 'Bright stars of every size in a dark band, as clear as a winter night, with silver rims.',
+    group: 'Crafted',
+    after: 'night-sky',
+    stage: { bloom: 0.2 },
+    colours: [slot('sky', 'Sky colour', '#0e1430', ['Band', 'Pressed-in step'])],
+    layers: () => [...base({ light: '#1e2a5a', dark: '#02030a', step: null }), { ...textureLayer('sparkle'), name: 'Starlight', color: '#ffffff', amount: 1, scale: 0.5, seed: 0x5a39 }, nightStars(40)],
+  },
+  {
+    id: 'night-sky-aurora',
+    name: 'Aurora',
+    description: 'Green, teal and violet northern lights rippling through a night-blue band, darker at its edges, over a pressed-in step with a glowing seam.',
+    group: 'Crafted',
+    after: 'night-sky',
+    stage: { bloom: 0.3 },
+    colours: [slot('sky', 'Sky colour', '#0a1a2a', ['Band', 'Pressed-in step']), slot('aurora', 'Aurora colour', '#3aff9a', ['Aurora'])],
+    layers: () => [
+      ...base({ light: '#1a3050', dark: '#02060a', step: 0.66 }),
+      { ...textureLayer('nebula'), name: 'Aurora', to: 0.66, color: '#3aff9a', color2: '#2ac8ff', opacity: 0.8, blend: 'screen', seed: 0x2f2, effects: [blur(0.02)] },
+      { ...textureLayer('nebula'), name: 'Aurora', from: 0.1, to: 0.6, color: '#c06aff', color2: '#3aff9a', opacity: 0.35, blend: 'screen', seed: 0x2f3 },
+      nightStars(20),
+      { ...bandFillLayer(), name: 'Depth', paint: { kind: 'acrossBand', stops: [{ at: 0, color: '#000000', opacity: 0.6 }, { at: 0.35, color: '#000000', opacity: 0 }, { at: 0.62, color: '#000000', opacity: 0.5 }, { at: 0.7, color: '#000000', opacity: 0 }, { at: 1, color: '#000000', opacity: 0.6 }] } },
+      glowLines(['#e8fff4', '#8affc8'], '#3aff9a', { count: 1, from: 0.66, width: 0.025, size: 0.1 }),
+    ],
+  },
+  // ── layered-dwarven ──
+  {
+    id: 'dwarven-bronze-forged',
+    name: 'Forged bronze',
+    description: 'Hammered bronze in the twin gradient bands, faceted bronze plates, Yugurian runes engraved between them, and rivets.',
+    group: 'Crafted',
+    after: 'dwarven-bronze',
+    colours: [slot('bronze', 'Bronze colour', '#a87a3a', ['Bronze band', 'Plates', 'Rivets'])],
+    layers: () => [...bandShading([dwarvenBand('Bronze band', BRONZE_STOPS)]), dwarvenRunes('#3a2208', [bevel({ direction: 'sunken', size: 0.5, gloss: 0.4 })]), dwarvenPlates('#a87a3a', BRONZE_STOPS), ...dwarvenRivets('#d8a858', BRONZE_STOPS)],
+  },
+  {
+    id: 'dwarven-bronze-steel-gold',
+    name: 'Steel & gold',
+    description: 'Dwarven steel with big gold Yugurian runes filling the band, gold plates and gold rivets.',
+    group: 'Crafted',
+    after: 'dwarven-bronze',
+    colours: [slot('steel', 'Steel colour', '#5a606a', ['Bronze band']), slot('gold', 'Gold colour', '#d8a838', ['Plates', 'Rivets', 'Runes'])],
+    layers: () => [
+      ...bandShading([dwarvenBand('Bronze band', ['#040506', '#16191e', '#5a606a', '#9aa0aa', '#d8dce4'])]),
+      dwarvenRunes('#f4d27a', [...goldFx(0.4, WARM_GOLD)], 'yugurian', 0.72),
+      dwarvenPlates('#d8a838', WARM_GOLD),
+      ...dwarvenRivets('#d8a838', WARM_GOLD),
+    ],
+  },
+  {
+    id: 'dwarven-bronze-runic',
+    name: 'Runic bronze',
+    description: 'Forged bronze without the plates: big Yugurian runes engraved across the whole band, between two rows of rivets.',
+    group: 'Crafted',
+    after: 'dwarven-bronze',
+    colours: [slot('bronze', 'Bronze colour', '#a87a3a', ['Bronze band', 'Rivets'])],
+    layers: () => [...bandShading([dwarvenBand('Bronze band', BRONZE_STOPS)]), dwarvenRunes('#3a2208', [bevel({ direction: 'sunken', size: 0.5, gloss: 0.4 })], 'yugurian', 0.62), ...dwarvenRivets('#d8a858', BRONZE_STOPS)],
+  },
+  {
+    id: 'dragon-scales-serpent',
+    name: 'Serpent coil',
+    description: 'Overlapping green scales running round the band like a coiled serpent, each row shading the next, with gradient bands over the scales only.',
+    group: 'Crafted',
+    after: 'dragon-scales',
+    stage: { thickness: 0.18, outerSpacing: 0.02 },
+    colours: [slot('scales', 'Scale colour', '#3a8a2a', ['Scales'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#061004' }, effects: [DROP] },
+      overlapScales('#3a8a2a', '#123a0c'),
+      scaleShading(),
     ],
   },
   // ── next ──

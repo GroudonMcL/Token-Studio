@@ -84,6 +84,13 @@ picker each. Candidates are drawn with
 | Emberforged | Crafted borders | Kept, plus Molten ring, Forge runes, Frostfire. |
 | Storm wisps | Crafted borders | Kept, plus Arcane storm, Sea squall. |
 | Riveted plates | Crafted borders | Retired; Ordered plates, Forge seams, Dwarven bulwark (curved plates with gaps, rivets over plate centres and gaps), Curved ordered plates, Curved forge seams. |
+| Brass & beads | Layered | Retired; Polished brass, Brass & jet. |
+| Glowing runes | Layered | Kept, plus Runic glow, Emerald runes, Fire runes, Twin circle. |
+| Jewelled | Layered | Retired; Silver & jewels. Jewellery-cluster versions waiting for picks. |
+| Battle-worn steel | Layered | Kept, plus Notched blade, Bloodied steel (blood spatter). |
+| Night sky | Layered | Kept, plus Dusk to midnight, Constellations, Aurora (with depth). |
+| Dwarven bronze | Layered | Retired; Forged bronze, Steel & gold (big runes), Runic bronze (no plates, big runes). |
+| Dragon scales | Crafted | Also Serpent coil: overlapping rows with soft outlines, row shadows and clipped gradient bands. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.

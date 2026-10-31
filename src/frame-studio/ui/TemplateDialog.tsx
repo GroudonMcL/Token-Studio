@@ -9,7 +9,7 @@ import { X } from 'lucide-react';
 import { FRAME_GROUPS, FRAME_PRESETS } from '../engine/legacy/catalog';
 import { canConvert, differenceNote, editableGroup, editableProject } from '../project/convert';
 import { createProject, LAYERED_TEMPLATES, legacyFrameLayer, projectFromFrame } from '../project/defaults';
-import { BORDER_IDS, BUILT_IN_FRAMES, RETIRED_FRAMES } from '../project/builtInFrames';
+import { BORDER_IDS, BUILT_IN_FRAMES, LAYERED_IDS, RETIRED_FRAMES } from '../project/builtInFrames';
 import { THEMED_TEMPLATES, themedProject } from '../project/themedTemplates';
 import { addLayer, loadProject } from '../state/projectStore';
 import { THUMB, Tile } from './Thumbnail';
@@ -17,6 +17,9 @@ import { THUMB, Tile } from './Thumbnail';
 /** Frame Studio's Crafted borders and their new versions get their own section. */
 const isBorder = (f: (typeof BUILT_IN_FRAMES)[number]) => BORDER_IDS.has(f.id) || (!!f.after && BORDER_IDS.has(f.after));
 const listed = BUILT_IN_FRAMES.filter((f) => !RETIRED_FRAMES.has(f.id));
+/** New versions of the Layered designs, listed after them; the Layered originals themselves come from LAYERED_TEMPLATES. */
+const isLayered = (f: (typeof BUILT_IN_FRAMES)[number]) => LAYERED_IDS.has(f.id) || (!!f.after && LAYERED_IDS.has(f.after));
+const layeredVersions = listed.filter((f) => !!f.after && LAYERED_IDS.has(f.after));
 
 const frameMakers = new Map(FRAME_PRESETS.map((p) => [p.id, () => projectFromFrame(p.id)]));
 const editableMakers = new Map(FRAME_PRESETS.filter((p) => canConvert(p.style)).map((p) => [p.id, () => editableProject(p.id)!]));
@@ -69,7 +72,7 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
                 </span>
                 <span>Blank project</span>
               </button>
-              {LAYERED_TEMPLATES.map((t) => (
+              {LAYERED_TEMPLATES.filter((t) => !RETIRED_FRAMES.has(t.id)).map((t) => (
                 <Tile
                   key={t.id}
                   id={`layered:${t.id}`}
@@ -82,12 +85,25 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
                   }}
                 />
               ))}
+              {layeredVersions.map((t) => (
+                <Tile
+                  key={t.id}
+                  id={`builtin:${t.id}`}
+                  name={t.name}
+                  description={t.description}
+                  make={t.project}
+                  onPick={() => {
+                    loadProject(t.project());
+                    onClose();
+                  }}
+                />
+              ))}
             </div>
             <section aria-label="Token Studio's frames">
               <h3>Token Studio's frames</h3>
               <p className="note">The designs Token Maker lists in its frame picker: the Essentials, the new versions of its drawn frames, and Gilded laurel, Iron rivets, Runestone… Open one to change it, save it, and open the file in Token Maker.</p>
               <div className="tiles">
-                {listed.filter((f) => !isBorder(f)).map((t) => (
+                {listed.filter((f) => !isBorder(f) && !isLayered(f)).map((t) => (
                   <Tile
                     key={t.id}
                     id={`builtin:${t.id}`}

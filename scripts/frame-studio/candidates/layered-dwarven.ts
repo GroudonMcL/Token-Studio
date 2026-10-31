@@ -7,7 +7,7 @@ const band = (name: string, stops: string[], picture: 'hammered-metal' | 'granit
   ({ ...bandFillLayer(), name, paint: photo(picture, 1.4, { lighting: 0.3 }), effects: [recolour(stops), DROP] });
 const plates = (fill: string, stops: string[]): Layer => ({ ...repeatLayer(), name: 'Plates', element: 'plate', count: 8, snapToCorners: false, at: 0.5, size: 0.62, fill, raised: false, effects: [...metalFx(stops, 0.2, 0.7), contact(0.7)] });
 const rivets = (fill: string, stops: string[]): Layer[] => [0.17, 0.83].map((at) => ({ ...repeatLayer(), name: 'Rivets', element: 'bead' as const, count: 8, offset: 0.5, snapToCorners: false, at, size: 0.12, fill, raised: true, effects: [...metalFx(stops, 0.6, 0.8), contact(0.6)] }));
-const runes = (fill: string, effects: Layer['effects'], font: 'yugurian' | 'babelstone' = 'yugurian') => inscription(font, fill, { name: 'Runes', at: 0.5, size: 0.3, start: 10, effects });
+const runes = (fill: string, effects: Layer['effects'], font: 'yugurian' | 'babelstone' = 'yugurian', size = 0.3) => inscription(font, fill, { name: 'Runes', at: 0.5, size, start: 10, effects });
 
 export const CANDIDATES: Candidate[] = [
   {
@@ -33,11 +33,11 @@ export const CANDIDATES: Candidate[] = [
   {
     id: 'c-steel-gold',
     name: 'C · Steel & gold',
-    pitch: 'Dwarven steel with gold plates and gold rivets.',
+    pitch: 'Dwarven steel with big gold Yugurian runes filling the band, gold plates and gold rivets.',
     colours: [slot('steel', 'Steel colour', '#5a606a', ['Bronze band']), slot('gold', 'Gold colour', '#d8a838', ['Plates', 'Rivets', 'Runes'])],
     layers: () => [
       ...bandShading([band('Bronze band', ['#040506', '#16191e', '#5a606a', '#9aa0aa', '#d8dce4'])]),
-      runes('#f4d27a', [...goldFx(0.4, WARM_GOLD)]),
+      runes('#f4d27a', [...goldFx(0.4, WARM_GOLD)], 'yugurian', 0.72),
       plates('#d8a838', WARM_GOLD),
       ...rivets('#d8a838', WARM_GOLD),
     ],
@@ -53,6 +53,13 @@ export const CANDIDATES: Candidate[] = [
       plates('#a87a3a', BRONZE_STOPS),
       ...rivets('#d8a858', BRONZE_STOPS),
     ],
+  },
+  {
+    id: 'a2-runic-bronze',
+    name: 'A2 · Runic bronze',
+    pitch: 'Forged bronze without the plates: big Yugurian runes engraved across the whole band, between two rows of rivets.',
+    colours: [slot('bronze', 'Bronze colour', '#a87a3a', ['Bronze band', 'Rivets'])],
+    layers: () => [...bandShading([band('Bronze band', BRONZE_STOPS)]), runes('#3a2208', [bevel({ direction: 'sunken', size: 0.5, gloss: 0.4 })], 'yugurian', 0.62), ...rivets('#d8a858', BRONZE_STOPS)],
   },
 ];
 export { lin, STEEL_STOPS };

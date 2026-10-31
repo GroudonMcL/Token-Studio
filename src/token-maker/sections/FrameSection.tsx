@@ -356,7 +356,7 @@ function BandSliders() {
  */
 const RETIRED_PRESETS = new Set(['cleric']);
 /** Built-in designs retired the same way (by their Frame Studio id). */
-const RETIRED_DESIGNS = new Set(['dragon-scales', 'raven-plume', 'riveted-plates']);
+const RETIRED_DESIGNS = new Set(['dragon-scales', 'raven-plume', 'riveted-plates', 'brass-beads', 'jewelled', 'dwarven-bronze']);
 
 function frameTiles(current: string): FrameTile[] {
   const tile = (b: (typeof BUILT_IN_DESIGNS)[number]) => ({ id: b.id, label: b.name, group: b.group });

@@ -21,13 +21,13 @@ const ironRing = (stops: string[]): Layer[] =>
   bandShading([{ ...bandFillLayer(), name: 'Iron ring', paint: photo('metal-plate', 1.4, { lighting: 0.3 }), effects: [recolour(stops), DROP] }], { step: null });
 
 /** Overlapping rows of outlined scales, each offset half a scale, clipped to the band. */
-const scaleRows = (color: string, outline: string, lay: 'serpent' | 'armour' = 'serpent', effects: Layer['effects'] = [contact(0.7)], outlineWidth = 0.06): Layer => {
+const scaleRows = (color: string, outline: string, lay: 'serpent' | 'armour' = 'serpent', effects: Layer['effects'] = [contact(0.7)], outlineWidth = 0.06, offsets?: number[]): Layer => {
   const serpent = lay === 'serpent';
   const n = serpent ? 4 : 3;
   return {
     ...groupLayer(Array.from({ length: n }, (_v, r) => ({
       ...repeatLayer(), name: 'Scale row', element: 'drop' as const, mode: 'spacing' as const, spacing: serpent ? 0.42 : 0.5, at: 0.2 + (r * 0.6) / (n - 1), size: serpent ? 0.6 : 0.8,
-      rotation: serpent ? 90 : 180, offset: r % 2 ? 0.5 : 0, fill: color, clip: 'band' as const, outline, outlineWidth, raised: false, shaded: true, effects,
+      rotation: serpent ? 90 : 180, offset: offsets ? offsets[r % offsets.length] : r % 2 ? 0.5 : 0, fill: color, clip: 'band' as const, outline, outlineWidth, raised: false, shaded: true, effects,
     }))),
     name: 'Scales',
   };
@@ -70,6 +70,22 @@ export const CANDIDATES: Candidate[] = [
     id: 'q2-serpent-shadowed', name: 'Q2 · Serpent coil, soft outlines', pitch: '', stage: { thickness: 0.18 },
     // A thin outline in a darker green instead of black, and each row casts a soft shadow on the row beneath it.
     layers: () => [under('#061004'), scaleRows('#3a8a2a', '#123a0c', 'serpent', [shadow({ opacity: 0.75, distance: 0.05, blur: 0.06 })], 0.03), scaleShading()],
+  },
+  {
+    id: 'q3-quarter', name: 'Q3 · Quarter steps', pitch: 'Each row a quarter-scale further along than the last, so the scales spiral diagonally round the band.', stage: { thickness: 0.18 },
+    layers: () => [under('#061004'), scaleRows('#3a8a2a', '#123a0c', 'serpent', [shadow({ opacity: 0.75, distance: 0.05, blur: 0.06 })], 0.03, [0, 0.25, 0.5, 0.75]), scaleShading()],
+  },
+  {
+    id: 'q4-thirds', name: 'Q4 · Third steps', pitch: 'Rows a third of a scale apart: a tighter diagonal weave.', stage: { thickness: 0.18 },
+    layers: () => [under('#061004'), scaleRows('#3a8a2a', '#123a0c', 'serpent', [shadow({ opacity: 0.75, distance: 0.05, blur: 0.06 })], 0.03, [0, 0.33, 0.67, 0]), scaleShading()],
+  },
+  {
+    id: 'q5-irregular', name: 'Q5 · Irregular', pitch: 'Rows at uneven offsets, so the pattern looks grown rather than laid.', stage: { thickness: 0.18 },
+    layers: () => [under('#061004'), scaleRows('#3a8a2a', '#123a0c', 'serpent', [shadow({ opacity: 0.75, distance: 0.05, blur: 0.06 })], 0.03, [0, 0.6, 0.15, 0.8]), scaleShading()],
+  },
+  {
+    id: 'q6-aligned', name: 'Q6 · Aligned', pitch: 'Every row lined up, so the scales form straight ridges across the band.', stage: { thickness: 0.18 },
+    layers: () => [under('#061004'), scaleRows('#3a8a2a', '#123a0c', 'serpent', [shadow({ opacity: 0.75, distance: 0.05, blur: 0.06 })], 0.03, [0, 0, 0, 0]), scaleShading()],
   },
 ];
 export { glow };

@@ -7,6 +7,7 @@
 
 import type { ColourSlot } from './colourSlots';
 import { CRAFTED_TEMPLATES } from './craftedTemplates';
+import { LAYERED_TEMPLATES } from './defaults';
 import { ESSENTIALS_DATA } from './essentialsData';
 import { FRAME_VERSIONS } from './frameVersions';
 import { fromLayers, slot, type BuiltInFrame } from './houseStyle';
@@ -86,8 +87,23 @@ export const BORDER_IDS: ReadonlySet<string> = new Set(CRAFTED_TEMPLATES.map((t)
  * its picker unless a token already uses one (their new versions stand on
  * their own), and Frame Studio leaves them out of New.
  */
-export const RETIRED_FRAMES: ReadonlySet<string> = new Set(['dragon-scales', 'raven-plume', 'riveted-plates']);
+export const RETIRED_FRAMES: ReadonlySet<string> = new Set(['dragon-scales', 'raven-plume', 'riveted-plates', 'brass-beads', 'jewelled', 'dwarven-bronze']);
 
-export const BUILT_IN_FRAMES: readonly BuiltInFrame[] = [...ESSENTIALS, ...FRAME_VERSIONS, ...CRAFTED, ...BORDERS];
+// ── Frame Studio's Layered starting designs, once reviewed ───────────────────
+
+/** The Layered designs the frame review has reached: Token Maker lists these (in Crafted) with their new versions. */
+const REVIEWED_LAYERED = new Set(['brass-beads', 'glowing-runes', 'jewelled', 'battle-steel', 'night-sky', 'dwarven-bronze']);
+const LAYERED: BuiltInFrame[] = LAYERED_TEMPLATES.filter((t) => REVIEWED_LAYERED.has(t.id)).map((t) => ({
+  id: t.id,
+  name: t.name,
+  description: t.description,
+  group: 'Crafted',
+  colours: [],
+  project: fromLayers(t.name, t.make),
+}));
+/** Every Layered design's id: Frame Studio lists their new versions with them in the Layered section of New. */
+export const LAYERED_IDS: ReadonlySet<string> = new Set(LAYERED_TEMPLATES.map((t) => t.id));
+
+export const BUILT_IN_FRAMES: readonly BuiltInFrame[] = [...ESSENTIALS, ...FRAME_VERSIONS, ...CRAFTED, ...BORDERS, ...LAYERED];
 export type { BuiltInFrame, BuiltInGroup } from './houseStyle';
 export const builtInFrameById = (id: string) => BUILT_IN_FRAMES.find((f) => f.id === id);

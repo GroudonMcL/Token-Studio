@@ -1,5 +1,5 @@
 // Night sky (Frame Studio's Layered starting designs): candidates.
-import { base, glow, glowLines, metalFx, repeatLayer, SILVER_STOPS, slot, textureLayer, type Candidate, type Layer } from './common';
+import { base, blur, glow, glowLines, metalFx, repeatLayer, SILVER_STOPS, slot, textureLayer, type Candidate, type Layer } from './common';
 import { bandFillLayer } from './common';
 import { layered } from './crafted';
 
@@ -36,13 +36,16 @@ export const CANDIDATES: Candidate[] = [
   {
     id: 'c-aurora',
     name: 'C · Aurora',
-    pitch: 'Green and teal northern lights rippling through a night-blue band.',
+    pitch: 'Green, teal and violet northern lights rippling through a night-blue band, darker at its edges, over a pressed-in step with a glowing seam.',
     stage: { bloom: 0.3 },
     colours: [slot('sky', 'Sky colour', '#0a1a2a', ['Band', 'Pressed-in step']), slot('aurora', 'Aurora colour', '#3aff9a', ['Aurora'])],
     layers: () => [
-      ...base({ light: '#1a3050', dark: '#02060a', step: null }),
-      { ...textureLayer('nebula'), name: 'Aurora', color: '#3aff9a', color2: '#2ac8ff', opacity: 0.75, blend: 'screen', seed: 0x2f2 },
+      ...base({ light: '#1a3050', dark: '#02060a', step: 0.66 }),
+      { ...textureLayer('nebula'), name: 'Aurora', to: 0.66, color: '#3aff9a', color2: '#2ac8ff', opacity: 0.8, blend: 'screen', seed: 0x2f2, effects: [blur(0.02)] },
+      { ...textureLayer('nebula'), name: 'Aurora', from: 0.1, to: 0.6, color: '#c06aff', color2: '#3aff9a', opacity: 0.35, blend: 'screen', seed: 0x2f3 },
       stars(20),
+      { ...bandFillLayer(), name: 'Depth', paint: { kind: 'acrossBand', stops: [{ at: 0, color: '#000000', opacity: 0.6 }, { at: 0.35, color: '#000000', opacity: 0 }, { at: 0.62, color: '#000000', opacity: 0.5 }, { at: 0.7, color: '#000000', opacity: 0 }, { at: 1, color: '#000000', opacity: 0.6 }] } },
+      glowLines(['#e8fff4', '#8affc8'], '#3aff9a', { count: 1, from: 0.66, width: 0.025, size: 0.1 }),
     ],
   },
   {
