@@ -74,7 +74,7 @@ picker each. Candidates are drawn with
 | Iron rivets | Crafted | Kept, plus Blackened iron, Rusted plate, Dwarven strapwork, Forge script, Gunmetal bolts. |
 | Runestone | Crafted | Kept (cracks softened), plus Mossy runestone, Ember runes, Frost runes, Gilded slate. |
 | Thorns | Crafted | Kept, plus Rose briar, Bramble on bark, Silverwork thorns. |
-| Dragon scales | Crafted | Original retired; Red dragon, Black dragon, Wyrm script. New overlapping-row scales (houseStyle.ts: scaleRows) waiting for picks. |
+| Dragon scales | Crafted | Original retired; Red dragon, Black dragon, Wyrm script. Overlapping-row scales tried and dropped. |
 | Celestial star | Crafted | Kept, plus Sun & moon, Astrolabe. |
 | Rope | Crafted | Kept, plus Sailor’s rope, Braided leather. |
 | Shield rim | Crafted | Kept, plus all five. |
