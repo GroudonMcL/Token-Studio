@@ -349,12 +349,23 @@ function BandSliders() {
  * frames by group with any new versions of a frame straight after it, then
  * the other built-in designs (Crafted).
  */
-function frameTiles(): FrameTile[] {
+/**
+ * Drawn frames the owner retired in the frame review: left out of the picker
+ * (their new versions stand on their own) but still drawn for tokens that
+ * use them, and listed while one is the chosen frame.
+ */
+const RETIRED_PRESETS = new Set(['cleric']);
+
+function frameTiles(current: string): FrameTile[] {
   const tile = (b: (typeof BUILT_IN_DESIGNS)[number]) => ({ id: b.id, label: b.name, group: b.group });
   const placed = new Set(FRAME_PRESETS.map((p) => p.id));
   return [
     ...BUILT_IN_DESIGNS.filter((b) => b.group === 'Essentials').map(tile),
-    ...FRAME_PRESETS.flatMap((p) => [{ id: p.id, label: p.name, group: p.group }, ...BUILT_IN_DESIGNS.filter((b) => b.after === p.id).map((b) => ({ ...tile(b), group: p.group, parent: p.id }))]),
+    ...FRAME_PRESETS.flatMap((p) => {
+      const versions = BUILT_IN_DESIGNS.filter((b) => b.after === p.id);
+      if (RETIRED_PRESETS.has(p.id) && current !== p.id) return versions.map((b) => ({ ...tile(b), group: p.group, aka: p.name }));
+      return [{ id: p.id, label: p.name, group: p.group }, ...versions.map((b) => ({ ...tile(b), group: p.group, parent: p.id }))];
+    }),
     ...BUILT_IN_DESIGNS.filter((b) => b.group !== 'Essentials' && !(b.after && placed.has(b.after))).map(tile),
   ];
 }
@@ -430,7 +441,7 @@ function DrawnFrame() {
     <>
       <ShapeControl />
       <FramePicker
-        tiles={frameTiles()}
+        tiles={frameTiles(builtIn ?? frame.presetId)}
         thumbs={thumbs}
         value={builtIn ?? frame.presetId}
         onChange={(id) => {

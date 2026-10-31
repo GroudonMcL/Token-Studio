@@ -144,6 +144,14 @@ describe('Frame section: built-in Frame Studio designs (v11)', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  it('leaves a retired frame out of the gallery but finds its versions by its name', () => {
+    render(<FrameSection />);
+    fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search frames' }), { target: { value: 'cleric' } });
+    expect(screen.queryByRole('radio', { name: /^Cleric$/ })).toBeNull();
+    expect(screen.getByRole('radio', { name: /^Holy light$/ })).toBeInTheDocument();
+  });
+
   it('gives a built-in design a colour picker per colour slot and keeps the choice', () => {
     render(<FrameSection />);
     pickFrame('Starweave');

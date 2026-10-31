@@ -14,6 +14,8 @@ export interface FrameTile {
   group: string;
   /** The frame it is a version of (its tile id), for the stacks. */
   parent?: string;
+  /** More words search finds it by (a retired frame's name, for its versions). */
+  aka?: string;
 }
 
 export function FramePicker({ tiles, thumbs, value, onChange }: { tiles: readonly FrameTile[]; thumbs: Map<string, string> | null; value: string; onChange: (id: string) => void }) {
@@ -96,7 +98,7 @@ function Gallery({ tiles, thumbs, value, onPick, onClose }: { tiles: readonly Fr
     </button>
   );
   if (q) {
-    for (const t of tiles) if (`${t.label} ${labelOf(t.parent)} ${t.group}`.toLowerCase().includes(q)) shown.push(tileButton(t, !!t.parent));
+    for (const t of tiles) if (`${t.label} ${labelOf(t.parent)} ${t.aka ?? ''} ${t.group}`.toLowerCase().includes(q)) shown.push(tileButton(t, !!t.parent));
   } else {
     for (const t of tiles.filter((x) => x.group === tab && !x.parent)) {
       const vs = versions.get(t.id) ?? [];

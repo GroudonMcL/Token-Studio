@@ -205,6 +205,12 @@ const goldPiping = (name: string, at: number) => ({ ...lineLayer(), name, at, wi
 // knotwork
 const knot = (name: string, color: string, patch = {}) => ({ ...knotworkLayer(), name, width: 0.24, amplitude: 0.28, waveLength: 1.1, color, double: true, shine: false, outlineWidth: 0.025, ...patch });
 
+// bard
+const LUTE = ['#140a04', '#4a2a12', '#9a6a3a', '#d8a870', '#f8e0b8'];
+
+// fighter
+const fighterSteel = (scale = 2) => photo('hammered-metal', scale, { lighting: 0.4 });
+
 const VERSIONS: Version[] = [
   // ── stamped ──
   {
@@ -918,6 +924,247 @@ const VERSIONS: Version[] = [
       { ...bandFillLayer(), name: 'Aurora', from: 0.15, to: 0.6, paint: lin(['#40ffa0', '#40ffa0', '#20a0ff'], 0), opacity: 0.6, blend: 'screen', clip: 'band', effects: [blur(0.06)] },
       { ...bandFillLayer(), name: 'Aurora glow', from: 0.4, to: 0.85, paint: lin(['#a060ff', '#ff60c0'], 0), opacity: 0.5, blend: 'screen', clip: 'band', effects: [blur(0.06)] },
       overlay('blue-onyx', 8, 'soft-light', 0.3),
+    ],
+  },
+  // ── bard ──
+  {
+    id: 'bard-lute',
+    name: 'Lute',
+    description: 'Polished lute wood with strings running round it and gold notes along them.',
+    group: 'Classes',
+    after: 'bard',
+    colours: [slot('wood', 'Wood colour', '#9a6a3a', ['Wood']), slot('notes', 'Note colour', '#c8952e', ['Notes'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Wood', paint: photo('wood-planks', 1.4, { angle: 90, lighting: 0.4 }), effects: [recolour(LUTE), bevel({ size: 0.35, gloss: 0.7, highlightOpacity: 0.6 }), DROP] },
+      ...[0.3, 0.43, 0.57, 0.7].map((at) => ({ ...lineLayer(), name: 'Strings', at, width: 0.015, paint: { kind: 'solid' as const, color: '#f4f0e8' }, effects: [contact(0.5)] })),
+      { ...repeatLayer(), name: 'Notes', element: 'bardNote', count: 8, at: 0.5, size: 1.05, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.5, gloss: 0.8 }), contact(0.6)] },
+    ],
+  },
+  {
+    id: 'bard-velvet',
+    name: 'Velvet & gold',
+    description: 'Plum velvet between gold rims, with glowing gold notes.',
+    group: 'Classes',
+    after: 'bard',
+    stage: { bloom: 0.15 },
+    colours: [slot('velvet', 'Velvet colour', '#5a1a5a', ['Velvet']), slot('gold', 'Gold colour', '#c8952e', ['Outer gold', 'Inner gold', 'Notes'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Velvet', paint: photo('jacquard', 1.2, { lighting: 0.6 }), effects: [recolour(['#1a061a', '#4a1a4a', '#8a3a8a', '#d08ad0']), bevel({ size: 0.5, gloss: 0.2, highlightOpacity: 0.35 }), DROP] },
+      { ...bandFillLayer(), name: 'Outer gold', to: 0.14, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
+      { ...bandFillLayer(), name: 'Inner gold', from: 0.86, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
+      { ...repeatLayer(), name: 'Notes', element: 'note', count: 10, at: 0.5, size: 0.85, fill: '#f0d080', raised: false, shaded: false, effects: [glow({ color: '#ffc040', opacity: 0.7, size: 0.1 })] },
+    ],
+  },
+  {
+    id: 'bard-starlit',
+    name: 'Starlit song',
+    description: 'Notes glowing like stars on a deep violet night, with a Yugurian lyric.',
+    group: 'Classes',
+    after: 'bard',
+    stage: { bloom: 0.3 },
+    colours: [slot('band', 'Frame colour', '#2a1048', ['Band', 'Sparkle']), slot('glow', 'Glow colour', '#d08aff', ['Notes', 'Lyric'])],
+    layers: () => [
+      ...base({ light: '#4a2a7a', dark: '#06020e', step: null, rims: false }),
+      { ...textureLayer('sparkle'), name: 'Sparkle', color: '#f0e0ff', amount: 0.9, scale: 0.45, seed: 0x5a33 },
+      { ...repeatLayer(), name: 'Notes', element: 'bardNote', count: 8, at: 0.4, size: 0.55, fill: '#f8e8ff', raised: false, shaded: false, effects: [glow({ color: '#d08aff', opacity: 0.9, size: 0.14 })] },
+      inscription('yugurian', '#f0d8ff', { name: 'Lyric', at: 0.86, size: 0.2, start: 6, effects: [glow({ color: '#d08aff', opacity: 0.7, size: 0.08 })] }),
+      ...rims(),
+    ],
+  },
+  {
+    id: 'bard-lyre',
+    name: 'Golden lyre',
+    description: 'Purple enamel with gold lyres at the quarters and fine gold lines.',
+    group: 'Classes',
+    after: 'bard',
+    colours: [slot('enamel', 'Enamel colour', '#6a2a8a', ['Enamel']), slot('gold', 'Gold colour', '#c8952e', ['Lyres', 'Gold lines'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Enamel', paint: lin(['#a05ad0', '#6a2a8a', '#1a0626']), effects: [bevel({ direction: 'sunken', size: 0.12, gloss: 0.9, highlightOpacity: 0.5 }), DROP] },
+      { ...lineLayer(), name: 'Gold lines', at: 0.08, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
+      { ...lineLayer(), name: 'Gold lines', at: 0.92, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
+      { ...repeatLayer(), name: 'Lyres', element: 'icon-lyre', count: 4, at: 0.5, size: 1.4, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.6)] },
+    ],
+  },
+  // ── cleric ──
+  {
+    id: 'cleric-holy-light',
+    name: 'Holy light',
+    description: 'A white-gold band glowing with radiant light, with a BabelStone prayer in gold.',
+    group: 'Classes',
+    after: 'cleric',
+    stage: { bloom: 0.35, bleed: 0.2 },
+    colours: [slot('band', 'Frame colour', '#fff0c0', ['Band', 'Pressed-in step']), slot('glow', 'Light colour', '#ffd870', ['Radiance', 'Prayer'])],
+    layers: () => [
+      ...base({ light: '#ffffff', dark: '#c8a050', step: 0.55 }),
+      { ...lineLayer(), name: 'Radiance', at: 0.55, width: 0.04, paint: { kind: 'solid', color: '#ffffff' }, effects: [glow({ color: '#ffd870', opacity: 0.9, size: 0.2 })] },
+      inscription('babelstone', '#a07010', { name: 'Prayer', at: 0.28, size: 0.32, effects: [glow({ color: '#ffd870', opacity: 0.5, size: 0.06 })] }),
+    ],
+  },
+  {
+    id: 'cleric-silver',
+    name: 'Silver & sapphire',
+    description: 'Polished silver with holy symbols at the quarters between cut sapphires.',
+    group: 'Classes',
+    after: 'cleric',
+    colours: [slot('metal', 'Metal colour', '#a8aeb8', ['Silver', 'Symbols']), slot('gems', 'Gem colour', '#2a5ad0', ['Sapphires'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Silver', paint: photo('hammered-metal', 2.4), effects: [...metalFx(SILVER_STOPS, 0.35, 0.9), DROP] },
+      { ...repeatLayer(), name: 'Symbols', element: 'icon-holy-symbol', count: 4, at: 0.5, size: 1.4, fill: '#c8ccd4', raised: true, effects: [recolour(SILVER_STOPS), bevel({ size: 0.4, gloss: 0.9 }), contact(0.6)] },
+      { ...repeatLayer(), name: 'Sapphires', element: 'gem', count: 8, offset: 0.5, at: 0.5, size: 0.5, fill: '#2a5ad0', raised: false, gemSparkle: 0.7, effects: [contact(0.5)] },
+    ],
+  },
+  {
+    id: 'cleric-temple',
+    name: 'Temple marble',
+    description: 'White marble with gold inlaid lines and golden suns at the quarters.',
+    group: 'Classes',
+    after: 'cleric',
+    colours: [slot('stone', 'Marble colour', '#ece6dc', ['Band', 'Texture']), slot('gold', 'Gold colour', '#c8952e', ['Gold lines', 'Suns'])],
+    layers: () => [
+      ...base({ light: '#ffffff', dark: '#8a8278', step: null, rims: false }),
+      overlay('marble', 1.4, 'multiply', 0.6, { lighting: 0.3 }),
+      { ...lineLayer(), name: 'Gold lines', at: 0.14, width: 0.05, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
+      { ...lineLayer(), name: 'Gold lines', at: 0.86, width: 0.05, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
+      { ...repeatLayer(), name: 'Suns', element: 'icon-heraldic-sun', count: 4, at: 0.5, size: 1.4, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.5)] },
+      ...rims(),
+    ],
+  },
+  {
+    id: 'cleric-dawn',
+    name: 'Dawn',
+    description: 'A dawn gradient of rose and gold with a soft glowing seam.',
+    group: 'Classes',
+    after: 'cleric',
+    stage: { bloom: 0.2 },
+    colours: [slot('band', 'Frame colour', '#ffb070', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#fff0c0', ['Dawn seam'])],
+    layers: () => [
+      ...base({ light: '#fff0b0', dark: '#a03a5a', step: 0.55, stepLight: '#ffd080', stepDark: '#6a1a3a' }),
+      { ...lineLayer(), name: 'Dawn seam', at: 0.55, width: 0.03, paint: { kind: 'solid', color: '#fff0c0' }, effects: [glow({ color: '#ffd080', opacity: 0.8, size: 0.14 })] },
+    ],
+  },
+  // ── druid ──
+  {
+    id: 'druid-stone-circle',
+    name: 'Glowing stone circle',
+    description: 'Mossy standing stone with green BabelStone runes glowing in it.',
+    group: 'Classes',
+    after: 'druid',
+    stage: { bloom: 0.25 },
+    colours: [slot('stone', 'Stone colour', '#6c6b57', ['Stone']), slot('glow', 'Glow colour', '#8aff6a', ['Glowing runes'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Stone', paint: photo('mossy-rock', 1.6, { lighting: 0.6 }), effects: [bevel({ profile: 'chisel', size: 0.25, gloss: 0.15, highlightOpacity: 0.4 }), DROP] },
+      inscription('babelstone', '#e0ffd0', { name: 'Glowing runes', size: 0.4, start: 5, effects: [glow({ inner: true, color: '#ffffff', opacity: 0.4, size: 0.04 }), glow({ color: '#8aff6a', opacity: 0.9, size: 0.14 })] }),
+    ],
+  },
+  // ── fighter ──
+  {
+    id: 'fighter-battle-steel',
+    name: 'Battle steel',
+    description: 'Bright steel with battle scratches and a ring of domed rivets.',
+    group: 'Classes',
+    after: 'fighter',
+    colours: [slot('metal', 'Metal colour', '#7a828c', ['Steel', 'Rivets'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Steel', paint: fighterSteel(), effects: [wear({ chips: 0.02, polish: 0.6, grime: 0.2, scale: 0.1, scratches: 0.6 }), ...metalFx(STEEL_STOPS, 0.3, 0.8), DROP] },
+      { ...repeatLayer(), name: 'Rivets', element: 'bead', count: 16, at: 0.5, size: 0.26, fill: '#a8b0ba', raised: true, effects: [recolour(STEEL_STOPS), contact(0.7)] },
+      ...rims(),
+    ],
+  },
+  {
+    id: 'fighter-shield-wall',
+    name: 'Shield wall',
+    description: 'A row of painted shields rimmed in steel.',
+    group: 'Classes',
+    after: 'fighter',
+    colours: [slot('paint', 'Shield colour', '#8a1a1a', ['Shields']), slot('metal', 'Metal colour', '#7a828c', ['Outer steel', 'Inner steel'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#1a1a1a' }, effects: [DROP] },
+      { ...cellsLayer(), name: 'Shields', pattern: 'grid', from: 0.15, to: 0.85, size: 0.75, gap: 0.06, rounding: 0.4, vary: 0.35, color: '#8a1a1a', effects: [bevel({ profile: 'rounded', size: 0.3, gloss: 0.5, highlightOpacity: 0.5 })] },
+      { ...bandFillLayer(), name: 'Outer steel', to: 0.16, paint: fighterSteel(1.4), effects: metalFx(STEEL_STOPS, 0.5, 0.8) },
+      { ...bandFillLayer(), name: 'Inner steel', from: 0.84, paint: fighterSteel(1.4), effects: metalFx(STEEL_STOPS, 0.5, 0.8) },
+    ],
+  },
+  {
+    id: 'fighter-chainmail',
+    name: 'Chainmail',
+    description: 'Interlinked steel rings between leather edges.',
+    group: 'Classes',
+    after: 'fighter',
+    colours: [slot('metal', 'Metal colour', '#a8aeb8', ['Mail']), slot('leather', 'Leather colour', '#5a3418', ['Outer leather', 'Inner leather'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#3a3e46' }, effects: [DROP] },
+      { ...textureLayer('chainmail'), name: 'Mail', color: '#a8aeb8', from: 0.12, to: 0.88, seed: 1, effects: [bevel({ size: 0.2, gloss: 0.8 })] },
+      { ...bandFillLayer(), name: 'Outer leather', to: 0.14, paint: photo('leather', 1.4, { lighting: 0.6 }), effects: [recolour(['#0a0402', '#2a1408', '#5a3418', '#8a6040']), bevel({ size: 0.5, gloss: 0.2 })] },
+      { ...bandFillLayer(), name: 'Inner leather', from: 0.86, paint: photo('leather', 1.4, { lighting: 0.6 }), effects: [recolour(['#0a0402', '#2a1408', '#5a3418', '#8a6040']), bevel({ size: 0.5, gloss: 0.2 })] },
+    ],
+  },
+  {
+    id: 'fighter-champion',
+    name: 'Champion',
+    description: 'Red enamel between gold rims, studded with gold rivets.',
+    group: 'Classes',
+    after: 'fighter',
+    colours: [slot('enamel', 'Enamel colour', '#a01a1a', ['Enamel']), slot('gold', 'Gold colour', '#c8952e', ['Outer gold', 'Inner gold', 'Rivets'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Enamel', paint: lin(['#e04a4a', '#a01a1a', '#2a0404']), effects: [bevel({ direction: 'sunken', size: 0.12, gloss: 0.9, highlightOpacity: 0.5 }), DROP] },
+      { ...bandFillLayer(), name: 'Outer gold', to: 0.18, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
+      { ...bandFillLayer(), name: 'Inner gold', from: 0.82, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
+      { ...repeatLayer(), name: 'Rivets', element: 'bead', count: 12, at: 0.5, size: 0.24, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), contact(0.6)] },
+    ],
+  },
+  // ── monk ──
+  {
+    id: 'monk-saffron',
+    name: 'Saffron robe',
+    description: 'Folded saffron cloth with a knotted cord round its middle.',
+    group: 'Classes',
+    after: 'monk',
+    colours: [slot('cloth', 'Cloth colour', '#e07a1a', ['Cloth']), slot('cord', 'Cord colour', '#8a2a1a', ['Cord', 'Twist'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Cloth', paint: photo('hessian', 0.8, { lighting: 0.6 }), effects: [recolour(['#2a0a02', '#8a3a06', '#e07a1a', '#ffc070']), bevel({ size: 0.6, gloss: 0.15, highlightOpacity: 0.35 }), DROP] },
+      { ...bandFillLayer(), name: 'Cord', from: 0.36, to: 0.64, paint: lin(['#e06a5a', '#a03a2a', '#3a0804']), effects: [bevel({ size: 0.9, gloss: 0.4 }), contact(0.5)] },
+      { ...textureLayer('rope'), name: 'Twist', from: 0.36, to: 0.64, color: '#c05a4a', seed: 0xbeae },
+    ],
+  },
+  {
+    id: 'monk-jade',
+    name: 'Jade & gold',
+    description: 'Polished jade between gold rims, with a Yugurian sutra in gold.',
+    group: 'Classes',
+    after: 'monk',
+    colours: [slot('jade', 'Jade colour', '#3a9a6a', ['Jade']), slot('gold', 'Gold colour', '#c8952e', ['Outer gold', 'Inner gold', 'Sutra'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Jade', paint: photo('blue-onyx', 4, { angle: 60 }), effects: [recolour(['#021a0e', '#0e4a2a', '#3a9a6a', '#8ae0b0']), bevel({ size: 0.4, gloss: 0.95, highlightOpacity: 0.6 }), DROP] },
+      { ...bandFillLayer(), name: 'Outer gold', to: 0.14, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
+      { ...bandFillLayer(), name: 'Inner gold', from: 0.86, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
+      inscription('yugurian', '#e8c060', { name: 'Sutra', size: 0.34, start: 7, effects: [bevel({ size: 0.4, gloss: 0.8 })] }),
+    ],
+  },
+  {
+    id: 'monk-ink',
+    name: 'Ink circle',
+    description: 'A single bold brushstroke of black ink on pale rice paper.',
+    group: 'Classes',
+    after: 'monk',
+    colours: [slot('paper', 'Paper colour', '#f0e8d8', ['Band']), slot('ink', 'Ink colour', '#141414', ['Ink'])],
+    layers: () => [
+      ...base({ light: '#fffaf0', dark: '#b8ae98', step: null, rims: false }),
+      { ...lineLayer(), name: 'Ink', at: 0.5, width: 0.55, paint: { kind: 'solid', color: '#141414' }, opacity: 0.92, effects: [{ kind: 'distort', on: true, amount: 0.12, scale: 0.25, seed: 4 }, blur(0.01)] },
+      ...rims(),
+    ],
+  },
+  // ── cobblestone ──
+  {
+    id: 'cobblestone-mossy',
+    name: 'Mossy cobbles',
+    description: 'Rounded cobblestones with moss and lichen creeping between them.',
+    group: 'Textures',
+    after: 'cobblestone',
+    colours: [slot('stone', 'Stone colour', '#928b80', ['Cobbles']), slot('moss', 'Moss colour', '#7a9a2a', ['Moss'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Cobbles', paint: photo('cobblestone', 1.4, { lighting: 0.7 }), effects: [bevel({ profile: 'rounded', size: 0.3, gloss: 0.15, highlightOpacity: 0.4 }), DROP] },
+      { ...textureLayer('lichen'), name: 'Moss', color: '#7a9a2a', amount: 1, opacity: 0.85, seed: 0x11c5 },
+      ...rims(),
     ],
   },
   // ── next ──

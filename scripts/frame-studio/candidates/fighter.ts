@@ -1,6 +1,6 @@
 // Fighter: candidates for new versions of Token Maker's Fighter frame.
 import {
-  bandFillLayer, bevel, cellsLayer, contact, DROP, goldFx, goldPaint, inscription, lin, lineLayer, metalFx, photo,
+  bandFillLayer, bevel, cellsLayer, contact, DROP, goldFx, goldPaint, inscription, lin, metalFx, photo,
   projectFromFrame, recolour, repeatLayer, rims, slot, STEEL_STOPS, textureLayer, WARM_GOLD, wear, type Candidate,
 } from './common';
 
