@@ -7,8 +7,8 @@ const STAGE = { thickness: 0.18 };
 const edges = (color: string, stops: string[]): Layer[] => [0.06, 0.94].map((at) => ({ ...lineLayer(), name: 'Edges', at, width: 0.1, paint: { kind: 'solid' as const, color }, effects: [...metalFx(stops, 0.5, 0.9), contact(0.5)] }));
 const fleurs = (color: string, stops: string[]): Layer => ({ ...repeatLayer(), name: 'Fleurs-de-lis', element: 'fleur', count: 8, snapToCorners: false, at: 0.5, size: 0.66, fill: color, show: [false, true], raised: false, effects: [...goldFx(0.4, stops), contact(0.6)] });
 const gems = (fill: string, setting: string, stops: string[]): Layer => ({ ...repeatLayer(), name: 'Gems', element: 'gem', count: 8, snapToCorners: false, at: 0.5, size: 0.46, fill, show: [true, false], raised: false, gemFacets: 10, gemSparkle: 0.8, setting: 'claws4', settingColor: setting, settingEffects: metalFx(stops, 0.3, 0.9), effects: [contact(0.6)] });
-/** The crown at the top, kept inside the band. */
-const crown = (fill: string, stops: string[], detail: string): Layer => ({ ...shapeLayer(), name: 'Crown', shape: 'ornament', element: 'crown', across: 0.5, size: 0.8, stretch: 1.3, fill, outline: null, detail, effects: [...goldFx(0.4, stops), contact(0.6)] });
+/** The crown at the top, raised a little so it covers the top gem, and kept inside the band. */
+const crown = (fill: string, stops: string[], detail: string): Layer => ({ ...shapeLayer(), name: 'Crown', shape: 'ornament', element: 'crown', across: 0.38, size: 0.95, stretch: 1.3, fill, outline: null, detail, effects: [...goldFx(0.4, stops), contact(0.6)] });
 
 export const CANDIDATES: Candidate[] = [
   {

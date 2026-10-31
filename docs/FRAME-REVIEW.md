@@ -96,6 +96,11 @@ picker each. Candidates are drawn with
 | Royal inscription | Layered | Retired; Royal gold, Crimson & gold, Silver & sapphire, Royal velvet. |
 | Rune-carved plates | Layered | Retired; four curved-plate versions, one rune word inside each plate. |
 | Overgrown ruin | Layered | Kept as it is; new versions dropped. |
+| Moon & stars | Layered | Retired; Midnight moons, Moon phases. |
+| Frostbound | Layered | Retired; Frost steel, Glacier, Snowfall. |
+| Celtic knots | Layered | Retired; Emerald & gold, Carved stone. |
+| Royal | Layered | Retired; Crimson royal, Royal blue, Purple & silver, Ermine (crown raised over the top gem). |
+| Grim iron | Layered | Retired; Bone ring, Crowned skulls. |
 | Dragon scales | Crafted | Also Serpent coil: overlapping rows (third steps) with soft outlines, row shadows and clipped gradient bands. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,

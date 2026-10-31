@@ -87,12 +87,12 @@ export const BORDER_IDS: ReadonlySet<string> = new Set(CRAFTED_TEMPLATES.map((t)
  * its picker unless a token already uses one (their new versions stand on
  * their own), and Frame Studio leaves them out of New.
  */
-export const RETIRED_FRAMES: ReadonlySet<string> = new Set(['dragon-scales', 'raven-plume', 'riveted-plates', 'brass-beads', 'jewelled', 'dwarven-bronze', 'eldritch-crystal', 'radiant-gold', 'royal-inscription', 'rune-plates']);
+export const RETIRED_FRAMES: ReadonlySet<string> = new Set(['dragon-scales', 'raven-plume', 'riveted-plates', 'brass-beads', 'jewelled', 'dwarven-bronze', 'eldritch-crystal', 'radiant-gold', 'royal-inscription', 'rune-plates', 'moon-stars', 'frostbound', 'celtic', 'royal', 'grim-iron']);
 
 // ── Frame Studio's Layered starting designs, once reviewed ───────────────────
 
 /** The Layered designs the frame review has reached: Token Maker lists these (in Crafted) with their new versions. */
-const REVIEWED_LAYERED = new Set(['brass-beads', 'glowing-runes', 'jewelled', 'battle-steel', 'night-sky', 'dwarven-bronze', 'eldritch-crystal', 'radiant-gold', 'hellforged-iron', 'royal-inscription', 'rune-plates']);
+const REVIEWED_LAYERED = new Set(['brass-beads', 'glowing-runes', 'jewelled', 'battle-steel', 'night-sky', 'dwarven-bronze', 'eldritch-crystal', 'radiant-gold', 'hellforged-iron', 'royal-inscription', 'rune-plates', 'moon-stars', 'frostbound', 'celtic', 'royal', 'grim-iron']);
 const LAYERED: BuiltInFrame[] = LAYERED_TEMPLATES.filter((t) => REVIEWED_LAYERED.has(t.id)).map((t) => ({
   id: t.id,
   name: t.name,

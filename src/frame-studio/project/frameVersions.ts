@@ -465,6 +465,40 @@ const runePlates = (fill: string, effects: Layer['effects'], gap = 0.14): Layer 
 const plateRunes = (fill: string, effects: Layer['effects'], font: 'babelstone' | 'yugurian' = 'babelstone') => panelWords(font, fill, { size: 0.34, spacing: 0.08, start: 3, effects });
 const carvedRune = () => bevel({ direction: 'sunken', size: 0.6, gloss: 0.4 });
 
+// ── Layered designs, round 3 ──
+// layered-moon
+const MOON_STAGE = { thickness: 0.18, bloom: 0.2 };
+const moonsAndStars = (fill: string, stops: string[], glowColor: string, at = 0.55): Layer[] => [
+  { ...repeatLayer(), name: 'Moons', element: 'crescent', count: 8, snapToCorners: false, at, size: 0.6, fill, show: [true, false], raised: false, effects: [...metalFx(stops, 0.4, 0.9), glow({ color: glowColor, opacity: 0.5, size: 0.08 })] },
+  { ...repeatLayer(), name: 'Stars', element: 'star', count: 8, snapToCorners: false, at, size: 0.44, fill, show: [false, true], raised: false, effects: [...metalFx(stops, 0.4, 0.9), glow({ color: glowColor, opacity: 0.5, size: 0.08 })] },
+];
+const scallopEdge = (color: string, stops: string[]): Layer => ({ ...lineLayer(), name: 'Scalloped edge', at: 0.08, width: 0.05, paint: { kind: 'solid', color }, waveAmplitude: 0.06, waveFit: 0.45, waveShape: 'scallop', effects: [...metalFx(stops, 0.5, 0.9), contact(0.5)] });
+const sparkles = (seed = 0x5a2c): Layer => ({ ...textureLayer('sparkle'), name: 'Sparkles', color: '#fff6d0', seed, amount: 0.7, scale: 0.7 });
+// layered-frost
+const FROST_STAGE = { thickness: 0.18, bloom: 0.25 };
+const snowflakes = (count = 6, size = 0.6): Layer => ({ ...repeatLayer(), name: 'Snowflakes', element: 'snowflake', count, snapToCorners: false, at: 0.5, size, fill: '#ffffff', raised: false, effects: [...metalFx(SILVER_STOPS, 0.3, 0.9), glow({ color: '#9fd8ff', opacity: 0.6, size: 0.08 })] });
+const frostLayer = (): Layer => ({ ...textureLayer('frost'), name: 'Frost', color: '#e6f6ff', opacity: 0.8, seed: 0xf205, blend: 'screen' });
+// layered-celtic
+const CELTIC_STAGE = { thickness: 0.18 };
+const celticKnot = (color: string, stops: string[], o: { at?: number; width?: number } = {}): Layer => ({ ...knotworkLayer(), name: 'Knotwork', at: o.at ?? 0.55, width: o.width ?? 0.16, amplitude: 0.22, waveLength: 0.8, color, outline: '#000000', outlineWidth: 0.03, outlineOpacity: 0.6, shine: true, effects: [recolour(stops), contact(0.6)] });
+const battlementEdge = (color: string, stops: string[]): Layer => ({ ...lineLayer(), name: 'Battlements', at: 0.1, width: 0.05, paint: { kind: 'solid', color }, waveAmplitude: 0.05, waveFit: 0.3, waveShape: 'square', effects: [...metalFx(stops, 0.4, 0.8), contact(0.5)] });
+// layered-royal2
+const ROYAL_STAGE = { thickness: 0.18 };
+const goldEdges = (color: string, stops: string[]): Layer[] => [0.06, 0.94].map((at) => ({ ...lineLayer(), name: 'Edges', at, width: 0.1, paint: { kind: 'solid' as const, color }, effects: [...metalFx(stops, 0.5, 0.9), contact(0.5)] }));
+const fleursDeLis = (color: string, stops: string[]): Layer => ({ ...repeatLayer(), name: 'Fleurs-de-lis', element: 'fleur', count: 8, snapToCorners: false, at: 0.5, size: 0.66, fill: color, show: [false, true], raised: false, effects: [...goldFx(0.4, stops), contact(0.6)] });
+const crownGems = (fill: string, setting: string, stops: string[]): Layer => ({ ...repeatLayer(), name: 'Gems', element: 'gem', count: 8, snapToCorners: false, at: 0.5, size: 0.46, fill, show: [true, false], raised: false, gemFacets: 10, gemSparkle: 0.8, setting: 'claws4', settingColor: setting, settingEffects: metalFx(stops, 0.3, 0.9), effects: [contact(0.6)] });
+/** The crown at the top, raised a little so it covers the top gem, and kept inside the band. */
+const royalCrown = (fill: string, stops: string[], detail: string): Layer => ({ ...shapeLayer(), name: 'Crown', shape: 'ornament', element: 'crown', across: 0.38, size: 0.95, stretch: 1.3, fill, outline: null, detail, effects: [...goldFx(0.4, stops), contact(0.6)] });
+// layered-grim
+const GRIM_STAGE = { thickness: 0.18 };
+const GRIM_IRON = ['#020203', '#14141a', '#3a3834', '#6a6660', '#a8a49c'];
+const BONE_STOPS = ['#2a2418', '#6a5e48', '#c8bca0', '#ece4d0', '#fffcf2'];
+const grimIron = (stops = GRIM_IRON): Layer[] => bandShading([
+  { ...bandFillLayer(), name: 'Iron', paint: photo('hammered-metal', 1.4, { lighting: 0.3 }), effects: [recolour(stops), DROP] },
+  { ...textureLayer('chainmail'), name: 'Chainmail', color: '#8a8e96', from: 0.22, to: 0.78, seed: 1, opacity: 0.8 },
+], { step: null });
+const grimEmblems = (element: string, fill: string, effects: Layer['effects'], show: boolean[] = [true, false], size = 0.92): Layer => ({ ...repeatLayer(), name: element === 'skull' ? 'Skulls' : 'Emblems', element: element as never, count: 8, snapToCorners: false, at: 0.5, size, fill, show, raised: false, effects });
+
 const VERSIONS: Version[] = [
   // ── stamped ──
   {
@@ -3038,6 +3072,171 @@ const VERSIONS: Version[] = [
     stage: { thickness: 0.2 },
     colours: [slot('metal', 'Plate colour', '#a8aeb8', ['Plates']), slot('gold', 'Rune colour', '#d8a838', ['Runes'])],
     layers: () => [...runeRing(), runePlates('#a8aeb8', [...metalFx(SILVER_STOPS, 0.15, 0.8), contact(0.8)]), plateRunes('#f4d27a', goldFx(0.3, WARM_GOLD), 'yugurian')],
+  },
+  // ── layered-moon ──
+  {
+    id: 'moon-stars-midnight',
+    name: 'Midnight moons',
+    description: 'Midnight blue in the twin gradient bands, gold moons and stars in turn, sparkles and a silver scalloped edge.',
+    group: 'Crafted',
+    after: 'moon-stars',
+    stage: MOON_STAGE,
+    colours: [slot('sky', 'Sky colour', '#1f2a5a', ['Band', 'Pressed-in step']), slot('gold', 'Moon colour', '#f4d27a', ['Moons', 'Stars'])],
+    layers: () => [...base({ light: '#34449a', dark: '#04060e', step: 0.72 }), sparkles(), scallopEdge('#d8dce4', SILVER_STOPS), ...moonsAndStars('#f4d27a', WARM_GOLD, '#fff2b0')],
+  },
+  {
+    id: 'moon-stars-phases',
+    name: 'Moon phases',
+    description: 'The moon waxing and waning round the band in silver, from crescent to full and back.',
+    group: 'Crafted',
+    after: 'moon-stars',
+    stage: MOON_STAGE,
+    colours: [slot('sky', 'Sky colour', '#141a3a', ['Band', 'Pressed-in step']), slot('moons', 'Moon colour', '#e4e8f0', ['Moons'])],
+    layers: () => [
+      ...base({ light: '#2a3470', dark: '#02030a', step: null }),
+      sparkles(0x5a2d),
+      { ...repeatLayer(), name: 'Moons', element: 'crescent', count: 8, snapToCorners: false, at: 0.5, size: 0.62, fill: '#e4e8f0', show: [true, true, true, false, true, true, true, false], raised: false, effects: [...metalFx(SILVER_STOPS, 0.4, 0.9), glow({ color: '#c0d0ff', opacity: 0.5, size: 0.08 })] },
+      { ...repeatLayer(), name: 'Moons', element: 'bead', count: 2, offset: 0.75, snapToCorners: false, at: 0.5, size: 0.58, fill: '#e4e8f0', raised: false, effects: [...metalFx(SILVER_STOPS, 0.5, 0.9), glow({ color: '#c0d0ff', opacity: 0.6, size: 0.1 })] },
+    ],
+  },
+  // ── layered-frost ──
+  {
+    id: 'frostbound-steel',
+    name: 'Frost steel',
+    description: 'Icy blue steel in the twin gradient bands, furred with frost, with a glowing zigzag and silver snowflakes.',
+    group: 'Crafted',
+    after: 'frostbound',
+    stage: FROST_STAGE,
+    colours: [slot('ice', 'Ice colour', '#6f93b8', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#9fd8ff', ['Zigzag'])],
+    layers: () => [
+      ...base({ light: '#a8c8e8', dark: '#0a1a2a', step: 0.62 }),
+      frostLayer(),
+      { ...lineLayer(), name: 'Zigzag', at: 0.5, width: 0.03, paint: { kind: 'solid', color: '#eaf8ff' }, waveAmplitude: 0.3, waveFit: 0.5, waveShape: 'zigzag', effects: [glow({ color: '#9fd8ff', opacity: 0.8, size: 0.1 })] },
+      snowflakes(),
+    ],
+  },
+  {
+    id: 'frostbound-glacier',
+    name: 'Glacier',
+    description: 'Clear glacier ice split by cracks that glow cold blue from within.',
+    group: 'Crafted',
+    after: 'frostbound',
+    stage: FROST_STAGE,
+    colours: [slot('ice', 'Ice colour', '#8ab8d8', ['Ice']), slot('glow', 'Glow colour', '#4ac8ff', ['Glowing cracks'])],
+    layers: () => [
+      ...bandShading([{ ...bandFillLayer(), name: 'Ice', paint: photo('ice', 1.4), effects: [recolour(['#04101c', '#1a4a6a', '#6aa8d0', '#c8ecff', '#ffffff']), DROP] }]),
+      glowCracks('#0a2030', '#4ac8ff', '#c0f0ff', 21, 0.8),
+    ],
+  },
+  {
+    id: 'frostbound-snowfall',
+    name: 'Snowfall',
+    description: 'Deep winter blue with a flurry of snowflakes of every size.',
+    group: 'Crafted',
+    after: 'frostbound',
+    stage: FROST_STAGE,
+    colours: [slot('sky', 'Sky colour', '#1a3a6a', ['Band', 'Pressed-in step'])],
+    layers: () => [
+      ...base({ light: '#2a5a9a', dark: '#040c1a', step: null }),
+      { ...textureLayer('sparkle'), name: 'Snow', color: '#ffffff', amount: 1, scale: 0.4, seed: 0x5a3b },
+      { ...snowflakes(14, 0.5), altSizes: [1, 0.55, 0.75], wander: 0.6, jitterAngle: 30, seed: 6 },
+    ],
+  },
+  // ── layered-celtic ──
+  {
+    id: 'celtic-emerald-gold',
+    name: 'Emerald & gold',
+    description: 'Deep green in the twin gradient bands with a woven gold knot and a gold battlement edge.',
+    group: 'Crafted',
+    after: 'celtic',
+    stage: CELTIC_STAGE,
+    colours: [slot('band', 'Band colour', '#2f6a3c', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Knotwork', 'Battlements'])],
+    layers: () => [...base({ light: '#3e8a4e', dark: '#041408', step: 0.3 }), battlementEdge('#d8a838', WARM_GOLD), celticKnot('#d8a838', WARM_GOLD)],
+  },
+  {
+    id: 'celtic-carved-stone',
+    name: 'Carved stone',
+    description: 'A grey granite ring with a bronze knot set into it, like an old Celtic cross.',
+    group: 'Crafted',
+    after: 'celtic',
+    stage: CELTIC_STAGE,
+    colours: [slot('stone', 'Stone colour', '#8a8680', ['Granite']), slot('bronze', 'Knot colour', '#a87a3a', ['Knotwork'])],
+    layers: () => [
+      ...bandShading([{ ...bandFillLayer(), name: 'Granite', paint: photo('granite', 1.4), effects: [DROP] }]),
+      celticKnot('#a87a3a', BRONZE_STOPS, { at: 0.5 }),
+    ],
+  },
+  // ── layered-royal2 ──
+  {
+    id: 'royal-crimson',
+    name: 'Crimson royal',
+    description: 'Crimson in the twin gradient bands between polished gold edges, with gold fleurs-de-lis, sapphires in claws and a crown inside the band at the top.',
+    group: 'Crafted',
+    after: 'royal',
+    stage: ROYAL_STAGE,
+    colours: [slot('band', 'Band colour', '#8a1a2a', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Edges', 'Fleurs-de-lis', 'Crown']), slot('gems', 'Gem colour', '#2a5ad8', ['Gems'])],
+    layers: () => [...base({ light: '#c02a3a', dark: '#1a0206', step: null }), ...goldEdges('#d8a838', WARM_GOLD), fleursDeLis('#e2b85a', WARM_GOLD), crownGems('#2a5ad8', '#d8a838', WARM_GOLD), royalCrown('#e2b85a', WARM_GOLD, '#a01a2a')],
+  },
+  {
+    id: 'royal-blue',
+    name: 'Royal blue',
+    description: 'Royal blue and gold, with rubies between the fleurs-de-lis.',
+    group: 'Crafted',
+    after: 'royal',
+    stage: ROYAL_STAGE,
+    colours: [slot('band', 'Band colour', '#1a3a8a', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Edges', 'Fleurs-de-lis', 'Crown']), slot('gems', 'Gem colour', '#c0182a', ['Gems'])],
+    layers: () => [...base({ light: '#2a5ac0', dark: '#030a24', step: null }), ...goldEdges('#d8a838', WARM_GOLD), fleursDeLis('#e2b85a', WARM_GOLD), crownGems('#c0182a', '#d8a838', WARM_GOLD), royalCrown('#e2b85a', WARM_GOLD, '#1a3a8a')],
+  },
+  {
+    id: 'royal-purple-silver',
+    name: 'Purple & silver',
+    description: 'Imperial purple with silver edges, silver fleurs and amethysts.',
+    group: 'Crafted',
+    after: 'royal',
+    stage: ROYAL_STAGE,
+    colours: [slot('band', 'Band colour', '#4a1a6a', ['Band', 'Pressed-in step']), slot('silver', 'Silver colour', '#d8dce4', ['Edges', 'Fleurs-de-lis', 'Crown']), slot('gems', 'Gem colour', '#9a4ad0', ['Gems'])],
+    layers: () => [...base({ light: '#6a2a9a', dark: '#0e0218', step: null }), ...goldEdges('#d8dce4', SILVER_STOPS), fleursDeLis('#e4e8f0', SILVER_STOPS), crownGems('#9a4ad0', '#d8dce4', SILVER_STOPS), royalCrown('#e4e8f0', SILVER_STOPS, '#4a1a6a')],
+  },
+  {
+    id: 'royal-ermine',
+    name: 'Ermine',
+    description: 'White ermine flecked with black tails between gold edges, like a royal mantle, with a gold crown.',
+    group: 'Crafted',
+    after: 'royal',
+    stage: ROYAL_STAGE,
+    colours: [slot('gold', 'Gold colour', '#d8a838', ['Edges', 'Crown'])],
+    layers: () => [
+      ...base({ light: '#ffffff', dark: '#b8b4ac', step: null }),
+      { ...textureLayer('feathers'), name: 'Fur', color: '#d8d4cc', amount: 0.6, scale: 0.6, strength: 0.6, seed: 0xfe11 },
+      { ...repeatLayer(), name: 'Ermine tails', element: 'drop', count: 18, snapToCorners: false, at: 0.5, size: 0.24, stretch: 0.55, rotation: 180, fill: '#141414', altSizes: [1, 0.8], alternateSides: 0.18, raised: false, shaded: false },
+      ...goldEdges('#d8a838', WARM_GOLD),
+      royalCrown('#e2b85a', WARM_GOLD, '#a01a2a'),
+    ],
+  },
+  // ── layered-grim ──
+  {
+    id: 'grim-iron-bone-ring',
+    name: 'Bone ring',
+    description: 'Black iron with a ring of skulls and crossed bones, yellowed like old ivory.',
+    group: 'Crafted',
+    after: 'grim-iron',
+    stage: GRIM_STAGE,
+    colours: [slot('iron', 'Iron colour', '#2a2824', ['Iron', 'Chainmail']), slot('bone', 'Bone colour', '#e8dcc0', ['Skulls', 'Emblems'])],
+    layers: () => [
+      ...grimIron(['#020202', '#0c0c0c', '#2a2824', '#4a4844', '#7a7670']),
+      grimEmblems('skull', '#e8dcc0', [recolour(BONE_STOPS), bevel({ size: 0.4, gloss: 0.4 }), contact(0.7)]),
+      grimEmblems('icon-skull-crossed-bones', '#e8dcc0', [recolour(BONE_STOPS), contact(0.6)], [false, true], 0.8),
+    ],
+  },
+  {
+    id: 'grim-iron-crowned-skulls',
+    name: 'Crowned skulls',
+    description: 'Black iron with gold crowned skulls, for a lich or a pirate king.',
+    group: 'Crafted',
+    after: 'grim-iron',
+    stage: GRIM_STAGE,
+    colours: [slot('iron', 'Iron colour', '#2a2824', ['Iron', 'Chainmail']), slot('gold', 'Gold colour', '#d8a838', ['Emblems'])],
+    layers: () => [...grimIron(['#020202', '#0c0c0c', '#2a2824', '#4a4844', '#7a7670']), grimEmblems('icon-crowned-skull', '#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.7)], [true], 0.9)],
   },
   // ── next ──
 ];
