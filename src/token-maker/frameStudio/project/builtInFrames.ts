@@ -6,6 +6,7 @@
 // offers them in New, ready to change.
 
 import type { ColourSlot } from './colourSlots';
+import { CRAFTED_TEMPLATES } from './craftedTemplates';
 import { ESSENTIALS_DATA } from './essentialsData';
 import { FRAME_VERSIONS } from './frameVersions';
 import { fromLayers, slot, type BuiltInFrame } from './houseStyle';
@@ -67,6 +68,26 @@ const CRAFTED: BuiltInFrame[] = PICTURE_FRAME_TEMPLATES.map((t) => ({
   project: fromLayers(t.name, t.make, t.stage),
 }));
 
-export const BUILT_IN_FRAMES: readonly BuiltInFrame[] = [...ESSENTIALS, ...FRAME_VERSIONS, ...CRAFTED];
+// ── Frame Studio's Crafted borders, reviewed the same way ───────────────────
+
+const BORDERS: BuiltInFrame[] = CRAFTED_TEMPLATES.map((t) => ({
+  id: t.id,
+  name: t.name,
+  description: t.description,
+  group: 'Crafted',
+  colours: [],
+  project: fromLayers(t.name, t.make, t.stage),
+}));
+/** The Crafted borders, by id: Frame Studio lists these and their new versions in their own section of New. */
+export const BORDER_IDS: ReadonlySet<string> = new Set(CRAFTED_TEMPLATES.map((t) => t.id));
+
+/**
+ * Frames the owner retired in the frame review: Token Maker leaves them out of
+ * its picker unless a token already uses one (their new versions stand on
+ * their own), and Frame Studio leaves them out of New.
+ */
+export const RETIRED_FRAMES: ReadonlySet<string> = new Set(['dragon-scales', 'raven-plume', 'riveted-plates']);
+
+export const BUILT_IN_FRAMES: readonly BuiltInFrame[] = [...ESSENTIALS, ...FRAME_VERSIONS, ...CRAFTED, ...BORDERS];
 export type { BuiltInFrame, BuiltInGroup } from './houseStyle';
 export const builtInFrameById = (id: string) => BUILT_IN_FRAMES.find((f) => f.id === id);

@@ -9,11 +9,14 @@ import { X } from 'lucide-react';
 import { FRAME_GROUPS, FRAME_PRESETS } from '../engine/legacy/catalog';
 import { canConvert, differenceNote, editableGroup, editableProject } from '../project/convert';
 import { createProject, LAYERED_TEMPLATES, legacyFrameLayer, projectFromFrame } from '../project/defaults';
-import { CRAFTED_TEMPLATES } from '../project/craftedTemplates';
-import { BUILT_IN_FRAMES } from '../project/builtInFrames';
+import { BORDER_IDS, BUILT_IN_FRAMES, RETIRED_FRAMES } from '../project/builtInFrames';
 import { THEMED_TEMPLATES, themedProject } from '../project/themedTemplates';
 import { addLayer, loadProject } from '../state/projectStore';
 import { THUMB, Tile } from './Thumbnail';
+
+/** Frame Studio's Crafted borders and their new versions get their own section. */
+const isBorder = (f: (typeof BUILT_IN_FRAMES)[number]) => BORDER_IDS.has(f.id) || (!!f.after && BORDER_IDS.has(f.after));
+const listed = BUILT_IN_FRAMES.filter((f) => !RETIRED_FRAMES.has(f.id));
 
 const frameMakers = new Map(FRAME_PRESETS.map((p) => [p.id, () => projectFromFrame(p.id)]));
 const editableMakers = new Map(FRAME_PRESETS.filter((p) => canConvert(p.style)).map((p) => [p.id, () => editableProject(p.id)!]));
@@ -84,7 +87,7 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
               <h3>Token Studio's frames</h3>
               <p className="note">The designs Token Maker lists in its frame picker: the Essentials, the new versions of its drawn frames, and Gilded laurel, Iron rivets, Runestone… Open one to change it, save it, and open the file in Token Maker.</p>
               <div className="tiles">
-                {BUILT_IN_FRAMES.map((t) => (
+                {listed.filter((f) => !isBorder(f)).map((t) => (
                   <Tile
                     key={t.id}
                     id={`builtin:${t.id}`}
@@ -103,15 +106,15 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
               <h3>Crafted borders</h3>
               <p className="note">Rings in the style of hand-painted token frames, made with blend modes, blur, the crystal, lava, smoke, feather, filigree and mottled textures and the new shapes. Each comes with the band thickness it was made for.</p>
               <div className="tiles">
-                {CRAFTED_TEMPLATES.map((t) => (
+                {listed.filter(isBorder).map((t) => (
                   <Tile
                     key={t.id}
                     id={`crafted:${t.id}`}
                     name={t.name}
                     description={t.description}
-                    make={() => themedProject(t)}
+                    make={t.project}
                     onPick={() => {
-                      loadProject(themedProject(t));
+                      loadProject(t.project());
                       onClose();
                     }}
                   />

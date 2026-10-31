@@ -78,6 +78,12 @@ picker each. Candidates are drawn with
 | Celestial star | Crafted | Kept, plus Sun & moon, Astrolabe. |
 | Rope | Crafted | Kept, plus Sailor’s rope, Braided leather. |
 | Shield rim | Crafted | Kept, plus all five. |
+| Gilded filigree | Crafted borders | Kept, plus Sapphire filigree, Emerald script. |
+| Guild ring | Crafted borders | Kept (gold and silver), plus Gold guild ring, Silver & sapphire, Bronze & enamel. |
+| Raven plume | Crafted borders | Retired; Raven sheen, Plume & bone, Owl plume, with gradient rings and a grained band for depth. |
+| Emberforged | Crafted borders | Kept, plus Molten ring, Forge runes, Frostfire. |
+| Storm wisps | Crafted borders | Kept, plus Arcane storm, Sea squall. |
+| Riveted plates | Crafted borders | Retired; Ordered plates, Forge seams, Dwarven bulwark (curved plates, rivets over plate centres and gaps). |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.

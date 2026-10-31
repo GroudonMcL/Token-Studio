@@ -13,7 +13,9 @@ import {
   blur,
   BRONZE_STOPS,
   contact,
+  contoursLayer,
   DROP,
+  fractureLayer,
   fromLayers,
   glow,
   glowCracks,
@@ -41,7 +43,7 @@ import {
   type BuiltInFrame,
   type BuiltInGroup,
 } from './houseStyle';
-import { cellsLayer, knotworkLayer } from './defaults';
+import { cellsLayer, groupLayer, knotworkLayer, NEW_EFFECT } from './defaults';
 import { wear } from './styles';
 import type { ColourSlot } from './colourSlots';
 import type { Layer, StageSettings } from './types';
@@ -277,6 +279,96 @@ const shieldShading = () => [
   { ...bandFillLayer(), name: 'Plank shading', from: 0.42, blend: 'overlay' as const, opacity: 0.6, paint: lin(['#000000', '#ffffff']) },
   { ...lineLayer(), name: 'Crease', at: 0.42, width: 0.03, opacity: 0.6, blend: 'overlay' as const, paint: { kind: 'solid' as const, color: '#190500' } },
 ];
+
+// ── Crafted borders (Frame Studio starting designs) ──
+// border-filigree
+/** Two gold bands either side of a channel, shaded with gradients, with filigree chased into them. */
+const filigreeBands = (stops: string[], from = 0.3, to = 0.72): Layer[] => [
+  { ...bandFillLayer(), name: 'Outer gold', to: from + 0.02, paint: lin(['#ffffff', '#606060']), effects: [recolour(stops), DROP] },
+  { ...bandFillLayer(), name: 'Inner gold', from: to - 0.02, paint: lin(['#505050', '#f0f0f0']), effects: [recolour(stops), DROP] },
+  { ...textureLayer('filigree'), name: 'Outer filigree', to: from + 0.02, color: '#8a6a30', amount: 0.8, scale: 1.5, strength: 1.2, seed: 0xf11, blend: 'multiply' },
+  { ...textureLayer('filigree'), name: 'Inner filigree', from: to - 0.02, color: '#8a6a30', amount: 0.8, scale: 1.5, strength: 1.2, seed: 0xf12, blend: 'multiply' },
+];
+const enamelChannel = (name: string, light: string, dark: string, from = 0.3, to = 0.72): Layer => ({ ...bandFillLayer(), name, from, to, paint: lin([dark, light]), effects: [DROP] });
+// border-guild
+/** A metal band shaded with the twin gradients (lit band, reversed pressed-in step), cut into blocks. */
+const guildBand = (stops: string[], groove: string, o: { blocks?: boolean } = {}): Layer[] => [
+  { ...bandFillLayer(), name: 'Band', paint: lin(['#f8f8f8', '#404040']), effects: [recolour(stops), DROP] },
+  { ...bandFillLayer(), name: 'Pressed-in step', from: 0.62, to: 1, paint: lin(['#303030', '#e8e8e8']), effects: [recolour(stops)] },
+  { ...lineLayer(), name: 'Crease', at: 0.62, width: 0.04, opacity: 0.6, blend: 'multiply', paint: { kind: 'solid', color: groove } },
+  ...(o.blocks === false ? [] : [{ ...repeatLayer(), name: 'Block lines', element: 'tick' as const, count: 36, snapToCorners: false, at: 0.31, size: 0.6, stretch: 0.1, rotation: 20, fill: groove, raised: false, shaded: false, opacity: 0.7, blend: 'multiply' as const }]),
+  { ...lineLayer(), name: 'Outer rim (lit)', at: 0.02, width: 0.04, blend: 'overlay', paint: { kind: 'solid', color: '#ffffff' }, opacity: 0.7 },
+];
+const guildStuds = (fill: string, stops: string[], size = 0.95): Layer => ({ ...repeatLayer(), name: 'Studs', element: 'triangle', count: 4, at: 0.5, size, stretch: 1.1, rotation: 180, fill, raised: false, effects: [bevel({ profile: 'chisel', size: 0.4, depth: 1.4, gloss: 0.8 }), recolour(stops), contact(0.6)] });
+// border-raven
+const RAVEN_STAGE = { thickness: 0.18, outerSpacing: 0.01 };
+/** Feathers laid along the band, two layers deep so they read as plumage rather than lines. */
+const plumage = (dark: string, light: string, seed = 0xfea7): Layer[] => [
+  { ...textureLayer('feathers'), name: 'Feathers', from: 0.08, to: 0.92, color: dark, amount: 1, scale: 1.3, strength: 1, seed },
+  { ...textureLayer('feathers'), name: 'Top feathers', from: 0.12, to: 0.88, color: light, amount: 0.6, scale: 1.1, strength: 0.9, seed: seed + 1, effects: [contact(0.5)] },
+];
+/** Depth: a grained band, the plumage, then the twin gradient rings (lit band, reversed pressed-in step, crease, rims) over it all. */
+const deepPlumage = (light: string, dark: string, feathers: Layer[], extra: Layer[] = []): Layer[] =>
+  bandShading([{ ...bandFillLayer(), name: 'Band', paint: lin([light, dark]), effects: [DROP] }, overlay('black-onyx', 4, 'overlay', 0.35), ...feathers, ...extra], { step: 0.55, strength: 0.75 });
+const plumeRim = (name: string, at: number, color: string, glowColor: string | null, width = 0.06): Layer => ({
+  ...lineLayer(), name, at, width, paint: { kind: 'solid', color }, effects: [...metalFx(['#1e0a04', '#6a3014', color, '#f0b08a', '#fff0e0'], 0.6, 0.9), ...(glowColor ? [glow({ color: glowColor, opacity: 0.5, size: 0.08 })] : [])],
+});
+// border-ember
+const EMBER_STAGE = { thickness: 0.18, outerSpacing: 0.09 };
+const emberIron = (light = '#4a4e58', dark = '#020203'): Layer[] =>
+  bandShading([{ ...bandFillLayer(), name: 'Black iron', paint: lin([light, dark]), effects: [DROP] }], { step: 0.6 });
+const emberGrooves = (color = '#060608'): Layer => ({ ...contoursLayer(), name: 'Grooves', count: 2, from: 0.5, spacing: 0.05, width: 0.03, taper: 0, paint: { kind: 'solid', color }, opacity: 0.8 });
+const lavaRing = (from: number, hot: string, deep: string, glowColor: string): Layer[] => [
+  { ...bandFillLayer(), name: 'Lava', from, to: 1, paint: lin([hot, deep], 45) },
+  { ...textureLayer('lava'), name: 'Molten glass', from, to: 1, color: hot, color2: deep, scale: 2.6, amount: 1.4, seed: 0x1a7a },
+  { ...lineLayer(), name: 'Lava glow', at: from + (1 - from) / 2, width: (1 - from) * 0.6, paint: { kind: 'solid', color: hot }, opacity: 0.5, blend: 'screen', effects: [glow({ color: glowColor, opacity: 0.7, size: 0.12 })] },
+  { ...lineLayer(), name: 'Lava rim', at: from, width: 0.04, paint: { kind: 'solid', color: '#08080a' }, effects: [contact(0.8)] },
+];
+// border-storm
+const STORM_STAGE = { thickness: 0.2, outerSpacing: 0.03 };
+const stormDistort = (amount: number, scale = 0.3, seed = 1) => ({ ...NEW_EFFECT.distort(), amount, scale, seed }) as Layer['effects'][number];
+const spinBlur = (amount: number) => ({ kind: 'blur' as const, on: true, mode: 'spin' as const, amount, keepShape: false });
+/** The storm, in any three colours, kept inside the band (the group is clipped to it). */
+const stormRing = (cloud: string, veil: string, edge: string, wisp: string): Layer => ({
+  ...groupLayer([
+    { ...lineLayer(), name: 'Dark cloud', at: 0.5, width: 0.9, paint: { kind: 'solid', color: cloud }, opacity: 0.85 },
+    { ...lineLayer(), name: 'Veil', at: 0.3, width: 0.1, paint: { kind: 'solid', color: veil }, waveAmplitude: 0.5, waveFit: 4, wavePhase: 0.25, opacity: 0.4 },
+    { ...lineLayer(), name: 'Edge light', at: 0.18, width: 0.2, paint: { kind: 'solid', color: edge }, waveAmplitude: 0.08, waveFit: 3, blend: 'screen', opacity: 0.9 },
+    { ...lineLayer(), name: 'Edge light', at: 0.82, width: 0.16, paint: { kind: 'solid', color: edge }, waveAmplitude: 0.08, waveFit: 2.5, wavePhase: 0.5, blend: 'screen', opacity: 0.7 },
+    { ...lineLayer(), name: 'Veil', at: 0.4, width: 0.12, paint: { kind: 'solid', color: veil }, waveAmplitude: 0.4, waveFit: 3.4, opacity: 0.45 },
+    { ...lineLayer(), name: 'Veil', at: 0.6, width: 0.1, paint: { kind: 'solid', color: veil }, waveAmplitude: 0.35, waveFit: 2.6, wavePhase: 0.5, opacity: 0.4 },
+    { ...textureLayer('smoke'), name: 'Wisps', from: 0.05, to: 0.95, color: wisp, color2: null, amount: 0.7, strength: 0.7, seed: 0x5e0c, blend: 'screen' },
+  ]),
+  name: 'Storm',
+  clip: 'band',
+  effects: [stormDistort(0.12, 2.2, 7), spinBlur(0.3), blur(0.05)],
+});
+const lightning = (color: string, glowColor: string): Layer => ({
+  ...fractureLayer(), kind: 'lightning', name: 'Lightning', from: 0.1, to: 0.9, count: 5, length: 1.4, branching: 0.6, jagged: 0.8, width: 0.025, color, seed: 0x11e7,
+  effects: [glow({ color: glowColor, opacity: 0.9, size: 0.1 })],
+});
+// border-plates
+const PLATES_STAGE = { thickness: 0.24, outerSpacing: 0.02 };
+const PLATE_IRON = ['#0c0c08', '#34342a', '#66665a', '#a6a69a', '#e8e8e0'];
+const plateRing = (stops: string[], picture: 'hammered-metal' | 'metal-plate' = 'hammered-metal'): Layer[] =>
+  bandShading([{ ...bandFillLayer(), name: 'Iron ring', paint: photo(picture, 1.4, { lighting: 0.3 }), effects: [recolour(stops), DROP] }], { step: null });
+/** Plates laid round the band, kept inside it; a little turn and size variety if `loose`. */
+const loosePlates = (name: string, at: number, count: number, size: number, fill: string, stops: string[], o: { loose?: boolean; offset?: number; seed?: number } = {}): Layer => ({
+  ...repeatLayer(), name, element: 'square', count, snapToCorners: false, at, size, stretch: 1.5, offset: o.offset ?? 0, fill, shaded: false, raised: false,
+  clip: 'band', jitterSize: o.loose ? 0.15 : 0, jitterAngle: o.loose ? 8 : 0, seed: o.seed ?? 11,
+  effects: [...metalFx(stops, 0.12, 0.6), contact(0.8)],
+});
+/** Plates that bend with the ring: one ring of metal with radial gaps cut out of it (a group that subtracts). */
+const curvedPlates = (name: string, count: number, fill: string, stops: string[], o: { from?: number; to?: number; gap?: number; offset?: number } = {}): Layer => ({
+  ...groupLayer([
+    { ...bandFillLayer(), name: 'Plate ring', from: o.from ?? 0.1, to: o.to ?? 0.9, paint: { kind: 'solid', color: fill } },
+    { ...repeatLayer(), name: 'Gaps', element: 'square', count, snapToCorners: false, at: ((o.from ?? 0.1) + (o.to ?? 0.9)) / 2, offset: o.offset ?? 0, size: ((o.to ?? 0.9) - (o.from ?? 0.1)) * 1.3, stretch: (o.gap ?? 0.06) / (((o.to ?? 0.9) - (o.from ?? 0.1)) * 1.3), fill: '#000000', raised: false, shaded: false },
+  ]),
+  name, combine: 'subtract', effects: [...metalFx(stops, 0.12, 0.6), contact(0.8)],
+});
+const plateRivets = (name: string, at: number, count: number, fill: string, stops: string[], offset = 0): Layer => ({
+  ...repeatLayer(), name, element: 'bead', count, snapToCorners: false, at, offset, size: 0.09, fill, raised: true, effects: [...metalFx(stops, 0.6, 0.8), contact(0.7)],
+});
 
 const VERSIONS: Version[] = [
   // ── stamped ──
@@ -2177,6 +2269,226 @@ const VERSIONS: Version[] = [
       { ...lineLayer(), name: 'Stitching', at: 0.06, width: 0.03, dash: 'dashed', paint: { kind: 'solid', color: '#d8c8a0' } },
       shieldNails('#b5813a', BRONZE_STOPS),
       ...shieldShading(),
+    ],
+  },
+  // ── border-filigree ──
+  {
+    id: 'gilded-filigree-sapphire',
+    name: 'Sapphire filigree',
+    description: 'Deep blue enamel glittering faintly, between warm gold filigree bands.',
+    group: 'Crafted',
+    after: 'gilded-filigree',
+    colours: [slot('enamel', 'Enamel colour', '#1a3aa0', ['Enamel']), slot('gold', 'Gold colour', '#c8952e', ['Outer gold', 'Inner gold', 'Outer filigree', 'Inner filigree'])],
+    stage: { thickness: 0.25, outerSpacing: 0.01 },
+    layers: () => [
+      enamelChannel('Enamel', '#3a6ae0', '#060e30'),
+      { ...textureLayer('sparkle'), name: 'Glitter', from: 0.3, to: 0.72, color: '#e8f0ff', amount: 0.6, scale: 0.5, seed: 0x5a38 },
+      ...filigreeBands(WARM_GOLD),
+    ],
+  },
+  {
+    id: 'gilded-filigree-emerald-script',
+    name: 'Emerald script',
+    description: 'Emerald enamel with a raised gold Yugurian inscription running through it, between filigree bands.',
+    group: 'Crafted',
+    after: 'gilded-filigree',
+    colours: [slot('enamel', 'Enamel colour', '#1a7a4a', ['Enamel']), slot('gold', 'Gold colour', '#c8952e', ['Outer gold', 'Inner gold', 'Outer filigree', 'Inner filigree', 'Inscription'])],
+    stage: { thickness: 0.25, outerSpacing: 0.01 },
+    layers: () => [
+      enamelChannel('Enamel', '#2aa868', '#041a0c'),
+      ...filigreeBands(WARM_GOLD),
+      inscription('yugurian', '#f4d27a', { name: 'Inscription', at: 0.51, size: 0.3, start: 3, effects: [...goldFx(0.4, WARM_GOLD)] }),
+    ],
+  },
+  // ── border-guild ──
+  {
+    id: 'guild-gold-shaded',
+    name: 'Gold guild ring',
+    description: 'The gold guild ring shaded with the twin gradients instead of a bevel, its four arrow studs kept inside the band.',
+    group: 'Crafted',
+    after: 'guild-gold',
+    stage: { thickness: 0.15, outerSpacing: 0.02 },
+    colours: [slot('metal', 'Metal colour', '#c8952e', ['Band', 'Pressed-in step', 'Studs'])],
+    layers: () => [...guildBand(WARM_GOLD, '#4a2c08'), guildStuds('#c8952e', WARM_GOLD)],
+  },
+  {
+    id: 'guild-silver-sapphire',
+    name: 'Silver & sapphire',
+    description: 'A silver guild ring with a cut sapphire set at each quarter instead of the arrow studs.',
+    group: 'Crafted',
+    after: 'guild-gold',
+    stage: { thickness: 0.15, outerSpacing: 0.02 },
+    colours: [slot('metal', 'Metal colour', '#b8bcc4', ['Band', 'Pressed-in step']), slot('gems', 'Gem colour', '#1f4fd0', ['Gems'])],
+    layers: () => [
+      ...guildBand(SILVER_STOPS, '#2a2e36'),
+      { ...repeatLayer(), name: 'Gems', element: 'gem', count: 4, at: 0.5, size: 0.8, fill: '#1f4fd0', raised: false, gemFacets: 10, gemSparkle: 0.8, setting: 'claws4', settingColor: '#d8dce4', settingEffects: [...metalFx(SILVER_STOPS, 0.3, 0.9)], effects: [contact(0.7)] },
+    ],
+  },
+  {
+    id: 'guild-bronze-enamel',
+    name: 'Bronze & enamel',
+    description: 'A bronze guild ring with a blue enamel step on the inside and bronze studs.',
+    group: 'Crafted',
+    after: 'guild-gold',
+    stage: { thickness: 0.15, outerSpacing: 0.02 },
+    colours: [slot('metal', 'Metal colour', '#a87a3a', ['Band', 'Studs']), slot('enamel', 'Enamel colour', '#1a4a8a', ['Pressed-in step'])],
+    layers: () => {
+      const ls = guildBand(BRONZE_STOPS, '#2a1606');
+      ls[1] = { ...bandFillLayer(), name: 'Pressed-in step', from: 0.62, to: 1, paint: lin(['#0a1a38', '#3a7ac8']) };
+      return [...ls, guildStuds('#a87a3a', BRONZE_STOPS)];
+    },
+  },
+  // ── border-raven ──
+  {
+    id: 'raven-plume-sheen',
+    name: 'Raven sheen',
+    description: 'Fuller black plumage with the blue-violet sheen of a raven’s wing, between bright copper rims.',
+    group: 'Crafted',
+    after: 'raven-plume',
+    stage: { ...RAVEN_STAGE, bloom: 0.15 },
+    colours: [slot('feathers', 'Feather colour', '#2a2e38', ['Feathers', 'Top feathers']), slot('rims', 'Rim colour', '#c8602a', ['Outer copper', 'Inner copper'])],
+    layers: () => [
+      ...deepPlumage('#2a2c38', '#020204', plumage('#2a2e38', '#5a6070'), [{ ...bandFillLayer(), name: 'Sheen', from: 0.08, to: 0.92, paint: lin(['#3a2a8a', '#000000', '#1a6a8a'], 30), opacity: 0.5, blend: 'screen' }]),
+      plumeRim('Outer copper', 0.03, '#c8602a', '#ff6a2a'),
+      plumeRim('Inner copper', 0.97, '#c8602a', '#ff6a2a'),
+    ],
+  },
+  {
+    id: 'raven-plume-bone',
+    name: 'Plume & bone',
+    description: 'Black feathers threaded with small carved bone beads, like a shaman’s talisman.',
+    group: 'Crafted',
+    after: 'raven-plume',
+    stage: RAVEN_STAGE,
+    colours: [slot('feathers', 'Feather colour', '#2a2e38', ['Feathers', 'Top feathers']), slot('beads', 'Bead colour', '#e8dcc0', ['Bone beads'])],
+    layers: () => [
+      ...deepPlumage('#2a2c38', '#020204', plumage('#2a2e38', '#5a6070')),
+      { ...repeatLayer(), name: 'Bone beads', element: 'bead', count: 12, at: 0.5, size: 0.34, stretch: 0.8, fill: '#e8dcc0', raised: true, effects: [contact(0.6)] },
+      plumeRim('Outer rim', 0.03, '#8a6a40', null, 0.04),
+      plumeRim('Inner rim', 0.97, '#8a6a40', null, 0.04),
+    ],
+  },
+  {
+    id: 'raven-plume-owl',
+    name: 'Owl plume',
+    description: 'Soft brown and cream barred owl feathers between bronze rims.',
+    group: 'Crafted',
+    after: 'raven-plume',
+    stage: RAVEN_STAGE,
+    colours: [slot('feathers', 'Feather colour', '#8a6a44', ['Feathers', 'Top feathers']), slot('rims', 'Rim colour', '#a87a3a', ['Outer bronze', 'Inner bronze'])],
+    layers: () => [
+      ...deepPlumage('#6a4c30', '#140a04', plumage('#8a6a44', '#e8dcc0', 0xfeb1)),
+      { ...lineLayer(), name: 'Outer bronze', at: 0.03, width: 0.06, paint: { kind: 'solid', color: '#a87a3a' }, effects: metalFx(BRONZE_STOPS, 0.6, 0.9) },
+      { ...lineLayer(), name: 'Inner bronze', at: 0.97, width: 0.06, paint: { kind: 'solid', color: '#a87a3a' }, effects: metalFx(BRONZE_STOPS, 0.6, 0.9) },
+    ],
+  },
+  // ── border-ember ──
+  {
+    id: 'emberforged-molten',
+    name: 'Molten ring',
+    description: 'Black iron shaded with gradients instead of a bevel, two grooves, and a wider ring of glowing lava inside.',
+    group: 'Crafted',
+    after: 'emberforged',
+    stage: { ...EMBER_STAGE, bloom: 0.25 },
+    colours: [slot('iron', 'Iron colour', '#4a4e58', ['Black iron']), slot('lava', 'Lava colour', '#ff4a2a', ['Lava', 'Molten glass', 'Lava glow'])],
+    layers: () => [...emberIron(), emberGrooves(), ...lavaRing(0.66, '#ff4a2a', '#5a0606', '#ff3a1a')],
+  },
+  {
+    id: 'emberforged-forge-runes',
+    name: 'Forge runes',
+    description: 'Sith AF runes glowing hot on the iron, over a lava ring and glowing cracks.',
+    group: 'Crafted',
+    after: 'emberforged',
+    stage: { ...EMBER_STAGE, bloom: 0.3 },
+    colours: [slot('iron', 'Iron colour', '#4a4e58', ['Black iron']), slot('glow', 'Glow colour', '#ff7a2a', ['Runes', 'Glowing cracks', 'Lava', 'Molten glass', 'Lava glow'])],
+    layers: () => [
+      ...emberIron(),
+      glowCracks('#1a0a04', '#ff7a2a', '#ffb05a', 9, 0.5),
+      inscription('sith', '#ffe0b0', { name: 'Runes', at: 0.3, size: 0.36, start: 5, effects: [glow({ color: '#ff7a2a', opacity: 0.9, size: 0.12 })] }),
+      ...lavaRing(0.7, '#ff6a2a', '#5a0a04', '#ff5a1a'),
+    ],
+  },
+  {
+    id: 'emberforged-frostfire',
+    name: 'Frostfire',
+    description: 'The cold twin: frosted iron round a ring of glowing blue ice.',
+    group: 'Crafted',
+    after: 'emberforged',
+    stage: { ...EMBER_STAGE, bloom: 0.25 },
+    colours: [slot('iron', 'Iron colour', '#5a6270', ['Black iron', 'Frost']), slot('glow', 'Glow colour', '#4ac8ff', ['Lava', 'Molten glass', 'Lava glow'])],
+    layers: () => [
+      ...emberIron('#5a6270', '#04060a'),
+      { ...textureLayer('frost'), name: 'Frost', to: 0.6, color: '#e0f0ff', amount: 0.9, scale: 1.3, strength: 0.7, seed: 0xf206, blend: 'screen' },
+      emberGrooves(),
+      ...lavaRing(0.66, '#8ae8ff', '#06204a', '#4ac8ff'),
+    ],
+  },
+  // ── border-storm ──
+  {
+    id: 'storm-wisps-arcane',
+    name: 'Arcane storm',
+    description: 'A violet storm with magenta light at its edges and pale lightning.',
+    group: 'Crafted',
+    after: 'storm-wisps',
+    stage: { ...STORM_STAGE, bloom: 0.3 },
+    colours: [slot('cloud', 'Cloud colour', '#1a0e24', ['Storm']), slot('light', 'Lightning colour', '#f0c8ff', ['Lightning'])],
+    layers: () => [stormRing('#1a0e24', '#8a70a0', '#b04ad0', '#e0c0f0'), lightning('#fff0ff', '#d070ff')],
+  },
+  {
+    id: 'storm-wisps-sea-squall',
+    name: 'Sea squall',
+    description: 'Teal sea-spray and white mist whirling round, like a squall over dark water.',
+    group: 'Crafted',
+    after: 'storm-wisps',
+    stage: { ...STORM_STAGE, bloom: 0.15 },
+    colours: [slot('sea', 'Sea colour', '#0a2a30', ['Storm'])],
+    layers: () => [stormRing('#0a2a30', '#a8c8c8', '#3ac8b0', '#e8fafa')],
+  },
+  // ── border-plates ──
+  {
+    id: 'riveted-plates-ordered',
+    name: 'Ordered plates',
+    description: 'Even iron plates neatly riveted round a shaded iron ring, all inside the band.',
+    group: 'Crafted',
+    after: 'riveted-plates',
+    stage: PLATES_STAGE,
+    colours: [slot('iron', 'Iron colour', '#66665a', ['Iron ring', 'Outer plates', 'Inner plates', 'Rivets'])],
+    layers: () => [
+      ...plateRing(PLATE_IRON),
+      loosePlates('Outer plates', 0.27, 14, 0.42, '#a4a49e', PLATE_IRON),
+      loosePlates('Inner plates', 0.73, 14, 0.42, '#9c9c96', PLATE_IRON, { offset: 0.5 }),
+      plateRivets('Rivets', 0.27, 28, '#c8c8c0', PLATE_IRON, 0.25),
+      plateRivets('Rivets', 0.73, 28, '#c8c8c0', PLATE_IRON, 0.75),
+    ],
+  },
+  {
+    id: 'riveted-plates-forge-seams',
+    name: 'Forge seams',
+    description: 'Blackened steel plates with a red-hot glow showing in the seams between them.',
+    group: 'Crafted',
+    after: 'riveted-plates',
+    stage: { ...PLATES_STAGE, bloom: 0.2 },
+    colours: [slot('steel', 'Steel colour', '#3a3e46', ['Plates']), slot('glow', 'Glow colour', '#ff5a1a', ['Seam glow'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: lin(['#1a0604', '#040101']), effects: [DROP] },
+      { ...lineLayer(), name: 'Seam glow', at: 0.5, width: 0.9, paint: { kind: 'solid', color: '#ff5a1a' }, opacity: 0.6, effects: [glow({ color: '#ff3a0a', opacity: 0.6, size: 0.1 })] },
+      loosePlates('Plates', 0.5, 12, 0.86, '#3a3e46', ['#020203', '#0e1014', '#3a3e46', '#7a808a', '#c0c8d0']),
+      plateRivets('Rivets', 0.5, 12, '#8a929c', STEEL_STOPS, 0.5),
+    ],
+  },
+  {
+    id: 'riveted-plates-bulwark',
+    name: 'Dwarven bulwark',
+    description: 'Bronze plates that bend with the ring, gold rivets evenly spaced over the plate centres and the gaps, on dark iron.',
+    group: 'Crafted',
+    after: 'riveted-plates',
+    stage: PLATES_STAGE,
+    colours: [slot('iron', 'Iron colour', '#3a3e46', ['Iron ring']), slot('bronze', 'Plate colour', '#a87a3a', ['Plates']), slot('gold', 'Rivet colour', '#d8a838', ['Rivets'])],
+    layers: () => [
+      ...plateRing(['#020203', '#0e1014', '#3a3e46', '#6a707a', '#a8b0b8'], 'metal-plate'),
+      curvedPlates('Plates', 12, '#a87a3a', BRONZE_STOPS),
+      plateRivets('Rivets', 0.22, 24, '#d8a838', WARM_GOLD),
+      plateRivets('Rivets', 0.78, 24, '#d8a838', WARM_GOLD),
     ],
   },
   // ── next ──
