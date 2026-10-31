@@ -11,10 +11,10 @@ const sigils = (element: string, fill: string, stops: string[], glowColor: strin
 export const CANDIDATES: Candidate[] = [
   {
     id: 'a-midnight-sigils', name: 'A · Midnight sigils',
-    pitch: 'Midnight blue in the twin gradient bands, gold contour lines, a glowing Outer Rim AF inscription and gold star sigils at the quarters.',
+    pitch: 'Midnight blue in the twin gradient bands, gold contour lines, glowing Outer Rim AF words between gold star sigils at the quarters.',
     stage: STAGE,
     colours: [slot('band', 'Band colour', '#1a2460', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Contour lines', 'Sigils']), slot('glow', 'Glow colour', '#a8d8ff', ['Inscription'])],
-    layers: () => [...base({ light: '#2a3a90', dark: '#04061a', step: null }), lines('#d8a838', WARM_GOLD), inscription('outerRim', '#e0f0ff', { at: 0.5, size: 0.38, start: 18, effects: [glow({ color: '#6ab0ff', opacity: 0.9, size: 0.1 })] }), sigils('icon-seven-pointed-star', '#f4d27a', WARM_GOLD, '#ffe8a0')],
+    layers: () => [...base({ light: '#2a3a90', dark: '#04061a', step: null }), lines('#d8a838', WARM_GOLD), panelWords('outerRim', '#e0f0ff', { size: 0.38, start: 2, effects: [glow({ color: '#6ab0ff', opacity: 0.9, size: 0.1 })] }), sigils('icon-seven-pointed-star', '#f4d27a', WARM_GOLD, '#ffe8a0')],
   },
   {
     id: 'b-violet-runes', name: 'B · Violet archmage',
@@ -35,7 +35,7 @@ export const CANDIDATES: Candidate[] = [
     pitch: 'Black and crimson with rose-gold lines, red-glowing Sith AF runes and pentacle sigils.',
     stage: STAGE,
     colours: [slot('band', 'Band colour', '#3a0a14', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#ff3a4a', ['Inscription'])],
-    layers: () => [...base({ light: '#6a1a2a', dark: '#0a0204', step: null }), lines('#d8907a', ROSE_STOPS), inscription('sith', '#ffd0d0', { at: 0.5, size: 0.36, start: 20, effects: [glow({ color: '#ff3a4a', opacity: 0.9, size: 0.1 })] }), sigils('icon-pentagram-rose', '#d8907a', ROSE_STOPS, '#ff6a7a')],
+    layers: () => [...base({ light: '#6a1a2a', dark: '#0a0204', step: null }), lines('#d8907a', ROSE_STOPS), panelWords('sith', '#ffd0d0', { size: 0.36, start: 6, effects: [glow({ color: '#ff3a4a', opacity: 0.9, size: 0.1 })] }), sigils('icon-pentagram-rose', '#d8907a', ROSE_STOPS, '#ff6a7a')],
   },
 ];
 export { contact };

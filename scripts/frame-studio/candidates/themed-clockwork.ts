@@ -25,10 +25,10 @@ export const CANDIDATES: Candidate[] = [
   },
   {
     id: 'c-watchwork', name: 'C · Silver watchwork',
-    pitch: 'The inside of a silver pocket watch: fine silver gears and ruby jewel bearings.',
+    pitch: 'The inside of a silver pocket watch: fine silver gears, each with a ruby jewel bearing at its centre.',
     stage: STAGE,
     colours: [slot('metal', 'Metal colour', '#c8ccd4', ['Band', 'Gears']), slot('gems', 'Jewel colour', '#c0203a', ['Jewels'])],
-    layers: () => [...photoBand('Band', 'hammered-metal', SILVER_STOPS, { step: null }), gears('#d8dce4', SILVER_STOPS, { count: 14, teeth: 16 }), ring('Jewels', 'gem', 8, '#c0203a', [contact(0.5)], { size: 0.22, offset: 0.5 } as never)],
+    layers: () => [...photoBand('Band', 'hammered-metal', SILVER_STOPS, { step: null }), gears('#d8dce4', SILVER_STOPS, { count: 14, teeth: 16 }), ring('Jewels', 'gem', 14, '#c0203a', [contact(0.5)], { size: 0.2, altSizes: [1, 0.7] } as never)],
   },
   {
     id: 'd-steampunk', name: 'D · Steampunk',

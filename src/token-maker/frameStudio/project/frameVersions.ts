@@ -46,7 +46,7 @@ import {
   type BuiltInFrame,
   type BuiltInGroup,
 } from './houseStyle';
-import { cellsLayer, groupLayer, knotworkLayer, NEW_EFFECT } from './defaults';
+import { cellsLayer, chainLayer, gearsLayer, groupLayer, knotworkLayer, NEW_EFFECT } from './defaults';
 import { wear } from './styles';
 import type { ColourSlot } from './colourSlots';
 import type { Layer, StageSettings } from './types';
@@ -545,6 +545,147 @@ const seaWaves = (swell: string, foam: string): Layer[] => [
   { ...lineLayer(), name: 'Foam crests', at: 0.28, width: 0.06, paint: { kind: 'solid', color: foam }, waveAmplitude: 0.16, waveFit: 1.3, wavePhase: 0.1, clip: 'band', effects: [{ kind: 'distort', on: true, amount: 0.05, scale: 0.12, seed: 9 } as never, glow({ color: foam, opacity: 0.4, size: 0.08 })] },
 ];
 const pearlString = (fill = '#f4f0ea'): Layer => ({ ...repeatLayer(), name: 'Pearls', element: 'bead', count: 36, snapToCorners: false, at: 0.9, size: 0.12, fill, raised: true, effects: [bevel({ profile: 'rounded', size: 0.8, gloss: 1 }), contact(0.5)] });
+
+// ── Themed designs, round 2 ──
+// themed kit
+/** A photo band recoloured and shaded with the twin gradient bands. */
+const photoRing = (name: string, picture: Parameters<typeof photo>[0], stops: string[] | null, o: { scale?: number; step?: number | null; angle?: number } = {}): Layer[] =>
+  bandShading([{ ...bandFillLayer(), name, paint: photo(picture, o.scale ?? 1.4, { lighting: 0.3, angle: o.angle ?? 0 }), effects: [...(stops ? [recolour(stops)] : []), DROP] }], { step: o.step === undefined ? 0.6 : o.step });
+/** Plates that bend with the ring: a ring with radial gaps cut out of it, with any effects. */
+const bentPlates = (name: string, count: number, fill: string, effects: Layer['effects'], o: { from?: number; to?: number; gap?: number; offset?: number } = {}): Layer => {
+  const from = o.from ?? 0.1, to = o.to ?? 0.9;
+  return {
+    ...groupLayer([
+      { ...bandFillLayer(), name: 'Plate ring', from, to, paint: { kind: 'solid', color: fill } },
+      { ...repeatLayer(), name: 'Gaps', element: 'square', count, snapToCorners: false, at: (from + to) / 2, offset: o.offset ?? 0, size: (to - from) * 1.3, stretch: (o.gap ?? 0.08) / ((to - from) * 1.3), fill: '#000000', raised: false, shaded: false },
+    ]),
+    name, combine: 'subtract', effects,
+  };
+};
+/** A ring of shapes round the band. */
+const ringOf = (name: string, element: string, count: number, fill: string, effects: Layer['effects'], o: Record<string, unknown> = {}): Layer =>
+  ({ ...repeatLayer(), name, element: element as never, count, snapToCorners: false, at: 0.5, size: 0.5, fill, raised: false, effects, ...o }) as Layer;
+/** Forked lightning across the band, glowing. */
+const forkedLightning = (color: string, glowColor: string, seed = 0x11e7): Layer => ({
+  ...fractureLayer(), kind: 'lightning', name: 'Lightning', from: 0.1, to: 0.9, count: 5, length: 1.4, branching: 0.6, jagged: 0.8, width: 0.025, color, seed, effects: [glow({ color: glowColor, opacity: 0.9, size: 0.1 })],
+});
+// themed-archmage
+const ARCHMAGE_STAGE = { thickness: 0.2, bloom: 0.25 };
+const sigilLines = (color: string, stops: string[]): Layer => ({ ...contoursLayer(), name: 'Contour lines', count: 2, from: 0.06, spacing: 0.88, width: 0.035, taper: 0, paint: { kind: 'solid', color }, effects: [...metalFx(stops, 0.5, 0.9)] });
+const starSigils = (element: string, fill: string, stops: string[], glowColor: string): Layer => ringOf('Sigils', element, 4, fill, [...goldFx(0.4, stops), glow({ color: glowColor, opacity: 0.6, size: 0.12 })], { size: 0.8 });
+// themed-starship
+const STARSHIP_STAGE = { thickness: 0.2, bloom: 0.3 };
+const hullPlates = (fill: string, stops: string[]): Layer[] => [
+  { ...bandFillLayer(), name: 'Under', paint: lin(['#1a1e24', '#020304']), effects: [DROP] },
+  bentPlates('Plates', 16, fill, [...metalFx(stops, 0.1, 0.7), contact(0.8)], { from: 0.06, to: 0.94, gap: 0.05 }),
+];
+const runningLights = (color: string, glowColor: string): Layer => glowLines(['#ffffff', color], glowColor, { count: 2, from: 0.2, spacing: 0.6, width: 0.025, size: 0.1 });
+// themed-hellfire
+const HELLFIRE_STAGE = { thickness: 0.2, bloom: 0.35, bleed: 0.2 };
+const HELL_ROCK = ['#020101', '#140604', '#3a1a10', '#6a3a28', '#9a6a50'];
+const flameRing = (fill: string, glowColor: string): Layer => ringOf('Flames', 'flame', 14, fill, [glow({ color: glowColor, opacity: 0.8, size: 0.12 })], { at: 0.55, size: 0.55, altSizes: [1, 0.7, 0.85], shaded: false } as never);
+const emberSparks = (color: string): Layer => ({ ...textureLayer('sparkle'), name: 'Embers', color, amount: 0.8, scale: 0.5, seed: 0x5a3c, effects: [glow({ color, opacity: 0.6, size: 0.04 })] });
+// themed-frostring
+const FROSTRING_STAGE = { thickness: 0.2, bloom: 0.25 };
+const iceCrystals = (color: string, stops: string[]): Layer => ({ ...cellsLayer(), name: 'Crystals', pattern: 'hex', size: 0.42, gap: 0.04, rounding: 0.05, vary: 0.25, color, opacity: 0.85, effects: [...metalFx(stops, 0.25, 0.9)] });
+const ICE_STOPS = ['#04101c', '#1a4a6a', '#6aa8d0', '#c8ecff', '#ffffff'];
+// themed-storm
+const STORM_RING_STAGE = { thickness: 0.2, bloom: 0.35 };
+const stormClouds = (color: string, color2: string, seed: number): Layer => ({ ...textureLayer('smoke'), name: 'Clouds', color, color2, amount: 1, opacity: 0.9, seed, effects: [blur(0.02)] });
+// themed-necro
+const NECRO_STAGE = { thickness: 0.2, bloom: 0.25 };
+const NECRO_BONE = ['#2a2418', '#6a5e48', '#c8bca0', '#ece4d0', '#fffcf2'];
+const bonePlates = (stops = NECRO_BONE): Layer => ({ ...cellsLayer(), name: 'Bone plates', pattern: 'brick', size: 0.6, gap: 0.05, rounding: 0.3, vary: 0.3, color: '#c8bca0', effects: [recolour(stops), bevel({ size: 0.3, gloss: 0.3 }), contact(0.6)] });
+const necroChain = (color: string, stops: string[]): Layer => ({ ...chainLayer(), name: 'Chain', at: 0.5, linkLength: 0.45, linkWidth: 0.5, thickness: 0.08, color, effects: [...metalFx(stops, 0.5, 0.7), contact(0.7)] });
+const deadRoots = (): Layer => ({ ...growthLayer('roots'), name: 'Roots', count: 2, thickness: 0.045, color: '#2a2016', extraColor: '#2a2016', seed: 6, clip: 'band', effects: [contact(0.7)] });
+const graveMist = (color: string): Layer => ({ ...textureLayer('smoke'), name: 'Mist', color, color2: null, opacity: 0.5, blend: 'screen', seed: 0x5e15, effects: [glow({ color, opacity: 0.4, size: 0.08 })] });
+const RUST_STOPS = ['#140602', '#4a1a08', '#8a3a14', '#c06a3a', '#e8a070'];
+// themed-clockwork
+const CLOCK_STAGE = { thickness: 0.2 };
+const clockGears = (color: string, stops: string[], o: { count?: number; teeth?: number } = {}): Layer => ({ ...gearsLayer(), name: 'Gears', count: o.count ?? 8, at: 0.5, size: 1.12, teeth: o.teeth ?? 12, spokes: 4, hub: 0.3, altSize: 0.7, interlock: true, color, effects: [...metalFx(stops, 0.15, 0.8), contact(0.6)] });
+const clockRivets = (fill: string, stops: string[]): Layer[] => [0.05, 0.95].map((at) => ringOf('Rivets', 'bead', 32, fill, [...metalFx(stops, 0.6, 0.8), contact(0.5)], { at, size: 0.08 } as never));
+// themed-celticknot
+const KNOT_STAGE = { thickness: 0.2 };
+const woveKnot = (color: string, stops: string[], double = false): Layer => ({ ...knotworkLayer(), name: 'Knotwork', at: 0.5, width: 0.16, amplitude: 0.28, waveLength: 0.85, color, outline: '#000000', outlineWidth: 0.03, outlineOpacity: 0.6, shine: true, double, effects: [recolour(stops), contact(0.7)] });
+const knotRims = (stops: string[]): Layer[] => [
+  { ...bandFillLayer(), name: 'Rims', to: 0.12, paint: lin(['#ffffff', '#505050']), effects: [recolour(stops), DROP] },
+  { ...bandFillLayer(), name: 'Rims', from: 0.88, paint: lin(['#404040', '#f0f0f0']), effects: [recolour(stops)] },
+];
+// themed-dragon
+const DRAGON_STAGE = { thickness: 0.2 };
+const scaleBand = (color: string, under: string): Layer[] => [
+  { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: under }, effects: [DROP] },
+  { ...textureLayer('scales'), name: 'Scales', from: 0.08, to: 0.92, color, amount: 1, scale: 1.4, strength: 1.2, seed: 0xd5a1 },
+  { ...bandFillLayer(), name: 'Shading', paint: lin(['#ffffff', '#000000']), blend: 'overlay', opacity: 0.6 },
+];
+const scaleEdges = (color: string, stops: string[]): Layer[] => [0.03, 0.97].map((at) => ({ ...lineLayer(), name: 'Edges', at, width: 0.06, paint: { kind: 'solid' as const, color }, effects: [...metalFx(stops, 0.6, 0.9), contact(0.5)] }));
+const dragonEye = (fill: string, glowColor: string): Layer => ringOf('Eye', 'gem', 1, fill, [glow({ color: glowColor, opacity: 0.7, size: 0.12 }), contact(0.6)], { size: 0.5, stretch: 0.6, gemCut: 'cabochon' } as never);
+const hornRidge = (fill: string, stops: string[]): Layer => ringOf('Horn ridge', 'tooth', 24, fill, [...goldFx(0.3, stops)], { at: 0.12, size: 0.22, rotation: 180 } as never);
+// themed-stones
+const STONES_STAGE = { thickness: 0.22 };
+/** The ground behind the stones: the twin gradient rings in an earthy colour. */
+const groundRings = (color: string): Layer[] => base({ light: color, dark: '#020402', step: 0.55 }).map((l) => (l.name === 'Band' ? { ...l, name: 'Ground' } : l));
+/** The stones, their texture and whatever grows on them as one group, with gradient rings laid over the stones only. */
+const stoneGroup = (stops: string[], extra: Layer[] = []): Layer[] => [
+  { ...groupLayer([...circleStones(stops), ...extra]), name: 'Stones' },
+  {
+    ...groupLayer([
+      { ...bandFillLayer(), name: 'Shading', paint: lin(['#ffffff', '#000000']) },
+      { ...bandFillLayer(), name: 'Pressed-in shading', from: 0.55, paint: lin(['#000000', '#ffffff']) },
+    ]),
+    name: 'Stone shading', blend: 'overlay', opacity: 0.8, clip: 'below',
+  },
+];
+const circleStones = (stops: string[]): Layer[] => [
+  bentPlates('Stones', 10, '#8a8680', [recolour(stops), contact(0.8)], { from: 0.08, to: 0.92, gap: 0.16 }),
+  { ...bandFillLayer(), name: 'Stone texture', from: 0.08, to: 0.92, paint: photo('granite', 1.2), opacity: 0.6, blend: 'multiply', clip: 'below' },
+];
+const CIRCLE_STONE = ['#14130f', '#4a4842', '#8a8680', '#c8c4ba', '#f0ece2'];
+const stoneMoss = (): Layer => ({ ...bandFillLayer(), name: 'Moss', from: 0.08, to: 0.45, paint: photo('moss', 1), opacity: 0.85, clip: 'below', effects: [{ kind: 'distort', on: true, amount: 0.3, scale: 0.4, seed: 8 } as never] });
+const creeper = (leaf: string, extra: 'leaves' | 'berries' = 'leaves'): Layer => ({ ...growthLayer('vine'), name: 'Creeper', count: 1, thickness: 0.03, amplitude: 0.3, waveLength: 2.2, extra, extraSize: 0.36, color: '#2e4a1c', extraColor: leaf, seed: 9, effects: [contact(0.6)] });
+// themed-nautical
+const NAUTICAL_STAGE = { thickness: 0.22 };
+const shipRope = (color: string, from = 0.36, to = 0.64): Layer[] => [
+  { ...bandFillLayer(), name: 'Rope', from, to, paint: { kind: 'solid', color }, effects: [contact(0.6)] },
+  { ...textureLayer('rope'), name: 'Rope', from, to, color, amount: 1, strength: 1.2, seed: 0xbead },
+  { ...bandFillLayer(), name: 'Rope shading', from, to, blend: 'overlay', opacity: 0.8, paint: across(['#000000', '#ffffff', '#808080', '#000000']) },
+];
+const portholes = (stops: string[]): Layer => ringOf('Portholes', 'circle', 4, '#b5813a', [...metalFx(stops, 0.5, 0.9), contact(0.7)], { size: 0.9, outline: '#2a1a08', outlineWidth: 0.25 } as never);
+const doubloons = (): Layer => ringOf('Doubloons', 'bead', 8, '#d8a838', [...goldFx(0.5, WARM_GOLD), contact(0.6)], { size: 0.32, offset: 0.5, stretch: 1 } as never);
+const SHIP_WOOD = ['#140a04', '#3a2210', '#7a5230', '#b08a60', '#e0c8a0'];
+// themed-autumn
+const AUTUMN_STAGE = { thickness: 0.2 };
+/** A thick, tumbling scatter like the original's: many leaves in many colours, sizes and angles, alternating sides. */
+const autumnLeaves = (element: string, fill: string, alt: string[], effects: Layer['effects'] = [bevel({ size: 0.3, gloss: 0.3 }), contact(0.6)], count = 56): Layer =>
+  ringOf('Leaves', element, count, fill, effects, { size: 0.82, stretch: 0.6, altColors: alt, altSizes: [1, 0.7, 0.85, 0.6, 0.95], jitterAngle: 120, jitterSize: 0.45, skipChance: 0.15, alternateSides: 0.14, wander: 0.15, seed: 21 } as never);
+const AUTUMN_COLOURS = ['#e88a1a', '#d8b030', '#a02810', '#7a4a1a', '#e0601a', '#b8a020'];
+// themed-halo
+const HALO_STAGE = { thickness: 0.2, bloom: 0.35 };
+const haloRays = (color: string): Layer => ringOf('Rays', 'tick', 72, color, [], { size: 0.85, stretch: 0.1, altSizes: [1, 0.55], opacity: 0.6, blend: 'overlay', shaded: false } as never);
+const haloStars = (fill: string, stops: string[], glowColor: string, count = 8): Layer => ringOf('Stars', 'star', count, fill, [...metalFx(stops, 0.4, 0.9), glow({ color: glowColor, opacity: 0.7, size: 0.12 })], { size: 0.55, altSizes: [1, 0.6] } as never);
+// themed-desert
+const DESERT_STAGE = { thickness: 0.22 };
+const SAND_STOPS = ['#2a1e0e', '#6a5434', '#c8a874', '#e8d4a8', '#fff4dc'];
+const tombBlocks = (stops = SAND_STOPS): Layer[] => [
+  { ...bandFillLayer(), name: 'Mortar', paint: lin(['#4a3a20', '#140e06']), effects: [DROP] },
+  bentPlates('Sandstone', 10, '#c8a874', [recolour(stops), contact(0.7)], { from: 0.04, to: 0.96, gap: 0.04 }),
+  { ...bandFillLayer(), name: 'Grain', paint: photo('granite', 1.4), opacity: 0.35, blend: 'multiply', clip: 'below' },
+];
+const lapisInlay = (): Layer[] => [0.12, 0.88].map((at) => ({ ...lineLayer(), name: 'Lapis inlay', at, width: 0.06, paint: { kind: 'solid' as const, color: '#1a3aa0' }, effects: [bevel({ direction: 'sunken', size: 0.5, gloss: 0.8 })] }));
+const tombGlyphs = (fill: string, effects: Layer['effects']) => panelWords('yugurian', fill, { count: 10, size: 0.36, start: 5, effects });
+// themed-geode
+const GEODE_STAGE = { thickness: 0.22, bloom: 0.15 };
+/** A geode: rough stone crust outside, crystal lining within, each with its own shading. */
+const geodeBand = (crust: string[], crystal: string, glowColor: string, inward?: string[]): Layer[] => [
+  { ...bandFillLayer(), name: 'Crust', paint: photo('dark-rock', 1.2), effects: [recolour(crust), DROP] },
+  { ...bandFillLayer(), name: 'Crust shading', to: 0.4, paint: lin(['#ffffff', '#000000']), blend: 'overlay', opacity: 0.6 },
+  { ...bandFillLayer(), name: 'Crystal', from: 0.35, paint: lin(['#000000', crystal]), effects: [glow({ inner: true, color: glowColor, opacity: 0.4, size: 0.1 })] },
+  { ...textureLayer('crystal'), name: 'Crystal', from: 0.35, color: crystal, opacity: 0.95, seed: 0xc278 },
+  ...(inward ? [{ ...bandFillLayer(), name: 'Crystal', from: 0.35, paint: across(inward), blend: 'color' as const, opacity: 0.9 }, { ...bandFillLayer(), name: 'Crystal light', from: 0.35, paint: across(['#000000', '#808080', '#ffffff']), blend: 'soft-light' as const, opacity: 0.8 }] : []),
+  { ...textureLayer('sparkle'), name: 'Glitter', from: 0.35, color: '#ffffff', amount: 0.7, scale: 0.4, seed: 0x5a3e },
+  { ...bandFillLayer(), name: 'Rind', from: 0.3, to: 0.4, paint: { kind: 'solid', color: '#f0ece4' }, opacity: 0.6, effects: [contact(0.5)] },
+];
+const GEODE_CRUST = ['#0a0806', '#2a2420', '#5a5048', '#8a8078', '#b8b0a8'];
 
 const VERSIONS: Version[] = [
   // ── stamped ──
@@ -3467,6 +3608,389 @@ const VERSIONS: Version[] = [
     stage: TIDAL_STAGE,
     colours: [slot('sea', 'Sea colour', '#1ab0b8', ['Band', 'Pressed-in step', 'Swell'])],
     layers: () => [...base({ light: '#5ae0e0', dark: '#0a5a6a', step: 0.8 }), ...seaWaves('#8af0f0', '#ffffff'), pearlString('#fff8f0')],
+  },
+  // ── themed-archmage ──
+  {
+    id: 'archmage-midnight', name: 'Midnight sigils',
+    description: 'Midnight blue in the twin gradient bands, gold contour lines, glowing Outer Rim AF words between gold star sigils at the quarters.',
+    group: 'Crafted',
+    after: 'archmage',
+    stage: ARCHMAGE_STAGE,
+    colours: [slot('band', 'Band colour', '#1a2460', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Contour lines', 'Sigils']), slot('glow', 'Glow colour', '#a8d8ff', ['Inscription'])],
+    layers: () => [...base({ light: '#2a3a90', dark: '#04061a', step: null }), sigilLines('#d8a838', WARM_GOLD), panelWords('outerRim', '#e0f0ff', { size: 0.38, start: 2, effects: [glow({ color: '#6ab0ff', opacity: 0.9, size: 0.1 })] }), starSigils('icon-seven-pointed-star', '#f4d27a', WARM_GOLD, '#ffe8a0')],
+  },
+  {
+    id: 'archmage-panels', name: 'Sigil panels',
+    description: 'Midnight blue with a glowing word in each of eight panels between gold sigils.',
+    group: 'Crafted',
+    after: 'archmage',
+    stage: ARCHMAGE_STAGE,
+    colours: [slot('band', 'Band colour', '#1a2460', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Contour lines', 'Sigils']), slot('glow', 'Glow colour', '#a8d8ff', ['Runes'])],
+    layers: () => [...base({ light: '#2a3a90', dark: '#04061a', step: null }), sigilLines('#d8a838', WARM_GOLD), panelWords('yugurian', '#e0f0ff', { size: 0.4, offset: 0, effects: [glow({ color: '#6ab0ff', opacity: 0.9, size: 0.1 })] }), { ...starSigils('star', '#f4d27a', WARM_GOLD, '#ffe8a0'), count: 8, size: 0.5 } as Layer],
+  },
+  {
+    id: 'archmage-blood', name: 'Blood sigils',
+    description: 'Black and crimson with rose-gold lines, red-glowing Sith AF runes and pentacle sigils.',
+    group: 'Crafted',
+    after: 'archmage',
+    stage: ARCHMAGE_STAGE,
+    colours: [slot('band', 'Band colour', '#3a0a14', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#ff3a4a', ['Inscription'])],
+    layers: () => [...base({ light: '#6a1a2a', dark: '#0a0204', step: null }), sigilLines('#d8907a', ROSE_STOPS), panelWords('sith', '#ffd0d0', { size: 0.36, start: 6, effects: [glow({ color: '#ff3a4a', opacity: 0.9, size: 0.1 })] }), starSigils('icon-pentagram-rose', '#d8907a', ROSE_STOPS, '#ff6a7a')],
+  },
+  // ── themed-starship ──
+  {
+    id: 'starship-gunmetal', name: 'Gunmetal hull',
+    description: 'Curved gunmetal hull plates with cyan running lights along both edges and small lit ports.',
+    group: 'Crafted',
+    after: 'starship',
+    stage: STARSHIP_STAGE,
+    colours: [slot('metal', 'Hull colour', '#4a5260', ['Plates']), slot('glow', 'Light colour', '#4ae0ff', ['Glowing lines', 'Ports'])],
+    layers: () => [...hullPlates('#4a5260', ['#040506', '#1a1e24', '#4a5260', '#8a929e', '#d0d6de']), runningLights('#8af0ff', '#2ad0ff'), ringOf('Ports', 'square', 16, '#c8f8ff', [glow({ color: '#4ae0ff', opacity: 0.8, size: 0.06 })], { size: 0.1, offset: 0.5, shaded: false } as never)],
+  },
+  {
+    id: 'starship-living', name: 'Living hull',
+    description: 'An alien ship grown, not built: violet cells glowing green where they join.',
+    group: 'Crafted',
+    after: 'starship',
+    stage: STARSHIP_STAGE,
+    colours: [slot('hull', 'Hull colour', '#4a2a6a', ['Cells']), slot('glow', 'Glow colour', '#6aff8a', ['Glow'])],
+    layers: () => [
+      ...base({ light: '#2a3a2a', dark: '#020402', step: null }),
+      { ...bandFillLayer(), name: 'Glow', from: 0.1, to: 0.9, paint: { kind: 'solid', color: '#6aff8a' }, opacity: 0.5, effects: [glow({ color: '#4aff6a', opacity: 0.6, size: 0.1 })] },
+      { ...cellsLayer(), name: 'Cells', pattern: 'voronoi', size: 0.55, gap: 0.06, rounding: 0.6, vary: 0.3, color: '#4a2a6a', effects: [...metalFx(['#0a0214', '#2a1440', '#4a2a6a', '#8a5aaa', '#c8a0e0'], 0.4, 0.6), contact(0.6)] },
+    ],
+  },
+  {
+    id: 'starship-white', name: 'White armour',
+    description: 'Clean white armour plating with blue running lights.',
+    group: 'Crafted',
+    after: 'starship',
+    stage: STARSHIP_STAGE,
+    colours: [slot('metal', 'Plate colour', '#e8ecf0', ['Plates']), slot('glow', 'Light colour', '#4a8aff', ['Glowing lines'])],
+    layers: () => [...hullPlates('#e8ecf0', ['#4a4e56', '#9aa0aa', '#d8dce4', '#f4f6f8', '#ffffff']), runningLights('#a0c8ff', '#4a8aff')],
+  },
+  // ── themed-hellfire ──
+  {
+    id: 'hellfire-ring-shaded', name: 'Hellfire',
+    description: 'Molten rock shaded with gradients, split by blurred burning cracks, with flames licking along it and embers.',
+    group: 'Crafted',
+    after: 'hellfire-ring',
+    stage: HELLFIRE_STAGE,
+    colours: [slot('rock', 'Rock colour', '#3a1a10', ['Rock']), slot('fire', 'Fire colour', '#ff6a1a', ['Glowing cracks', 'Flames'])],
+    layers: () => [...photoRing('Rock', 'dark-rock', HELL_ROCK), glowCracks('#1a0602', '#ff6a1a', '#ffc070', 31, 0.9), flameRing('#ffd070', '#ff5a1a'), emberSparks('#ffb050')],
+  },
+  {
+    id: 'hellfire-ring-blue', name: 'Blue hellfire',
+    description: 'The same fire burning blue and white, hotter and stranger.',
+    group: 'Crafted',
+    after: 'hellfire-ring',
+    stage: HELLFIRE_STAGE,
+    colours: [slot('rock', 'Rock colour', '#1a1a2a', ['Rock']), slot('fire', 'Fire colour', '#4a8aff', ['Glowing cracks', 'Flames'])],
+    layers: () => [...photoRing('Rock', 'dark-rock', ['#010102', '#04060e', '#1a1a2a', '#3a3a5a', '#6a6a8a']), glowCracks('#020618', '#4a8aff', '#c0e0ff', 33, 0.9), flameRing('#d0e8ff', '#4a8aff'), emberSparks('#a0c8ff')],
+  },
+  {
+    id: 'hellfire-ring-lava', name: 'Lava flow',
+    description: 'A ring of flowing lava, crusted dark at the edges and bright in the middle.',
+    group: 'Crafted',
+    after: 'hellfire-ring',
+    stage: HELLFIRE_STAGE,
+    colours: [slot('lava', 'Lava colour', '#ff4a1a', ['Lava'])],
+    layers: () => [...photoRing('Lava', 'lava-flow', null, { step: null }), { ...textureLayer('lava'), name: 'Lava', from: 0.3, to: 0.7, color: '#ff6a2a', color2: '#5a0a04', opacity: 0.7, blend: 'screen', seed: 0x1a7c }],
+  },
+  // ── themed-frostring ──
+  {
+    id: 'frost-ring-glacier', name: 'Glacier crystal',
+    description: 'Hexagonal ice crystals over glacier blue, shaded with gradients, with a cold glowing seam.',
+    group: 'Crafted',
+    after: 'frost-ring',
+    stage: FROSTRING_STAGE,
+    colours: [slot('ice', 'Ice colour', '#6aa8d0', ['Band', 'Pressed-in step', 'Crystals'])],
+    layers: () => [...base({ light: '#8ac8f0', dark: '#06182a', step: 0.74 }), iceCrystals('#a8d8f8', ICE_STOPS), glowLines(['#f0fcff', '#a8ecff'], '#4ac8ff', { count: 1, from: 0.74, width: 0.025, size: 0.1 })],
+  },
+  {
+    id: 'frost-ring-silver', name: 'Frozen silver',
+    description: 'Frosted silver with silver snowflakes and a pale blue glow.',
+    group: 'Crafted',
+    after: 'frost-ring',
+    stage: FROSTRING_STAGE,
+    colours: [slot('metal', 'Metal colour', '#c8ccd4', ['Band', 'Pressed-in step', 'Snowflakes'])],
+    layers: () => [...base({ light: '#e8ecf0', dark: '#3a4048', step: 0.7 }), { ...textureLayer('frost'), name: 'Frost', color: '#ffffff', opacity: 0.7, seed: 0xf208, blend: 'screen' }, ringOf('Snowflakes', 'snowflake', 8, '#ffffff', [...metalFx(SILVER_STOPS, 0.3, 0.9), glow({ color: '#bfe8ff', opacity: 0.5, size: 0.08 })], { size: 0.6, at: 0.36 } as never)],
+  },
+  // ── themed-storm ──
+  {
+    id: 'storm-ring-thunderhead', name: 'Thunderhead',
+    description: 'Swirling grey storm cloud in the twin gradient bands, crackling with forked lightning.',
+    group: 'Crafted',
+    after: 'storm-ring',
+    stage: STORM_RING_STAGE,
+    colours: [slot('cloud', 'Cloud colour', '#3a4450', ['Band', 'Pressed-in step', 'Clouds']), slot('light', 'Lightning colour', '#bfe4ff', ['Lightning'])],
+    layers: () => [...base({ light: '#5a6470', dark: '#06080a', step: null }), stormClouds('#9aa4b0', '#1a2028', 0x5e11), forkedLightning('#f0f8ff', '#6ab0ff')],
+  },
+  {
+    id: 'storm-ring-arcane', name: 'Arcane tempest',
+    description: 'A violet storm with pink lightning.',
+    group: 'Crafted',
+    after: 'storm-ring',
+    stage: STORM_RING_STAGE,
+    colours: [slot('cloud', 'Cloud colour', '#3a2450', ['Band', 'Pressed-in step', 'Clouds']), slot('light', 'Lightning colour', '#ffc8ff', ['Lightning'])],
+    layers: () => [...base({ light: '#5a3a7a', dark: '#0a0412', step: null }), stormClouds('#b08ad0', '#1a0a28', 0x5e12), forkedLightning('#fff0ff', '#e070ff', 0x11e8)],
+  },
+  {
+    id: 'storm-ring-blood', name: 'Blood storm',
+    description: 'Red-black clouds lit by orange lightning.',
+    group: 'Crafted',
+    after: 'storm-ring',
+    stage: STORM_RING_STAGE,
+    colours: [slot('cloud', 'Cloud colour', '#3a1010', ['Band', 'Pressed-in step', 'Clouds']), slot('light', 'Lightning colour', '#ffc080', ['Lightning'])],
+    layers: () => [...base({ light: '#6a2020', dark: '#0a0202', step: null }), stormClouds('#c06050', '#1a0404', 0x5e13), forkedLightning('#fff0d0', '#ff7a2a', 0x11e9)],
+  },
+  // ── themed-necro ──
+  {
+    id: 'necropolis-bone', name: 'Bone & chain',
+    description: 'Yellowed bone plates on a dark band, bound with a rusted chain and dead roots, under a sickly green mist.',
+    group: 'Crafted',
+    after: 'necropolis',
+    stage: NECRO_STAGE,
+    colours: [slot('bone', 'Bone colour', '#c8bca0', ['Bone plates']), slot('glow', 'Mist colour', '#8aff6a', ['Mist'])],
+    layers: () => [...base({ light: '#2a2a20', dark: '#040402', step: null }), bonePlates(), deadRoots(), necroChain('#8a3a14', RUST_STOPS), graveMist('#8aff6a')],
+  },
+  {
+    id: 'necropolis-gilded', name: 'Gilded tomb',
+    description: 'Black stone with gold skulls and a gold chain, for a lich’s sepulchre.',
+    group: 'Crafted',
+    after: 'necropolis',
+    stage: NECRO_STAGE,
+    colours: [slot('stone', 'Stone colour', '#1a1a1e', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Skulls', 'Chain'])],
+    layers: () => [...base({ light: '#3a3a40', dark: '#020203', step: null }), necroChain('#d8a838', WARM_GOLD), ringOf('Skulls', 'skull', 6, '#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.7)], { size: 0.75 } as never)],
+  },
+  // ── themed-clockwork ──
+  {
+    id: 'clockwork-brass', name: 'Brass clockwork',
+    description: 'Dark plate shaded with gradients, meshing polished brass gears and rows of rivets.',
+    group: 'Crafted',
+    after: 'clockwork',
+    stage: CLOCK_STAGE,
+    colours: [slot('plate', 'Plate colour', '#2a2014', ['Band']), slot('brass', 'Brass colour', '#c8952e', ['Gears', 'Rivets'])],
+    layers: () => [...base({ light: '#4a3a24', dark: '#0a0602', step: null }), clockGears('#c8952e', WARM_GOLD), ...clockRivets('#c8952e', WARM_GOLD)],
+  },
+  {
+    id: 'clockwork-watchwork', name: 'Silver watchwork',
+    description: 'The inside of a silver pocket watch: fine silver gears, each with a ruby jewel bearing at its centre.',
+    group: 'Crafted',
+    after: 'clockwork',
+    stage: CLOCK_STAGE,
+    colours: [slot('metal', 'Metal colour', '#c8ccd4', ['Band', 'Gears']), slot('gems', 'Jewel colour', '#c0203a', ['Jewels'])],
+    layers: () => [...photoRing('Band', 'hammered-metal', SILVER_STOPS, { step: null }), clockGears('#d8dce4', SILVER_STOPS, { count: 14, teeth: 16 }), ringOf('Jewels', 'gem', 14, '#c0203a', [contact(0.5)], { size: 0.2, altSizes: [1, 0.7] } as never)],
+  },
+  {
+    id: 'clockwork-steampunk', name: 'Steampunk',
+    description: 'Brown leather strapped round brass gears and a steel chain.',
+    group: 'Crafted',
+    after: 'clockwork',
+    stage: CLOCK_STAGE,
+    colours: [slot('leather', 'Leather colour', '#5a3420', ['Band']), slot('brass', 'Brass colour', '#b5813a', ['Gears'])],
+    layers: () => [
+      ...photoRing('Band', 'leather', ['#0a0402', '#2a160a', '#5a3420', '#8a6040', '#b89070'], { step: null }),
+      clockGears('#b5813a', BRONZE_STOPS, { count: 6 }),
+      { ...chainLayer(), name: 'Chain', at: 0.85, linkLength: 0.3, linkWidth: 0.4, thickness: 0.05, color: '#a8b0ba', effects: [...metalFx(STEEL_STOPS, 0.5, 0.8), contact(0.6)] },
+    ],
+  },
+  // ── themed-celticknot ──
+  {
+    id: 'celtic-knot-silver', name: 'Silver on green',
+    description: 'Silver knotwork woven over and under on green enamel, between silver rims shaded with gradients.',
+    group: 'Crafted',
+    after: 'celtic-knot',
+    stage: KNOT_STAGE,
+    colours: [slot('enamel', 'Enamel colour', '#1f6a3c', ['Band']), slot('silver', 'Silver colour', '#d8dce4', ['Knotwork', 'Rims'])],
+    layers: () => [...base({ light: '#2e8a50', dark: '#031408', step: null }), ...knotRims(SILVER_STOPS), woveKnot('#d8dce4', SILVER_STOPS)],
+  },
+  {
+    id: 'celtic-knot-gold', name: 'Gold on red',
+    description: 'A double gold knot on deep red enamel between gold rims.',
+    group: 'Crafted',
+    after: 'celtic-knot',
+    stage: KNOT_STAGE,
+    colours: [slot('enamel', 'Enamel colour', '#8a1a24', ['Band']), slot('gold', 'Gold colour', '#d8a838', ['Knotwork', 'Rims'])],
+    layers: () => [...base({ light: '#c02a3a', dark: '#1a0206', step: null }), ...knotRims(WARM_GOLD), woveKnot('#d8a838', WARM_GOLD, true)],
+  },
+  {
+    id: 'celtic-knot-bronze', name: 'Bronze on blue',
+    description: 'Bronze knotwork on midnight-blue enamel.',
+    group: 'Crafted',
+    after: 'celtic-knot',
+    stage: KNOT_STAGE,
+    colours: [slot('enamel', 'Enamel colour', '#1a2a5a', ['Band']), slot('bronze', 'Bronze colour', '#a87a3a', ['Knotwork', 'Rims'])],
+    layers: () => [...base({ light: '#2a4a8a', dark: '#02061a', step: null }), ...knotRims(BRONZE_STOPS), woveKnot('#a87a3a', BRONZE_STOPS)],
+  },
+  // ── themed-dragon ──
+  {
+    id: 'dragon-scale-crimson', name: 'Crimson dragon',
+    description: 'Crimson scales shaded with a gradient, gold edges, a row of gold horn tips and a glowing amber dragon’s eye at the top.',
+    group: 'Crafted',
+    after: 'dragon-scale',
+    stage: { ...DRAGON_STAGE, bloom: 0.2 },
+    colours: [slot('scales', 'Scale colour', '#d03a2a', ['Scales']), slot('gold', 'Gold colour', '#d8a838', ['Edges', 'Horn ridge'])],
+    layers: () => [...scaleBand('#d03a2a', '#200404'), hornRidge('#f4d27a', WARM_GOLD), ...scaleEdges('#d8a838', WARM_GOLD), dragonEye('#ffa020', '#ffc040')],
+  },
+  {
+    id: 'dragon-scale-emerald', name: 'Emerald dragon',
+    description: 'Green scales with bronze edges and a glowing yellow eye.',
+    group: 'Crafted',
+    after: 'dragon-scale',
+    stage: { ...DRAGON_STAGE, bloom: 0.2 },
+    colours: [slot('scales', 'Scale colour', '#3a9a3a', ['Scales'])],
+    layers: () => [...scaleBand('#3a9a3a', '#041004'), ...scaleEdges('#a87a3a', ['#1e1206', '#5a3a18', '#a87a3a', '#e0c08a', '#fff0d0']), dragonEye('#e0ff40', '#c0ff40')],
+  },
+  {
+    id: 'dragon-scale-shadow', name: 'Shadow dragon',
+    description: 'Black scales with a violet sheen and a glowing violet eye.',
+    group: 'Crafted',
+    after: 'dragon-scale',
+    stage: { ...DRAGON_STAGE, bloom: 0.25 },
+    colours: [slot('scales', 'Scale colour', '#2a2034', ['Scales']), slot('glow', 'Eye colour', '#b06aff', ['Eye'])],
+    layers: () => [...scaleBand('#2a2034', '#020104'), { ...bandFillLayer(), name: 'Sheen', paint: lin(['#8a4ad0', '#000000', '#2a8ad0'], 30), opacity: 0.45, blend: 'screen' }, dragonEye('#c890ff', '#9a5aff')],
+  },
+  // ── themed-stones ──
+  {
+    id: 'druid-circle-stones', name: 'Standing stones',
+    description: 'Ten grey stones that follow the ring, with gradient rings for depth over them and the ground behind, moss on their tops and a creeper threading between them.',
+    group: 'Crafted',
+    after: 'druid-circle',
+    stage: STONES_STAGE,
+    colours: [slot('stone', 'Stone colour', '#8a8680', ['Stones']), slot('moss', 'Leaf colour', '#5a8a32', ['Creeper'])],
+    layers: () => [...groundRings('#3a4a2a'), ...stoneGroup(CIRCLE_STONE, [stoneMoss()]), creeper('#5a8a32')],
+  },
+  {
+    id: 'druid-circle-runes', name: 'Rune stones',
+    description: 'The stones carved with a rune each, glowing faint green.',
+    group: 'Crafted',
+    after: 'druid-circle',
+    stage: { ...STONES_STAGE, bloom: 0.25 },
+    colours: [slot('stone', 'Stone colour', '#8a8680', ['Stones']), slot('glow', 'Rune colour', '#6aff8a', ['Runes'])],
+    layers: () => [...groundRings('#2a3a24'), ...stoneGroup(CIRCLE_STONE), panelWords('babelstone', '#d0ffd8', { count: 10, size: 0.34, effects: [glow({ color: '#4aff6a', opacity: 0.85, size: 0.1 })] })],
+  },
+  // ── themed-nautical ──
+  {
+    id: 'nautical-timber', name: 'Ship’s timber',
+    description: 'Weathered timber shaded with gradients, a twisted rope round the middle, brass portholes and gold doubloons.',
+    group: 'Crafted',
+    after: 'nautical',
+    stage: NAUTICAL_STAGE,
+    colours: [slot('wood', 'Wood colour', '#7a5230', ['Timber']), slot('rope', 'Rope colour', '#c8a870', ['Rope'])],
+    layers: () => [...photoRing('Timber', 'wood-planks', SHIP_WOOD, { angle: 90, step: null }), ...shipRope('#c8a870'), portholes(BRONZE_STOPS), doubloons()],
+  },
+  {
+    id: 'nautical-driftwood', name: 'Driftwood & shells',
+    description: 'Sun-bleached driftwood bound with rope, with shells tucked into it.',
+    group: 'Crafted',
+    after: 'nautical',
+    stage: NAUTICAL_STAGE,
+    colours: [slot('wood', 'Wood colour', '#b8a890', ['Timber']), slot('shells', 'Shell colour', '#f8e8e0', ['Shells'])],
+    layers: () => [...photoRing('Timber', 'plane-bark', ['#2a2620', '#6a6050', '#b8a890', '#e0d8c8', '#fffcf4'], { angle: 90, step: null }), ...shipRope('#c8a870', 0.6, 0.8), ringOf('Shells', 'shell', 8, '#f8e8e0', [contact(0.6)], { size: 0.5, at: 0.3 } as never)],
+  },
+  {
+    id: 'nautical-pirate', name: 'Pirate’s hoard',
+    description: 'Black tarred timber, a rope, gold doubloons and a skull and crossbones at the top.',
+    group: 'Crafted',
+    after: 'nautical',
+    stage: NAUTICAL_STAGE,
+    colours: [slot('wood', 'Wood colour', '#2a2018', ['Timber'])],
+    layers: () => [...photoRing('Timber', 'wood-planks', ['#020101', '#0e0a06', '#2a2018', '#5a4a3a', '#8a7a6a'], { angle: 90, step: null }), ...shipRope('#a88a5a'), doubloons(), ringOf('Skull', 'icon-skull-crossed-bones', 1, '#f0e8d8', [contact(0.7)], { size: 0.85 } as never)],
+  },
+  // ── themed-autumn ──
+  {
+    id: 'autumn-leaves-birch', name: 'Birch & autumn',
+    description: 'A birch-bark hoop shaded with gradients, with red, orange and gold leaves tumbling round it.',
+    group: 'Crafted',
+    after: 'autumn-leaves',
+    stage: AUTUMN_STAGE,
+    colours: [slot('bark', 'Bark colour', '#d8d4c8', ['Bark']), slot('leaves', 'Leaf colour', '#c0501a', ['Leaves'])],
+    layers: () => [...photoRing('Bark', 'plane-bark', ['#2a2a26', '#8a8a82', '#d8d4c8', '#f0ece4', '#ffffff'], { angle: 90 }), autumnLeaves('leaf', '#c83a14', AUTUMN_COLOURS)],
+  },
+  {
+    id: 'autumn-leaves-maple', name: 'Maple red',
+    description: 'A thick tumble of scarlet, crimson and orange leaves on a dark wooden hoop.',
+    group: 'Crafted',
+    after: 'autumn-leaves',
+    stage: AUTUMN_STAGE,
+    colours: [slot('leaves', 'Leaf colour', '#c01a14', ['Leaves'])],
+    layers: () => [...photoRing('Bark', 'wood-planks', ['#140a04', '#3a2210', '#6a4220', '#9a7050', '#c8a080'], { angle: 90 }), autumnLeaves('leaf', '#c01a14', ['#e0401a', '#8a0a0a', '#d02a2a', '#f06a2a', '#6a0a0a'])],
+  },
+  {
+    id: 'autumn-leaves-gilded', name: 'Gilded leaves',
+    description: 'Leaves of beaten gold scattered round a dark hoop.',
+    group: 'Crafted',
+    after: 'autumn-leaves',
+    stage: AUTUMN_STAGE,
+    colours: [slot('gold', 'Gold colour', '#d8a838', ['Leaves'])],
+    layers: () => [...photoRing('Bark', 'wood-planks', ['#0a0602', '#1e140a', '#3a2814', '#5a4428', '#806040'], { angle: 90 }), autumnLeaves('leaf', '#d8a838', ['#f0c860', '#b07820', '#e8b0a0', '#c89040'], [...goldFx(0.35, WARM_GOLD), contact(0.6)])],
+  },
+  // ── themed-halo ──
+  {
+    id: 'celestial-halo-white-gold', name: 'White-gold halo',
+    description: 'White gold in the twin gradient bands, a radiant sunburst of rays, glowing stars and a soft heavenly bloom.',
+    group: 'Crafted',
+    after: 'celestial-halo',
+    stage: HALO_STAGE,
+    colours: [slot('metal', 'Metal colour', '#e8e4d8', ['Band', 'Pressed-in step', 'Stars']), slot('glow', 'Glow colour', '#fff4c0', ['Glowing lines'])],
+    layers: () => [...base({ light: '#ffffff', dark: '#8a8678', step: 0.7 }), haloRays('#ffffff'), haloStars('#fffbe8', ['#4a4638', '#a8a490', '#e8e4d8', '#fffcf0', '#ffffff'], '#fff4c0'), glowLines(['#ffffff', '#fff4c0'], '#ffe890', { count: 1, from: 0.7, width: 0.025, size: 0.12 })],
+  },
+  {
+    id: 'celestial-halo-golden', name: 'Golden halo',
+    description: 'Warm gold with a sunburst and golden stars.',
+    group: 'Crafted',
+    after: 'celestial-halo',
+    stage: HALO_STAGE,
+    colours: [slot('gold', 'Gold colour', '#d8a838', ['Band', 'Pressed-in step', 'Stars'])],
+    layers: () => [...base({ light: '#f4d27a', dark: '#4a2a06', step: 0.7 }), haloRays('#fff0b0'), haloStars('#f4d27a', WARM_GOLD, '#ffe8a0')],
+  },
+  // ── themed-desert ──
+  {
+    id: 'desert-tomb-sandstone', name: 'Sandstone tomb',
+    description: 'Sandstone blocks that follow the ring, a glyph carved in each, lapis inlay lines and gold scarabs over every other joint.',
+    group: 'Crafted',
+    after: 'desert-tomb',
+    stage: DESERT_STAGE,
+    colours: [slot('stone', 'Stone colour', '#c8a874', ['Sandstone']), slot('lapis', 'Inlay colour', '#1a3aa0', ['Lapis inlay'])],
+    layers: () => [...tombBlocks(), ...lapisInlay(), tombGlyphs('#5a4020', [bevel({ direction: 'sunken', size: 0.6, gloss: 0.3 })]), ringOf('Scarabs', 'gem', 5, '#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.6)], { size: 0.5, gemCut: 'cabochon', offset: 0 } as never)],
+  },
+  {
+    id: 'desert-tomb-lapis', name: 'Lapis & gold',
+    description: 'Deep lapis blue with gold glyphs and gold bands, like a pharaoh’s collar.',
+    group: 'Crafted',
+    after: 'desert-tomb',
+    stage: DESERT_STAGE,
+    colours: [slot('lapis', 'Stone colour', '#1a3aa0', ['Lapis']), slot('gold', 'Gold colour', '#d8a838', ['Gold bands', 'Runes'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Lapis', paint: lin(['#3a6ad0', '#061440']), effects: [DROP] },
+      { ...bandFillLayer(), name: 'Lapis', paint: photo('blue-onyx', 3), opacity: 0.5, blend: 'overlay' },
+      ...[0.08, 0.92].map((at) => ({ ...lineLayer(), name: 'Gold bands', at, width: 0.12, paint: { kind: 'solid' as const, color: '#d8a838' }, effects: [...metalFx(WARM_GOLD, 0.5, 0.9), contact(0.5)] })),
+      tombGlyphs('#f4d27a', goldFx(0.3, WARM_GOLD)),
+    ],
+  },
+  // ── themed-geode ──
+  {
+    id: 'amethyst-geode-amethyst', name: 'Amethyst geode',
+    description: 'Grey stone crust outside, a white rind, then glittering crystal going from deep purple to pale lilac towards the centre.',
+    group: 'Crafted',
+    after: 'amethyst-geode',
+    stage: GEODE_STAGE,
+    colours: [slot('crust', 'Crust colour', '#5a5048', ['Crust']), slot('crystal', 'Crystal colour', '#9a4ad0', ['Crystal'])],
+    layers: () => geodeBand(GEODE_CRUST, '#9a4ad0', '#c08aff', ['#2a0a5a', '#6a2aa0', '#b07ae0', '#f0e0ff']),
+  },
+  {
+    id: 'amethyst-geode-agate', name: 'Banded agate',
+    description: 'A slice of agate: bands of colour going from deep blue outside to white at the centre, polished smooth.',
+    group: 'Crafted',
+    after: 'amethyst-geode',
+    stage: GEODE_STAGE,
+    colours: [slot('agate', 'Agate colour', '#3a6aa0', ['Agate', 'Bands'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Agate', paint: across(['#0e2440', '#2a5a90', '#6a9ac8', '#c8dcf0', '#ffffff']), effects: [DROP] },
+      { ...contoursLayer(), name: 'Bands', count: 7, from: 0.06, spacing: 0.14, width: 0.04, taper: 0.3, paint: { kind: 'solid', color: '#f0f4f8' }, altColor: '#1a3a60', opacity: 0.55, effects: [{ kind: 'distort', on: true, amount: 0.04, scale: 0.4, seed: 3 } as never] },
+      { ...bandFillLayer(), name: 'Polish', paint: lin(['#ffffff', '#000000']), blend: 'overlay', opacity: 0.5 },
+    ],
   },
   // ── next ──
 ];

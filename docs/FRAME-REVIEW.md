@@ -107,6 +107,23 @@ picker each. Candidates are drawn with
 | Fey glade | Themed | Kept, plus Fey twilight, Moonlit glade, Firefly glade. |
 | Gothic thorns | Themed | Kept, plus Gothic thorns, Blood roses, Bone thorns. |
 | Tidal ring | Themed | Kept, plus Lagoon. |
+| Archmage's sigil ring | Themed | Kept, plus Midnight sigils, Sigil panels, Blood sigils (words between the sigils). |
+| Starship hull | Themed | Retired; Gunmetal hull, Living hull, White armour. |
+| Hellfire ring | Themed | Kept, plus Hellfire, Blue hellfire, Lava flow. |
+| Frostbound ring | Themed | Retired; Glacier crystal, Frozen silver. |
+| Stormcaller | Themed | Kept, plus Thunderhead, Arcane tempest, Blood storm. |
+| Necropolis | Themed | Retired; Bone & chain, Gilded tomb. |
+| Clockwork brass | Themed | Kept (gears over the chain, gradient depth), plus Brass clockwork, Silver watchwork (a jewel in each gear), Steampunk. |
+| Celtic knot | Themed | Kept, plus Silver on green, Gold on red, Bronze on blue. |
+| Dragonscale | Themed | Retired; Crimson, Emerald and Shadow dragon. |
+| Mossy stone circle | Themed | Retired; Standing stones, Rune stones (gradient rings over stones and ground). |
+| Nautical rope | Themed | Retired; Ship's timber, Driftwood & shells, Pirate's hoard. |
+| Autumn leaves | Themed | Kept, plus Birch & autumn, Maple red, Gilded leaves (thick, varied leaves). |
+| Celestial halo | Themed | Kept, plus White-gold halo, Golden halo. |
+| Desert tomb | Themed | Retired; Sandstone tomb (scarabs over every other joint), Lapis & gold. |
+| Amethyst geode | Themed | Retired; Amethyst and Banded agate, colour changing inward. |
+
+Every frame has now been reviewed; scripts/frame-studio/gallery.ts draws them all.
 | Dragon scales | Crafted | Also Serpent coil: overlapping rows (third steps) with soft outlines, row shadows and clipped gradient bands. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,

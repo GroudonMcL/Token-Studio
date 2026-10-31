@@ -212,11 +212,15 @@ export const THEMED_TEMPLATES: ThemedTemplate[] = [
   {
     id: 'clockwork',
     name: 'Clockwork brass',
-    description: 'A brass ring of meshing gears and a steel chain, edged with rivets.',
+    description: 'A brass ring of meshing gears over a steel chain, edged with rivets.',
     make: () => [
-      { ...bandFillLayer(), name: 'Brass ring', paint: grey, effects: [bevel({ size: 0.15, gloss: 0.6, surface: 'brushed', surfaceDepth: 0.3 }), material('bronze'), adjust({ brightness: -0.2 }), wear({ chips: 0, polish: 0.3, grime: 0.3, grimeColor: '#3f6a4a' })] },
-      { ...gearsLayer(), name: 'Large gears', count: 10, at: 0.5, size: 1.3, teeth: 14, spokes: 5, hub: 0.3, altSize: 0.68, interlock: true, color: '#c89838', effects: [bevel({ size: 0.12, gloss: 0.7 }), material('gold', 0.8), soft(0.7)] },
+      { ...bandFillLayer(), name: 'Brass ring', paint: grey, effects: [bevel({ size: 0.04, gloss: 0.6, surface: 'brushed', surfaceDepth: 0.3 }), material('bronze'), adjust({ brightness: -0.2 }), wear({ chips: 0, polish: 0.3, grime: 0.3, grimeColor: '#3f6a4a' }), soft(0.6)] },
+      // Depth from two gradient rings (lit outside, a reversed pressed-in step inside) rather than a bevel over the whole band.
+      { ...bandFillLayer(), name: 'Shading', blend: 'overlay', opacity: 0.75, paint: { kind: 'linear', angle: 45, followLight: false, stops: [{ at: 0, color: '#ffffff', opacity: 1 }, { at: 1, color: '#000000', opacity: 1 }] } },
+      { ...bandFillLayer(), name: 'Pressed-in shading', from: 0.62, blend: 'overlay', opacity: 0.75, paint: { kind: 'linear', angle: 45, followLight: false, stops: [{ at: 0, color: '#000000', opacity: 1 }, { at: 1, color: '#ffffff', opacity: 1 }] } },
+      { ...lineLayer(), name: 'Crease', at: 0.62, width: 0.03, opacity: 0.55, blend: 'overlay', paint: solid('#190500') },
       { ...chainLayer(), name: 'Steel chain', at: 0.06, linkLength: 0.24, thickness: 0.045, color: '#b0b8c0', effects: [soft(0.6)] },
+      { ...gearsLayer(), name: 'Large gears', count: 10, at: 0.5, size: 1.3, teeth: 14, spokes: 5, hub: 0.3, altSize: 0.68, interlock: true, color: '#c89838', effects: [bevel({ size: 0.12, gloss: 0.7 }), material('gold', 0.8), shadow({ distance: 0.06, blur: 0.07, opacity: 0.8 })] },
       { ...repeatLayer(), name: 'Rivets', mode: 'spacing', spacing: 0.35, snapToCorners: false, at: 0.93, size: 0.09, fill: '#d8b060', raised: true },
     ],
   },

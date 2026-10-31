@@ -17,10 +17,10 @@ const glyphs = (fill: string, effects: Layer['effects']) => panelWords('yugurian
 export const CANDIDATES: Candidate[] = [
   {
     id: 'a-sandstone', name: 'A · Sandstone tomb',
-    pitch: 'Sandstone blocks that follow the ring, a glyph carved in each, lapis inlay lines and gold scarabs at the quarters.',
+    pitch: 'Sandstone blocks that follow the ring, a glyph carved in each, lapis inlay lines and gold scarabs over every other joint.',
     stage: STAGE,
     colours: [slot('stone', 'Stone colour', '#c8a874', ['Sandstone']), slot('lapis', 'Inlay colour', '#1a3aa0', ['Lapis inlay'])],
-    layers: () => [...blocks(), ...lapis(), glyphs('#5a4020', [bevel({ direction: 'sunken', size: 0.6, gloss: 0.3 })]), ring('Scarabs', 'gem', 4, '#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.6)], { size: 0.5, gemCut: 'cabochon', offset: 0.25 } as never)],
+    layers: () => [...blocks(), ...lapis(), glyphs('#5a4020', [bevel({ direction: 'sunken', size: 0.6, gloss: 0.3 })]), ring('Scarabs', 'gem', 5, '#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.6)], { size: 0.5, gemCut: 'cabochon', offset: 0 } as never)],
   },
   {
     id: 'b-lapis-gold', name: 'B · Lapis & gold',
