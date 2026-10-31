@@ -6,6 +6,7 @@ import {
   bandFillLayer,
   contoursLayer,
   createProject,
+  groupLayer,
   fractureLayer,
   growthLayer,
   lineLayer,
@@ -207,6 +208,36 @@ export function inscription(font: TextFont, fill: string, o: { at?: number; size
     spacing: o.spacing ?? 0.14,
     at: o.at ?? 0.5,
     fill,
+    effects: o.effects ?? [],
+  };
+}
+
+/** Short words for one-word-per-panel inscriptions. */
+const PANEL_WORDS = ['TOKEN', 'MAKER', 'FROG', 'MAPS', 'GREY', 'HAWK', 'SAMMY', 'BOLD', 'HERO', 'ROLL', 'FATE', 'MAP'];
+
+/**
+ * One word in each of `count` panels round the band (between plates, or on
+ * them), so the text never runs under or over the plates: word i is centred at
+ * (i + 0.5) / count of the way round, clockwise from the top (`offset` slides
+ * them, as a share of one panel). A group of text layers; effects go on the group.
+ */
+export function panelWords(font: TextFont, fill: string, o: { count?: number; at?: number; size?: number; spacing?: number; start?: number; offset?: number; name?: string; effects?: Effect[] } = {}): Layer {
+  const n = o.count ?? 8;
+  return {
+    ...groupLayer(Array.from({ length: n }, (_v, i) => ({
+      ...textLayer(),
+      name: 'Word',
+      font,
+      text: PANEL_WORDS[((o.start ?? 0) + i) % PANEL_WORDS.length],
+      size: o.size ?? 0.36,
+      spacing: o.spacing ?? 0.1,
+      at: o.at ?? 0.5,
+      along: (i + 0.5 + (o.offset ?? 0)) / n,
+      align: 'centre' as const,
+      fit: false,
+      fill,
+    }))),
+    name: o.name ?? 'Runes',
     effects: o.effects ?? [],
   };
 }

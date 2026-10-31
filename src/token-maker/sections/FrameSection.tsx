@@ -6,6 +6,7 @@ import { nudgeHole, pickImageFrame, uploadFrame } from '../editor/frameActions';
 import { applyBuiltInDesign, applyDesignFrame, openDesignFile } from '../editor/designActions';
 import type { DesignFrame, FrameSettings, ImageFrame } from '../document/types';
 import { loadFrameDesignPictures } from '../frameStudio/share/frameDesign';
+import { RETIRED_FRAMES } from '../frameStudio/project/builtInFrames';
 import { refreshDesigns, removeDesign, useDesignLibrary } from '../state/designLibrary';
 import { BUILT_IN_DESIGNS, builtInDesignById, builtInDesignFrame, isBuiltInDesign } from '../render/builtInDesigns';
 import { refreshUploadedFrames, removeUploadedFrame, useUploadedFrames } from '../state/frameLibrary';
@@ -356,7 +357,7 @@ function BandSliders() {
  */
 const RETIRED_PRESETS = new Set(['cleric']);
 /** Built-in designs retired the same way (by their Frame Studio id). */
-const RETIRED_DESIGNS = new Set(['dragon-scales', 'raven-plume', 'riveted-plates', 'brass-beads', 'jewelled', 'dwarven-bronze']);
+const RETIRED_DESIGNS = RETIRED_FRAMES;
 
 function frameTiles(current: string): FrameTile[] {
   const tile = (b: (typeof BUILT_IN_DESIGNS)[number]) => ({ id: b.id, label: b.name, group: b.group });

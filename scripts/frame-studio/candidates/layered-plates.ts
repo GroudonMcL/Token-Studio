@@ -1,5 +1,5 @@
 // Rune-carved plates (Frame Studio's Layered starting designs): candidates.
-import { bandFillLayer, bandShading, bevel, BRONZE_STOPS, contact, DROP, glow, goldFx, inscription, lin, metalFx, photo, recolour, SILVER_STOPS, slot, WARM_GOLD, type Candidate, type Layer } from './common';
+import { bandFillLayer, bandShading, bevel, BRONZE_STOPS, contact, DROP, glow, goldFx, panelWords, lin, metalFx, photo, recolour, SILVER_STOPS, slot, WARM_GOLD, type Candidate, type Layer } from './common';
 import { groupLayer, repeatLayer } from '../../../src/frame-studio/project/defaults';
 import { layered } from './crafted';
 
@@ -15,7 +15,8 @@ const plates = (fill: string, effects: Layer['effects'], gap = 0.14): Layer => (
   ]),
   name: 'Plates', combine: 'subtract', effects,
 });
-const runes = (fill: string, effects: Layer['effects'], font: 'babelstone' | 'yugurian' = 'babelstone') => inscription(font, fill, { name: 'Runes', at: 0.5, size: 0.42, start: 17, effects });
+/** One rune word in the middle of each plate, small enough to stay off the plate's bevelled edges. */
+const runes = (fill: string, effects: Layer['effects'], font: 'babelstone' | 'yugurian' = 'babelstone') => panelWords(font, fill, { size: 0.34, spacing: 0.08, start: 3, effects });
 const carved = () => bevel({ direction: 'sunken', size: 0.6, gloss: 0.4 });
 
 export const CANDIDATES: Candidate[] = [

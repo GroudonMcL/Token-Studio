@@ -34,7 +34,7 @@ picker each. Candidates are drawn with
   Damascus, Brimstone, Infernal iron, Gold lines on enamel, Anodised titanium,
   Volcanic script, Velvet & gold, Golden lyre, Jade & gold, Crimson aria and
   Workshop iron (mostly polished metal, enamel and glossy surfaces).
-- Ornaments stay inside the band unless reaching out is the point, and clear of text.
+- Ornaments stay inside the band unless reaching out is the point, and clear of text; text sits between or inside plates, never under or across their edges (houseStyle.ts: panelWords).
 - On hexagons and squares, icons and emblems point out from the centre (repeat facing 'along', format 12); 'edge' keeps the old square-to-the-side facing.
 - Prefers organic, natural textures for nature and primal frames.
 - Usually keeps the current frame and most new versions; drops busy or matt ones.
@@ -86,11 +86,17 @@ picker each. Candidates are drawn with
 | Riveted plates | Crafted borders | Retired; Ordered plates, Forge seams, Dwarven bulwark (curved plates with gaps, rivets over plate centres and gaps), Curved ordered plates, Curved forge seams. |
 | Brass & beads | Layered | Retired; Polished brass, Brass & jet. |
 | Glowing runes | Layered | Kept, plus Runic glow, Emerald runes, Fire runes, Twin circle. |
-| Jewelled | Layered | Retired; Silver & jewels. Jewellery-cluster versions waiting for picks. |
+| Jewelled | Layered | Retired; Silver & jewels, Pavé band, Art deco, Victorian garnets, Eternity band. |
 | Battle-worn steel | Layered | Kept, plus Notched blade, Bloodied steel (blood spatter). |
 | Night sky | Layered | Kept, plus Dusk to midnight, Constellations, Aurora (with depth). |
-| Dwarven bronze | Layered | Retired; Forged bronze, Steel & gold (big runes), Runic bronze (no plates, big runes). |
-| Dragon scales | Crafted | Also Serpent coil: overlapping rows with soft outlines, row shadows and clipped gradient bands. |
+| Dwarven bronze | Layered | Retired; Forged bronze, Steel & gold (runes between the plates), Runic bronze (no plates, big runes). |
+| Eldritch crystal | Layered | Retired; Amethyst geode. |
+| Radiant gold | Layered | Retired; Holy gold, Rose gold & pearls, Divine script. |
+| Hellforged iron | Layered | Kept, plus Hellforged. |
+| Royal inscription | Layered | Retired; Royal gold, Crimson & gold, Silver & sapphire, Royal velvet. |
+| Rune-carved plates | Layered | Retired; four curved-plate versions, one rune word inside each plate. |
+| Overgrown ruin | Layered | Kept as it is; new versions dropped. |
+| Dragon scales | Crafted | Also Serpent coil: overlapping rows (third steps) with soft outlines, row shadows and clipped gradient bands. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.

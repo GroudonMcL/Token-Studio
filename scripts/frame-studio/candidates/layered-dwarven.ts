@@ -1,4 +1,5 @@
 // Dwarven bronze (Frame Studio's Layered starting designs): candidates.
+import { panelWords } from '../../../src/frame-studio/project/houseStyle';
 import { bandFillLayer, bandShading, BRONZE_STOPS, contact, DROP, glow, glowCracks, goldFx, inscription, lin, metalFx, photo, recolour, repeatLayer, slot, STEEL_STOPS, WARM_GOLD, bevel, type Candidate, type Layer } from './common';
 import { layered } from './crafted';
 
@@ -37,7 +38,7 @@ export const CANDIDATES: Candidate[] = [
     colours: [slot('steel', 'Steel colour', '#5a606a', ['Bronze band']), slot('gold', 'Gold colour', '#d8a838', ['Plates', 'Rivets', 'Runes'])],
     layers: () => [
       ...bandShading([band('Bronze band', ['#040506', '#16191e', '#5a606a', '#9aa0aa', '#d8dce4'])]),
-      runes('#f4d27a', [...goldFx(0.4, WARM_GOLD)], 'yugurian', 0.72),
+      panelWords('yugurian', '#f4d27a', { size: 0.5, effects: goldFx(0.4, WARM_GOLD) }),
       plates('#d8a838', WARM_GOLD),
       ...rivets('#d8a838', WARM_GOLD),
     ],

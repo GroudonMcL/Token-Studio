@@ -28,10 +28,12 @@ import {
   lineLayer,
   metalFx,
   overlay,
+  panelWords,
   photo,
   recolour,
   repeatLayer,
   rims,
+  ROSE_STOPS,
   shadow,
   shapeLayer,
   SILVER_STOPS,
@@ -423,6 +425,45 @@ const scaleShading = (strength = 0.75): Layer => ({
   ]),
   name: 'Scale shading', blend: 'overlay', opacity: strength, clip: 'below',
 });
+
+// ── Layered designs, round 2 ──
+// layered-jewelled
+/** One cut stone repeated round the band, in its own setting. */
+const cutStone = (fill: string, o: { count?: number; at?: number; size?: number; offset?: number; stretch?: number; cut?: 'brilliant' | 'rose' | 'emerald'; setting?: 'claws4' | 'claws6' | 'bezel'; settingColor?: string; settingStops?: string[] } = {}): Layer => ({
+  ...repeatLayer(), name: 'Gems', element: 'gem', count: o.count ?? 12, snapToCorners: false, at: o.at ?? 0.5, size: o.size ?? 0.5, offset: o.offset ?? 0, stretch: o.stretch ?? 1, fill, raised: false,
+  gemCut: o.cut ?? 'brilliant', gemFacets: 10, gemSparkle: 0.8, setting: o.setting ?? 'claws4', settingColor: o.settingColor ?? '#e4e8f0', settingEffects: metalFx(o.settingStops ?? SILVER_STOPS, 0.3, 0.9), effects: [contact(0.6)],
+});
+// layered-eldritch
+const crystalShards = (fill: string, glowColor: string, count = 12): Layer => ({ ...repeatLayer(), name: 'Crystals', element: 'shard', count, snapToCorners: false, at: 0.5, size: 0.8, fill, altSizes: [1, 0.7, 0.85], jitterAngle: 18, seed: 5, raised: false, effects: [glow({ color: glowColor, opacity: 0.7, size: 0.1 }), contact(0.6)] });
+const eldritchStone = (light: string, dark: string): Layer[] => [...base({ light, dark, step: 0.62 }), overlay('black-onyx', 5, 'overlay', 0.5)];
+// layered-radiant
+const radiantPearls = (at = 0.78, count = 36): Layer => ({ ...repeatLayer(), name: 'Pearls', element: 'bead', count, snapToCorners: false, at, size: 0.14, fill: '#f2eee4', raised: true, effects: [bevel({ profile: 'rounded', size: 0.8, gloss: 1 }), contact(0.5)] });
+const radiantGems = (fill: string, settingStops: string[], setting: string, count = 8): Layer => ({ ...repeatLayer(), name: 'Gems', element: 'gem', count, offset: 0.5, snapToCorners: false, at: 0.42, size: 0.48, fill, raised: false, gemFacets: 10, gemSparkle: 0.8, setting: 'claws4', settingColor: setting, settingEffects: metalFx(settingStops, 0.3, 0.9), effects: [contact(0.6)] });
+const radiantStars = (fill: string, stops: string[], glowColor: string): Layer => ({ ...repeatLayer(), name: 'Stars', element: 'star', count: 8, snapToCorners: false, at: 0.42, size: 0.62, fill, raised: false, effects: [...metalFx(stops, 0.4, 0.9), glow({ color: glowColor, opacity: 0.6, size: 0.1 })] });
+// layered-hellforged
+const HELL_IRON = ['#020203', '#0c0d10', '#2a2c32', '#5a5e68', '#a0a6b0'];
+const hellIron = (): Layer[] => bandShading([{ ...bandFillLayer(), name: 'Iron band', paint: photo('hammered-metal', 1.4, { lighting: 0.3 }), effects: [recolour(HELL_IRON), DROP] }], { step: 0.66 });
+/** Iron spikes round the outside: reaching past the band is the point here. */
+const ironSpikes = (): Layer => ({ ...repeatLayer(), name: 'Spikes', element: 'spike', count: 16, at: -0.12, size: 0.5, stretch: 0.7, fill: '#5a5e68', raised: false, snapToCorners: true, effects: [bevel({ profile: 'chisel', size: 0.3, gloss: 0.5 }), recolour(STEEL_STOPS), contact(0.6)] });
+// layered-royal
+const engravedIn = () => bevel({ direction: 'sunken', size: 0.5, gloss: 0.4 });
+const royalLines = (color: string): Layer => ({ ...contoursLayer(), name: 'Contour lines', count: 2, from: 0.06, spacing: 0.88, width: 0.03, taper: 0, paint: { kind: 'solid', color }, effects: [engravedIn()] });
+const royalGems = (fill: string, setting: string, stops: string[], count = 10): Layer => ({ ...repeatLayer(), name: 'Gems', element: 'gem', count, snapToCorners: false, at: 0.74, size: 0.4, fill, raised: false, gemFacets: 10, gemSparkle: 0.8, setting: 'claws4', settingColor: setting, settingEffects: metalFx(stops, 0.3, 0.9), effects: [contact(0.6)] });
+// layered-plates
+const RUNE_IRON = ['#020203', '#0c0d10', '#2a2c32', '#5a5e68', '#a0a6b0'];
+const runeRing = (stops: string[] = RUNE_IRON, picture: 'hammered-metal' | 'granite' = 'hammered-metal'): Layer[] =>
+  bandShading([{ ...bandFillLayer(), name: 'Band', paint: photo(picture, 1.4, { lighting: 0.3 }), effects: [recolour(stops), DROP] }], { step: null });
+/** Eight thick plates that bend with the ring (one ring with radial gaps cut out), lit as metal. */
+const runePlates = (fill: string, effects: Layer['effects'], gap = 0.14): Layer => ({
+  ...groupLayer([
+    { ...bandFillLayer(), name: 'Plate ring', from: 0.1, to: 0.9, paint: { kind: 'solid', color: fill } },
+    { ...repeatLayer(), name: 'Gaps', element: 'square', count: 8, snapToCorners: false, at: 0.5, size: 1.04, stretch: gap / 1.04, fill: '#000000', raised: false, shaded: false },
+  ]),
+  name: 'Plates', combine: 'subtract', effects,
+});
+/** One rune word in the middle of each plate, small enough to stay off the plate's bevelled edges. */
+const plateRunes = (fill: string, effects: Layer['effects'], font: 'babelstone' | 'yugurian' = 'babelstone') => panelWords(font, fill, { size: 0.34, spacing: 0.08, start: 3, effects });
+const carvedRune = () => bevel({ direction: 'sunken', size: 0.6, gloss: 0.4 });
 
 const VERSIONS: Version[] = [
   // ── stamped ──
@@ -2749,13 +2790,13 @@ const VERSIONS: Version[] = [
   {
     id: 'dwarven-bronze-steel-gold',
     name: 'Steel & gold',
-    description: 'Dwarven steel with big gold Yugurian runes filling the band, gold plates and gold rivets.',
+    description: 'Dwarven steel with big gold Yugurian runes between gold plates, and gold rivets.',
     group: 'Crafted',
     after: 'dwarven-bronze',
     colours: [slot('steel', 'Steel colour', '#5a606a', ['Bronze band']), slot('gold', 'Gold colour', '#d8a838', ['Plates', 'Rivets', 'Runes'])],
     layers: () => [
       ...bandShading([dwarvenBand('Bronze band', ['#040506', '#16191e', '#5a606a', '#9aa0aa', '#d8dce4'])]),
-      dwarvenRunes('#f4d27a', [...goldFx(0.4, WARM_GOLD)], 'yugurian', 0.72),
+      panelWords('yugurian', '#f4d27a', { size: 0.5, effects: goldFx(0.4, WARM_GOLD) }),
       dwarvenPlates('#d8a838', WARM_GOLD),
       ...dwarvenRivets('#d8a838', WARM_GOLD),
     ],
@@ -2779,9 +2820,224 @@ const VERSIONS: Version[] = [
     colours: [slot('scales', 'Scale colour', '#3a8a2a', ['Scales'])],
     layers: () => [
       { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#061004' }, effects: [DROP] },
-      overlapScales('#3a8a2a', '#123a0c'),
+      overlapScales('#3a8a2a', '#123a0c', [0, 0.33, 0.67, 0]),
       scaleShading(),
     ],
+  },
+  // ── layered-jewelled ──
+  {
+    id: 'jewelled-pave',
+    name: 'Pavé band',
+    description: 'Platinum paved with three staggered rows of tiny diamonds, like a pavé wedding band.',
+    group: 'Crafted',
+    after: 'jewelled',
+    stage: { thickness: 0.2 },
+    colours: [slot('metal', 'Metal colour', '#c8ccd4', ['Band', 'Pressed-in step']), slot('gems', 'Stone colour', '#f4f8ff', ['Gems'])],
+    layers: () => [
+      ...base({ light: '#f0f2f6', dark: '#3a3e46', step: null }),
+      ...[0.25, 0.5, 0.75].map((at, r) => cutStone('#f4f8ff', { count: 56, at, size: 0.24, offset: r % 2 ? 0.5 : 0, setting: 'bezel' })),
+    ],
+  },
+  {
+    id: 'jewelled-art-deco',
+    name: 'Art deco',
+    description: 'Step-cut emeralds between pairs of baguette diamonds, set in platinum with black onyx enamel.',
+    group: 'Crafted',
+    after: 'jewelled',
+    stage: { thickness: 0.2 },
+    colours: [slot('enamel', 'Enamel colour', '#14141a', ['Band', 'Pressed-in step']), slot('gems', 'Gem colour', '#0f9a5a', ['Emeralds'])],
+    layers: () => [
+      ...base({ light: '#3a3a44', dark: '#020204', step: null }),
+      { ...lineLayer(), name: 'Platinum edges', at: 0.06, width: 0.1, paint: { kind: 'solid', color: '#d8dce4' }, effects: metalFx(SILVER_STOPS, 0.4, 0.9) },
+      { ...lineLayer(), name: 'Platinum edges', at: 0.94, width: 0.1, paint: { kind: 'solid', color: '#d8dce4' }, effects: metalFx(SILVER_STOPS, 0.4, 0.9) },
+      { ...cutStone('#f4f8ff', { count: 24, at: 0.5, size: 0.44, stretch: 0.35, cut: 'emerald', setting: 'bezel' }), name: 'Baguettes' },
+      { ...cutStone('#0f9a5a', { count: 8, at: 0.5, size: 0.62, stretch: 0.8, cut: 'emerald', setting: 'claws4' }), name: 'Emeralds' },
+    ],
+  },
+  {
+    id: 'jewelled-garnets',
+    name: 'Victorian garnets',
+    description: 'Dense clusters of rose-cut garnets on yellow gold, like a Victorian garnet brooch.',
+    group: 'Crafted',
+    after: 'jewelled',
+    stage: { thickness: 0.2 },
+    colours: [slot('metal', 'Metal colour', '#c8952e', ['Band', 'Pressed-in step']), slot('gems', 'Garnet colour', '#8a0a1a', ['Garnets'])],
+    layers: () => [
+      ...base({ light: '#f4d27a', dark: '#3a2006', step: null }),
+      ...[0.28, 0.5, 0.72].map((at, r) => ({ ...cutStone('#8a0a1a', { count: 40, at, size: r === 1 ? 0.4 : 0.3, offset: r % 2 ? 0.5 : 0, cut: 'rose', setting: 'bezel', settingColor: '#d8a838', settingStops: WARM_GOLD }), name: 'Garnets' })),
+    ],
+  },
+  {
+    id: 'jewelled-eternity',
+    name: 'Eternity band',
+    description: 'An unbroken row of large brilliant-cut diamonds in white-gold claws, all the way round.',
+    group: 'Crafted',
+    after: 'jewelled',
+    stage: { thickness: 0.2, bloom: 0.1 },
+    colours: [slot('metal', 'Metal colour', '#d8dce4', ['Band', 'Pressed-in step']), slot('gems', 'Stone colour', '#f4f8ff', ['Gems'])],
+    layers: () => [...base({ light: '#f0f2f6', dark: '#3a3e46', step: null }), cutStone('#f4f8ff', { count: 30, at: 0.5, size: 0.82, setting: 'claws4' })],
+  },
+  // ── layered-eldritch ──
+  {
+    id: 'eldritch-crystal-geode',
+    name: 'Amethyst geode',
+    description: 'A band split open like a geode: dark rock outside, glittering amethyst crystal inside.',
+    group: 'Crafted',
+    after: 'eldritch-crystal',
+    stage: { bloom: 0.2 },
+    colours: [slot('stone', 'Rock colour', '#4a4038', ['Band']), slot('crystal', 'Crystal colour', '#9a4ad0', ['Geode', 'Crystals'])],
+    layers: () => [
+      ...eldritchStone('#5a5048', '#0a0806'),
+      { ...textureLayer('crystal'), name: 'Geode', from: 0.35, to: 1, color: '#9a4ad0', opacity: 0.95, seed: 0xc277 },
+      { ...textureLayer('sparkle'), name: 'Glitter', from: 0.35, to: 1, color: '#ffffff', amount: 0.6, scale: 0.4, seed: 0x5a3a },
+      crystalShards('#d8a8ff', '#b06aff', 10),
+    ],
+  },
+  // ── layered-radiant ──
+  {
+    id: 'radiant-gold-holy',
+    name: 'Holy gold',
+    description: 'Warm gold in the twin gradient bands, with glowing gold stars between sapphires, and a string of pearls in the step.',
+    group: 'Crafted',
+    after: 'radiant-gold',
+    stage: { thickness: 0.18, bloom: 0.2 },
+    colours: [slot('gold', 'Gold colour', '#c8952e', ['Band', 'Pressed-in step', 'Stars']), slot('gems', 'Gem colour', '#2a5ab8', ['Gems'])],
+    layers: () => [...base({ light: '#f4d27a', dark: '#3a2006', step: 0.66 }), radiantStars('#f4d27a', WARM_GOLD, '#ffe8a0'), radiantGems('#2a5ab8', WARM_GOLD, '#d8a838'), radiantPearls()],
+  },
+  {
+    id: 'radiant-gold-rose',
+    name: 'Rose gold & pearls',
+    description: 'Soft rose gold with pink sapphires and pearls.',
+    group: 'Crafted',
+    after: 'radiant-gold',
+    stage: { thickness: 0.18 },
+    colours: [slot('gold', 'Metal colour', '#d8907a', ['Band', 'Pressed-in step']), slot('gems', 'Gem colour', '#e0608a', ['Gems'])],
+    layers: () => [...base({ light: '#f6d0c0', dark: '#3a1a14', step: 0.66 }), radiantGems('#e0608a', ROSE_STOPS, '#e8b0a0'), radiantPearls()],
+  },
+  {
+    id: 'radiant-gold-prayer',
+    name: 'Divine script',
+    description: 'Gold with a glowing Yugurian prayer round it and white-gold stars at the quarters.',
+    group: 'Crafted',
+    after: 'radiant-gold',
+    stage: { thickness: 0.18, bloom: 0.25 },
+    colours: [slot('gold', 'Gold colour', '#c8952e', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#fff0c0', ['Prayer', 'Stars'])],
+    layers: () => [
+      ...base({ light: '#f4d27a', dark: '#3a2006', step: 0.66 }),
+      inscription('yugurian', '#fffbe8', { name: 'Prayer', at: 0.34, size: 0.36, start: 11, effects: [glow({ color: '#ffe8a0', opacity: 0.9, size: 0.1 })] }),
+      { ...radiantStars('#f0f2f6', SILVER_STOPS, '#fff0c0'), count: 4, at: 0.83, size: 0.4 },
+    ],
+  },
+  // ── layered-hellforged ──
+  {
+    id: 'hellforged-iron-shaded',
+    name: 'Hellforged',
+    description: 'Blackened iron in the twin gradient bands, split by blurred glowing cracks, with iron spikes round the edge.',
+    group: 'Crafted',
+    after: 'hellforged-iron',
+    stage: { bloom: 0.3, bleed: 0.2 },
+    colours: [slot('iron', 'Iron colour', '#2a2c32', ['Iron band', 'Spikes']), slot('glow', 'Fire colour', '#ff5a1a', ['Glowing cracks'])],
+    layers: () => [ironSpikes(), ...hellIron(), glowCracks('#1a0602', '#ff5a1a', '#ffb05a', 13, 0.9)],
+  },
+  // ── layered-royal ──
+  {
+    id: 'royal-inscription-gold',
+    name: 'Royal gold',
+    description: 'Gold in the twin gradient bands, an Outer Rim AF inscription engraved round the top, fine contour lines and rubies in claws.',
+    group: 'Crafted',
+    after: 'royal-inscription',
+    stage: { thickness: 0.18 },
+    colours: [slot('gold', 'Gold colour', '#c8952e', ['Band', 'Pressed-in step']), slot('gems', 'Gem colour', '#b0182a', ['Gems'])],
+    layers: () => [...base({ light: '#f4d27a', dark: '#3a2006', step: 0.55 }), royalLines('#5a3a10'), inscription('outerRim', '#5a3a10', { name: 'Inscription', at: 0.28, size: 0.32, start: 13, effects: [engravedIn()] }), royalGems('#b0182a', '#d8a838', WARM_GOLD)],
+  },
+  {
+    id: 'royal-inscription-crimson',
+    name: 'Crimson & gold',
+    description: 'Crimson enamel with a raised gold inscription and gold edges.',
+    group: 'Crafted',
+    after: 'royal-inscription',
+    stage: { thickness: 0.18 },
+    colours: [slot('enamel', 'Enamel colour', '#8a1020', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#c8952e', ['Inscription', 'Gold edges'])],
+    layers: () => [
+      ...base({ light: '#c02a3a', dark: '#1a0206', step: null }),
+      ...[0.04, 0.96].map((at) => ({ ...royalLines('#d8a838'), name: 'Gold edges', count: 1, from: at, width: 0.07, effects: goldFx(0.4, WARM_GOLD) })),
+      inscription('outerRim', '#f4d27a', { name: 'Inscription', at: 0.5, size: 0.4, start: 14, effects: goldFx(0.4, WARM_GOLD) }),
+    ],
+  },
+  {
+    id: 'royal-inscription-silver',
+    name: 'Silver & sapphire',
+    description: 'Silver with an engraved Yugurian inscription and sapphires in silver claws.',
+    group: 'Crafted',
+    after: 'royal-inscription',
+    stage: { thickness: 0.18 },
+    colours: [slot('metal', 'Metal colour', '#a8aeb8', ['Band', 'Pressed-in step']), slot('gems', 'Gem colour', '#1f4fd0', ['Gems'])],
+    layers: () => [...base({ light: '#e8ecf0', dark: '#2a2e36', step: 0.55 }), royalLines('#3a3e46'), inscription('yugurian', '#3a3e46', { name: 'Inscription', at: 0.28, size: 0.32, start: 15, effects: [engravedIn()] }), royalGems('#1f4fd0', '#d8dce4', SILVER_STOPS)],
+  },
+  {
+    id: 'royal-inscription-velvet',
+    name: 'Royal velvet',
+    description: 'Purple velvet with a gold inscription embroidered round it, between gold piping.',
+    group: 'Crafted',
+    after: 'royal-inscription',
+    stage: { thickness: 0.18 },
+    colours: [slot('velvet', 'Velvet colour', '#4a1a6a', ['Velvet']), slot('gold', 'Gold colour', '#c8952e', ['Inscription', 'Gold piping'])],
+    layers: () => [
+      ...base({ light: '#6a2a8a', dark: '#0e0214', step: null }).map((l) => (l.name === 'Band' ? { ...l, name: 'Velvet' } : l)),
+      { ...bandFillLayer(), name: 'Velvet', paint: photo('jacquard', 1.2), opacity: 0.5, blend: 'overlay', effects: [recolour(['#0e0214', '#2a0a3a', '#4a1a6a', '#8a5aaa', '#c8a0e0'])] },
+      ...[0.06, 0.94].map((at) => ({ ...royalLines('#d8a838'), name: 'Gold piping', count: 1, from: at, width: 0.06, effects: goldFx(0.5, WARM_GOLD) })),
+      inscription('outerRim', '#f4d27a', { name: 'Inscription', at: 0.5, size: 0.38, start: 16, effects: goldFx(0.3, WARM_GOLD) }),
+    ],
+  },
+  // ── layered-plates ──
+  {
+    id: 'rune-plates-bronze',
+    name: 'Carved bronze plates',
+    description: 'Eight thick bronze plates that bend with the ring, BabelStone runes carved deep into them, on dark iron.',
+    group: 'Crafted',
+    after: 'rune-plates',
+    stage: { thickness: 0.2 },
+    colours: [slot('iron', 'Iron colour', '#2a2c32', ['Band']), slot('bronze', 'Plate colour', '#a87a3a', ['Plates'])],
+    layers: () => [...runeRing(), runePlates('#a87a3a', [...metalFx(BRONZE_STOPS, 0.15, 0.7), contact(0.8)]), plateRunes('#3a2208', [carvedRune()])],
+  },
+  {
+    id: 'rune-plates-stone',
+    name: 'Standing stones',
+    description: 'Granite slabs round a dark ring, with runes chiselled into each.',
+    group: 'Crafted',
+    after: 'rune-plates',
+    stage: { thickness: 0.2 },
+    colours: [slot('stone', 'Stone colour', '#8a8680', ['Plates'])],
+    layers: () => [
+      ...runeRing(['#020202', '#0e0e0c', '#2a2824', '#4a4842', '#6a6862']),
+      runePlates('#8a8680', [bevel({ profile: 'chisel', size: 0.12, gloss: 0.2 }), contact(0.8)]),
+      { ...bandFillLayer(), name: 'Granite', from: 0.1, to: 0.9, paint: photo('granite', 1.4), opacity: 0.8, blend: 'multiply', clip: 'below' },
+      plateRunes('#3a3830', [carvedRune()]),
+    ],
+  },
+  {
+    id: 'rune-plates-runelit',
+    name: 'Runelit plates',
+    description: 'Iron plates with the runes glowing blue from inside, and blue light showing in the gaps.',
+    group: 'Crafted',
+    after: 'rune-plates',
+    stage: { thickness: 0.2, bloom: 0.3 },
+    colours: [slot('iron', 'Plate colour', '#5a5e68', ['Plates']), slot('glow', 'Glow colour', '#4ac8ff', ['Runes', 'Gap glow'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Gap glow', paint: lin(['#0a2a4a', '#020a14']), effects: [DROP, glow({ color: '#4ac8ff', opacity: 0.5, size: 0.1, inner: true })] },
+      runePlates('#5a5e68', [...metalFx(RUNE_IRON, 0.15, 0.6), contact(0.8)]),
+      plateRunes('#d0f4ff', [glow({ color: '#4ac8ff', opacity: 0.9, size: 0.12 })]),
+    ],
+  },
+  {
+    id: 'rune-plates-silver-gold',
+    name: 'Silver & gold runes',
+    description: 'Silver plates with gold Yugurian runes inlaid in them.',
+    group: 'Crafted',
+    after: 'rune-plates',
+    stage: { thickness: 0.2 },
+    colours: [slot('metal', 'Plate colour', '#a8aeb8', ['Plates']), slot('gold', 'Rune colour', '#d8a838', ['Runes'])],
+    layers: () => [...runeRing(), runePlates('#a8aeb8', [...metalFx(SILVER_STOPS, 0.15, 0.8), contact(0.8)]), plateRunes('#f4d27a', goldFx(0.3, WARM_GOLD), 'yugurian')],
   },
   // ── next ──
 ];
