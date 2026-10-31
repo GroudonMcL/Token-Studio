@@ -1,72 +1,72 @@
-// Bard: candidates for new versions of Token Maker's Bard frame.
+// Bard, round 2: more options with the fictional alphabets and runes.
 import {
-  bandFillLayer, base, bevel, contact, DROP, glow, goldFx, goldPaint, inscription, lin, lineLayer, photo,
+  bandFillLayer, base, bevel, contact, DROP, glow, goldFx, goldPaint, inscription, lin, lineLayer, overlay, photo,
   projectFromFrame, recolour, repeatLayer, rims, slot, textureLayer, WARM_GOLD, type Candidate,
 } from './common';
 
 export const CURRENT = () => projectFromFrame('bard');
-const LUTE = ['#140a04', '#4a2a12', '#9a6a3a', '#d8a870', '#f8e0b8'];
+const goldLines = () => [0.08, 0.92].map((at) => ({ ...lineLayer(), name: 'Gold lines', at, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) }));
 
 export const CANDIDATES: Candidate[] = [
   {
-    id: 'a-lute',
-    name: 'A · Lute',
-    pitch: 'Polished lute wood with four strings running round it and gold notes dancing along them.',
-    colours: [slot('wood', 'Wood colour', '#9a6a3a', ['Wood']), slot('notes', 'Note colour', '#c8952e', ['Notes'])],
+    id: 'f-outer-rim-chorus',
+    name: 'F · Outer Rim chorus',
+    pitch: 'Deep teal enamel with lyrics in Outer Rim AF glowing between two gold lines.',
+    stage: { bloom: 0.2 },
+    colours: [slot('enamel', 'Enamel colour', '#0e5a6a', ['Enamel']), slot('glow', 'Lyric colour', '#8affe8', ['Lyrics']), slot('gold', 'Gold colour', '#c8952e', ['Gold lines'])],
     layers: () => [
-      { ...bandFillLayer(), name: 'Wood', paint: photo('wood-planks', 1.4, { angle: 90, lighting: 0.4 }), effects: [recolour(LUTE), bevel({ size: 0.35, gloss: 0.7, highlightOpacity: 0.6 }), DROP] },
-      ...[0.3, 0.43, 0.57, 0.7].map((at) => ({ ...lineLayer(), name: 'Strings', at, width: 0.015, paint: { kind: 'solid' as const, color: '#f4f0e8' }, effects: [contact(0.5)] })),
-      { ...repeatLayer(), name: 'Notes', element: 'bardNote', count: 8, at: 0.5, size: 1.05, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.5, gloss: 0.8 }), contact(0.6)] },
+      { ...bandFillLayer(), name: 'Enamel', paint: lin(['#2a9aaa', '#0e5a6a', '#021a20']), effects: [bevel({ direction: 'sunken', size: 0.12, gloss: 0.9, highlightOpacity: 0.5 }), DROP] },
+      ...goldLines(),
+      inscription('outerRim', '#e0fff8', { name: 'Lyrics', size: 0.4, start: 2, effects: [glow({ color: '#8affe8', opacity: 0.85, size: 0.12 })] }),
     ],
   },
   {
-    id: 'b-velvet-notes',
-    name: 'B · Velvet & gold',
-    pitch: 'Plum velvet between gold rims, with glowing gold notes. A performer’s stage curtain.',
-    stage: { bloom: 0.15 },
-    colours: [slot('velvet', 'Velvet colour', '#5a1a5a', ['Velvet']), slot('gold', 'Gold colour', '#c8952e', ['Outer gold', 'Inner gold', 'Notes'])],
+    id: 'g-runic-chant',
+    name: 'G · Runic chant',
+    pitch: 'Carved dark wood with a chant in runes running round it and gold notes between the verses.',
+    colours: [slot('wood', 'Wood colour', '#5a3418', ['Wood']), slot('gold', 'Gold colour', '#c8952e', ['Chant', 'Notes'])],
     layers: () => [
-      { ...bandFillLayer(), name: 'Velvet', paint: photo('jacquard', 1.2, { lighting: 0.6 }), effects: [recolour(['#1a061a', '#4a1a4a', '#8a3a8a', '#d08ad0']), bevel({ size: 0.5, gloss: 0.2, highlightOpacity: 0.35 }), DROP] },
-      { ...bandFillLayer(), name: 'Outer gold', to: 0.14, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
-      { ...bandFillLayer(), name: 'Inner gold', from: 0.86, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
-      { ...repeatLayer(), name: 'Notes', element: 'note', count: 10, at: 0.5, size: 0.85, fill: '#f0d080', raised: false, shaded: false, effects: [glow({ color: '#ffc040', opacity: 0.7, size: 0.1 })] },
+      { ...bandFillLayer(), name: 'Wood', paint: photo('medieval-wood', 1.6, { angle: 90, lighting: 0.5 }), effects: [recolour(['#0a0402', '#2a1408', '#5a3418', '#9a6a40', '#d8b088']), bevel({ size: 0.35, gloss: 0.5 }), DROP] },
+      inscription('runes', '#e8c060', { name: 'Chant', at: 0.3, size: 0.32, start: 9, effects: [bevel({ size: 0.4, gloss: 0.8 })] }),
+      { ...repeatLayer(), name: 'Notes', element: 'note', count: 8, at: 0.74, size: 0.38, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.5, gloss: 0.8 }), contact(0.5)] },
     ],
   },
   {
-    id: 'c-stave',
-    name: 'C · Song stave',
-    pitch: 'A musical stave of five lines running round your clean band, with notes written along it.',
-    colours: [slot('band', 'Frame colour', '#e8e0f0', ['Band', 'Pressed-in step']), slot('ink', 'Ink colour', '#2a1a3a', ['Stave', 'Notes'])],
+    id: 'h-sith-aria',
+    name: 'H · Crimson aria',
+    pitch: 'Crimson velvet with an aria written in Sith AF in gold, framed by gold lines. Operatic.',
+    colours: [slot('velvet', 'Velvet colour', '#8a1022', ['Velvet']), slot('gold', 'Gold colour', '#c8952e', ['Aria', 'Gold lines'])],
     layers: () => [
-      ...base({ light: '#ffffff', dark: '#8a7a9a', step: null }),
-      ...[0.3, 0.4, 0.5, 0.6, 0.7].map((at) => ({ ...lineLayer(), name: 'Stave', at, width: 0.012, paint: { kind: 'solid' as const, color: '#2a1a3a' } })),
-      { ...repeatLayer(), name: 'Notes', element: 'note', count: 14, at: 0.48, size: 0.7, fill: '#2a1a3a', raised: false, shaded: false },
+      { ...bandFillLayer(), name: 'Velvet', paint: photo('jacquard', 1.2, { lighting: 0.6 }), effects: [bevel({ size: 0.5, gloss: 0.2, highlightOpacity: 0.35 }), DROP] },
+      ...goldLines(),
+      inscription('sith', '#f0d080', { name: 'Aria', size: 0.38, start: 3, effects: [bevel({ size: 0.4, gloss: 0.8 }), contact(0.4)] }),
     ],
   },
   {
-    id: 'd-starlit-song',
-    name: 'D · Starlit song',
-    pitch: 'Notes glowing like stars on a deep violet night, with a Yugurian lyric round the inside.',
-    stage: { bloom: 0.3 },
-    colours: [slot('band', 'Frame colour', '#2a1048', ['Band', 'Sparkle']), slot('glow', 'Glow colour', '#d08aff', ['Notes', 'Lyric'])],
+    id: 'i-ballad-parchment',
+    name: 'I · Ballad on parchment',
+    pitch: 'Aged parchment with a ballad written in BabelStone runes in brown ink, and a red ribbon edge.',
+    colours: [slot('paper', 'Parchment colour', '#e0cca0', ['Band', 'Texture']), slot('ink', 'Ink colour', '#4a2a10', ['Ballad']), slot('ribbon', 'Ribbon colour', '#a01a2a', ['Ribbon'])],
     layers: () => [
-      ...base({ light: '#4a2a7a', dark: '#06020e', step: null, rims: false }),
-      { ...textureLayer('sparkle'), name: 'Sparkle', color: '#f0e0ff', amount: 0.9, scale: 0.45, seed: 0x5a33 },
-      { ...repeatLayer(), name: 'Notes', element: 'bardNote', count: 8, at: 0.4, size: 0.55, fill: '#f8e8ff', raised: false, shaded: false, effects: [glow({ color: '#d08aff', opacity: 0.9, size: 0.14 })] },
-      inscription('yugurian', '#f0d8ff', { name: 'Lyric', at: 0.86, size: 0.2, start: 6, effects: [glow({ color: '#d08aff', opacity: 0.7, size: 0.08 })] }),
+      ...base({ light: '#f8e8c0', dark: '#8a6a40', step: null, rims: false }),
+      overlay('cracked-mud', 2.4, 'multiply', 0.35),
+      inscription('babelstone', '#4a2a10', { name: 'Ballad', at: 0.42, size: 0.36, start: 4 }),
+      { ...lineLayer(), name: 'Ribbon', at: 0.92, width: 0.12, paint: lin(['#e04a5a', '#a01a2a', '#3a0408']), effects: [bevel({ size: 0.7, gloss: 0.5 }), contact(0.5)] },
       ...rims(),
     ],
   },
   {
-    id: 'e-lyre',
-    name: 'E · Golden lyre',
-    pitch: 'A rich purple enamel band with gold lyres at the quarters and fine gold lines.',
-    colours: [slot('enamel', 'Enamel colour', '#6a2a8a', ['Enamel']), slot('gold', 'Gold colour', '#c8952e', ['Lyres', 'Gold lines'])],
+    id: 'j-moon-verse',
+    name: 'J · Moonlit verse',
+    pitch: 'Silver notes and a Yugurian verse on midnight blue, with a faint shimmer of stars.',
+    stage: { bloom: 0.2 },
+    colours: [slot('band', 'Frame colour', '#141c3a', ['Band', 'Stars']), slot('silver', 'Silver colour', '#e4e8f0', ['Notes', 'Verse'])],
     layers: () => [
-      { ...bandFillLayer(), name: 'Enamel', paint: lin(['#a05ad0', '#6a2a8a', '#1a0626']), effects: [bevel({ direction: 'sunken', size: 0.12, gloss: 0.9, highlightOpacity: 0.5 }), DROP] },
-      { ...lineLayer(), name: 'Gold lines', at: 0.08, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
-      { ...lineLayer(), name: 'Gold lines', at: 0.92, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
-      { ...repeatLayer(), name: 'Lyres', element: 'icon-lyre', count: 4, at: 0.5, size: 1.4, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.6)] },
+      ...base({ light: '#2a3a6a', dark: '#02040a', step: 0.6 }),
+      { ...textureLayer('sparkle'), name: 'Stars', color: '#e8ecff', amount: 0.6, scale: 0.4, seed: 0x5a35 },
+      { ...repeatLayer(), name: 'Notes', element: 'bardNote', count: 8, at: 0.3, size: 0.48, fill: '#e4e8f0', raised: false, shaded: false, effects: [glow({ color: '#c8d8ff', opacity: 0.7, size: 0.1 })] },
+      inscription('yugurian', '#e4e8f0', { name: 'Verse', at: 0.8, size: 0.26, start: 8, effects: [glow({ color: '#c8d8ff', opacity: 0.6, size: 0.08 })] }),
     ],
   },
 ];
+export { rims };
