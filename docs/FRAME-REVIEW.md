@@ -18,6 +18,11 @@ picker each. Candidates are drawn with
 - Clean, saturated gradient bands rather than muddy textures.
 - Colour choices on every frame where they make sense: a band colour and a
   highlight colour, picked separately.
+- Keeps an original when it already works (Stamped), adding versions beside it.
+- Likes glossy, jewellery-like and glowing finishes and warm leather; dropped
+  matt clay and patinated copper.
+- Frame picker: the pop-out gallery (P1), with versions stacked behind their
+  frame.
 - Kept for Wizard: the calm and the rich versions (Sapphire runes, Starweave,
   Ley lines, Gilded grimoire). Not kept: the violet crystal and lightning
   versions.
@@ -28,7 +33,7 @@ picker each. Candidates are drawn with
 |---|---|---|
 | Essentials (9) | Essentials | The owner's designs, added as they were made, without the "FM_" names. |
 | Wizard | Classes | Four new versions added after Wizard: Sapphire runes, Starweave, Ley lines, Gilded grimoire. |
-| Stamped | Classic | Choosing: six candidates (veined, hammered copper, tooled leather, fired clay, brass & enamel, ember). |
+| Stamped | Classic | Kept as it is, plus four versions after it: Veined stamp, Tooled leather, Brass & enamel, Ember stamp. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.

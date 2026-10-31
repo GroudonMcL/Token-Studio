@@ -53,10 +53,14 @@ test('Large tokens export at 512 px with the size shown', async ({ page, isMobil
 test('pick a frame and undo it', async ({ page }) => {
   await upload(page);
   const panel = await openSection(page, 'Frame & shape');
-  await panel.getByRole('radio', { name: 'Oak' }).click();
-  await expect(panel.getByRole('radio', { name: 'Oak' })).toHaveAttribute('aria-checked', 'true');
+  await panel.getByRole('button', { name: 'Change frame' }).click();
+  const gallery = page.getByRole('dialog', { name: 'Choose a frame' });
+  await gallery.getByRole('tab', { name: /Textures/ }).click();
+  await gallery.getByRole('radio', { name: 'Oak' }).click();
+  await expect(gallery).toBeHidden();
+  await expect(panel.getByTestId('current-frame')).toContainText('Oak');
   await page.getByRole('button', { name: 'Undo' }).first().click();
-  await expect(panel.getByRole('radio', { name: 'Stamped' })).toHaveAttribute('aria-checked', 'true');
+  await expect(panel.getByTestId('current-frame')).toContainText('Stamped');
 });
 
 test('drag the art, then use the scale and rotate handles', async ({ page }) => {

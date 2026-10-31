@@ -5,6 +5,7 @@
 import {
   bandFillLayer,
   contoursLayer,
+  createProject,
   fractureLayer,
   growthLayer,
   lineLayer,
@@ -14,7 +15,7 @@ import {
   textureLayer,
 } from './defaults';
 import { bevel, glow, shadow } from './styles';
-import type { Effect, GradientStop, Layer, Paint, StageSettings } from './types';
+import type { Effect, FrameProject, GradientStop, Layer, Paint, StageSettings } from './types';
 import type { PictureId } from './pictures';
 import type { ColourSlot } from './colourSlots';
 
@@ -147,3 +148,28 @@ export const goldFx = (size = 0.3, stopsList = GOLD_STOPS): Effect[] => [
   shadow({ opacity: 0.5, distance: 0.04, blur: 0.05 }),
 ];
 export const SILVER_STOPS = ['#1e2228', '#5a606a', '#a8aeb8', '#e4e8f0', '#ffffff'];
+
+// ── Built-in frames ─────────────────────────────────────────────────────────
+
+/** Where a frame is listed in Token Maker's picker. */
+export type BuiltInGroup = 'Essentials' | 'Classic' | 'Textures' | 'Classes' | 'Crafted';
+
+export interface BuiltInFrame {
+  id: string;
+  name: string;
+  description: string;
+  group: BuiltInGroup;
+  /** Listed straight after this Token Maker frame (its preset id), if any. */
+  after?: string;
+  colours: ColourSlot[];
+  /** The design in its own colours. */
+  project: () => FrameProject;
+}
+
+export const fromLayers = (name: string, layers: () => Layer[], stage: Partial<StageSettings> = {}) => () => {
+  const p = createProject(layers(), name);
+  return { ...p, stage: { ...p.stage, ...stage } };
+};
+
+export const slot = (id: string, name: string, colour: string, layers: string[]): ColourSlot => ({ id, name, default: colour, layers });
+

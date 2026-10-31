@@ -13,6 +13,7 @@ import { FRAME_PRESETS, framePresetById, SHAPES, type ShapeId } from '../render/
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
 import { clearDesignThumbnails, designThumbnail, frameThumbnails } from './frameThumbs';
 import { createDocument } from '../document/defaults';
+import { FramePicker, type FrameTile } from './FramePicker';
 import { frameAccent } from '../render/frames';
 
 const DEFAULTS = createDocument().frame;
@@ -348,12 +349,12 @@ function BandSliders() {
  * frames by group with any new versions of a frame straight after it, then
  * the other built-in designs (Crafted).
  */
-function frameTiles(): { id: string; label: string; group: string }[] {
+function frameTiles(): FrameTile[] {
   const tile = (b: (typeof BUILT_IN_DESIGNS)[number]) => ({ id: b.id, label: b.name, group: b.group });
   const placed = new Set(FRAME_PRESETS.map((p) => p.id));
   return [
     ...BUILT_IN_DESIGNS.filter((b) => b.group === 'Essentials').map(tile),
-    ...FRAME_PRESETS.flatMap((p) => [{ id: p.id, label: p.name, group: p.group }, ...BUILT_IN_DESIGNS.filter((b) => b.after === p.id).map((b) => ({ ...tile(b), group: p.group }))]),
+    ...FRAME_PRESETS.flatMap((p) => [{ id: p.id, label: p.name, group: p.group }, ...BUILT_IN_DESIGNS.filter((b) => b.after === p.id).map((b) => ({ ...tile(b), group: p.group, parent: p.id }))]),
     ...BUILT_IN_DESIGNS.filter((b) => b.group !== 'Essentials' && !(b.after && placed.has(b.after))).map(tile),
   ];
 }
@@ -428,19 +429,15 @@ function DrawnFrame() {
   return (
     <>
       <ShapeControl />
-      <TileGrid
-        label="Frame"
-        helpId="frame.style"
+      <FramePicker
+        tiles={frameTiles()}
+        thumbs={thumbs}
         value={builtIn ?? frame.presetId}
         onChange={(id) => {
           const p = framePresetById(id);
           if (p) setFrame({ kind: 'code', presetId: p.id, style: p.style, color: p.color, highlightColor: null });
           else if (isBuiltInDesign(id)) applyBuiltInDesign(id);
         }}
-        tiles={frameTiles().map((t) => ({
-          ...t,
-          preview: thumbs?.get(t.id) ? <img src={thumbs.get(t.id)} alt="" width={44} height={44} /> : <span className="tile__blank" />,
-        }))}
       />
       {builtIn ? (
         <BuiltInColours id={builtIn} />

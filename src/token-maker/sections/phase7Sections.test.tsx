@@ -89,36 +89,70 @@ describe('Frame section: picture frames', () => {
   });
 });
 
+/** Picks a frame in the pop-out gallery by searching for its name. */
+function pickFrame(name: string) {
+  fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
+  fireEvent.change(screen.getByRole('searchbox', { name: 'Search frames' }), { target: { value: name } });
+  fireEvent.click(screen.getByRole('radio', { name: new RegExp(`^${name}$`) }));
+}
+
 describe('Frame section: built-in Frame Studio designs (v11)', () => {
   it('lists them with the drawn frames, uses one with its band, and goes back to a drawn frame', () => {
     const { container } = render(<FrameSection />);
     const before = getDoc().frame.style;
-    fireEvent.click(screen.getByRole('radio', { name: /^Rope$/ }));
+    pickFrame('Rope');
     const frame = getDoc().frame;
     expect(frame.kind).toBe('design');
     expect(frame.design?.id).toBe('builtin:rope');
     expect(frame.design?.project.layers.length).toBeGreaterThan(0);
     expect(frame.thickness).toBe(0.14);
     // Still a drawn frame in the panel, without a colour (the design has its own).
+    expect(screen.queryByRole('dialog')).toBeNull();
     expect(screen.getByRole('radio', { name: 'Drawn' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: /^Rope$/ })).toBeChecked();
+    expect(screen.getByTestId('current-frame')).toHaveTextContent('Rope');
     expect(screen.queryByText('Frame colour')).toBeNull();
     helpIds(container);
     undo();
     expect(getDoc().frame.kind).toBe('code');
-    fireEvent.click(screen.getByRole('radio', { name: /^Celestial star$/ }));
+    pickFrame('Celestial star');
     expect(getDoc().frame.outerSpacing).toBeGreaterThanOrEqual(0.14);
-    fireEvent.click(screen.getByRole('radio', { name: /^Stamped$/ }));
+    pickFrame('Stamped');
     expect(getDoc().frame.kind).toBe('code');
     expect(getDoc().frame.style).toBe(before);
   });
 
   it('Frame Studio starts with no design rather than the built-in one', () => {
     render(<FrameSection />);
-    fireEvent.click(screen.getByRole('radio', { name: /^Thorns$/ }));
+    pickFrame('Thorns');
     fireEvent.click(screen.getByRole('radio', { name: 'Frame Studio' }));
     expect(getDoc().frame.kind).toBe('design');
     expect(getDoc().frame.design).toBeNull();
+  });
+
+  it("shows a frame's versions stacked behind it, opens on the chosen frame's group, and closes with Escape", () => {
+    render(<FrameSection />);
+    fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
+    expect(screen.getByRole('tab', { name: /Classic/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('radio', { name: /^Stamped$/ })).toBeChecked();
+    expect(screen.queryByRole('radio', { name: /^Ember stamp$/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /Show \d+ versions of Stamped/ }));
+    fireEvent.click(screen.getByRole('radio', { name: /^Ember stamp$/ }));
+    expect(getDoc().frame.design?.id).toBe('builtin:stamped-ember');
+    expect(screen.getByTestId('current-frame')).toHaveTextContent('version of Stamped');
+    fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('gives a built-in design a colour picker per colour slot and keeps the choice', () => {
+    render(<FrameSection />);
+    pickFrame('Starweave');
+    expect(screen.getByText('Sky colour')).toBeInTheDocument();
+    expect(screen.getByText('Sigils colour')).toBeInTheDocument();
+    const before = JSON.stringify(getDoc().frame.design?.project);
+    fireEvent.click(screen.getAllByRole('radio', { name: '#b8322a' })[0]);
+    expect(getDoc().frame.design?.colours).toEqual({ band: '#b8322a' });
+    expect(JSON.stringify(getDoc().frame.design?.project)).not.toBe(before);
   });
 });
 

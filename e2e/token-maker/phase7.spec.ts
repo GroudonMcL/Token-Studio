@@ -183,8 +183,10 @@ test('built-in picture frame and preset; drag a decoration on the canvas to anot
   // A built-in Frame Studio design, listed with the drawn frames (v11).
   panel = await openSection(page, 'Frame & shape');
   await panel.getByRole('radio', { name: 'Drawn' }).click();
-  await panel.getByRole('radio', { name: 'Runestone' }).click();
-  await expect(panel.getByRole('radio', { name: 'Runestone' })).toHaveAttribute('aria-checked', 'true');
+  await panel.getByRole('button', { name: 'Change frame' }).click();
+  await page.getByRole('searchbox', { name: 'Search frames' }).fill('Runestone');
+  await page.getByRole('dialog', { name: 'Choose a frame' }).getByRole('radio', { name: 'Runestone' }).click();
+  await expect(panel.getByTestId('current-frame')).toContainText('Runestone');
   await expect(panel.getByRole('radio', { name: 'Drawn' })).toHaveAttribute('aria-checked', 'true');
   // Its stone photo arrives a moment later; then the preview matches the export.
   await expect.poll(() => previewVsExport(page, m), { timeout: 15_000 }).toBeLessThan(6);
