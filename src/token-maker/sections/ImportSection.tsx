@@ -2,6 +2,7 @@ import { Link2, LoaderCircle, Upload, X } from 'lucide-react';
 import { useId, useState } from 'react';
 import { ControlLabel, ImageStrip } from '../components';
 import { UploadButton } from '../editor/UploadButton';
+import { ArtSearch } from './ArtSearch';
 import { MIN_IMAGE_SIDE } from '../../../server/extractImages.ts';
 import { isBatchOn, useBatch } from '../batch/batch';
 import { clearWebImport, importFromAddress, importManyAddresses, pickWebImage, proxiedImageUrl, splitAddresses, useWebImport } from '../import/webImport';
@@ -27,6 +28,7 @@ export function ImportSection() {
             : 'Or drag an image anywhere onto the page, or paste it with Ctrl+V.'}
         </p>
       </div>
+      <ArtSearch />
       <WebAddress />
       <div className="control" data-control="name" data-help-id="import.name">
         <ControlLabel htmlFor={id} label="Token name" helpId="import.name" />

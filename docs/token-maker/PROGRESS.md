@@ -156,6 +156,13 @@ A checklist of build phases, following [`BUILD-PROMPTS.md`](BUILD-PROMPTS.md). D
 - [x] 24 CC0 Openclipart ornaments as decorations (single-colour ones tinted, gold to start)
 - [x] Credits in `ASSETS-CREDITS.md`; tests that every library picture has its files and every open-licence background its source
 
+## Find art online (Phase 1: no new server or keys)
+
+- [x] Import section: **Find art online** box, "Add “fantasy art”" (on by default), and a button per site from one list (`src/config/artSearchSites.ts`); buttons are disabled while the box is empty; Enter searches Google Images; each opens in a new tab (`noopener noreferrer`)
+- [x] Web imports (typed, pasted or dragged links) try the picture straight from its site first, then the proxy; a site that blocks both says to copy the picture and press Ctrl+V
+- [x] Help tip with a before/after picture
+- [x] Tests: search addresses; direct loading and its fallback; Playwright: the buttons, paste, file drop, a non-picture drop, a drag from another tab, a link, and the blocked message, each import then exporting a PNG
+
 ## Later (not phases yet)
 
 From DESIGN.md §15. Don't build these until the owner decides to: AI auto pop-out, AI relighting, animated borders/overlays with GIF export, Pinterest board browsing, sending tokens to Owlbear/Foundry, condition-variant packs, accounts and cloud saving, premium asset packs, switching adverts on.

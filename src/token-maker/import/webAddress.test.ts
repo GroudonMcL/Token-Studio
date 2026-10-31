@@ -1,4 +1,4 @@
-import { addressFromDrop, friendlyError, nameFromImageUrl, nameFromTitle, normaliseAddress } from './webAddress';
+import { addressFromDrop, BLOCKED_MESSAGE, friendlyError, nameFromImageUrl, nameFromTitle, normaliseAddress } from './webAddress';
 
 describe('normaliseAddress', () => {
   it.each([
@@ -54,9 +54,10 @@ describe('token names from web addresses', () => {
 });
 
 describe('friendly errors', () => {
-  it('suggests copying the image address or uploading when a site blocks fetching', () => {
-    for (const code of ['site_refused', 'not_image', 'network', 'no_images'] as const) {
-      expect(friendlyError(code)).toMatch(/Copy image address.*upload it/);
+  it('suggests copying the picture and pasting it when a site blocks fetching', () => {
+    for (const code of ['site_refused', 'not_image', 'network', 'no_images', 'no_server'] as const) {
+      expect(friendlyError(code)).toMatch(/Copy image.*Ctrl\+V here/);
     }
+    expect(friendlyError('site_refused')).toBe(BLOCKED_MESSAGE);
   });
 });

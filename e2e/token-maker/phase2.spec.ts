@@ -11,6 +11,8 @@ const PNG = readFileSync('e2e/token-maker/fixtures/goblin-boss.png');
 type PageAnswer = Record<string, unknown> | { status: number; error: string };
 
 async function fakeApi(page: Page, answers: { images?: Record<string, number>; pages?: Record<string, PageAnswer> }) {
+  // Never the real internet: other sites fail, as if they blocked direct loading.
+  await page.route((url) => url.hostname !== 'localhost', (route) => route.abort('failed'));
   await page.route('**/api/fetch-image?*', (route) => {
     const target = new URL(route.request().url()).searchParams.get('url')!;
     const status = answers.images?.[target] ?? 404;
@@ -118,5 +120,5 @@ test('an image dragged from another tab goes through the same path', async ({ pa
 test('a site that blocks fetching gets a friendly message', async ({ page, isMobile }) => {
   await fakeApi(page, { pages: { 'https://strict.example/art': { status: 502, error: 'site_refused' } } });
   const panel = await getAddress(page, !!isMobile, 'https://strict.example/art');
-  await expect(panel.getByRole('alert')).toContainText('Copy image address');
+  await expect(panel.getByRole('alert')).toContainText('That site blocks direct loading. Right-click the image, choose “Copy image”, then press Ctrl+V here.');
 });

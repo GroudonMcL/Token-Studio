@@ -1,5 +1,6 @@
 import { webImportStore, importFromAddress, pickWebImage, clearWebImport } from './webImport';
 import { importBackgroundFile, importImageFile } from './importImage';
+import { BLOCKED_MESSAGE } from './webAddress';
 
 vi.mock('./importImage', async (original) => {
   const real = await original<typeof import('./importImage')>();
@@ -17,13 +18,22 @@ const imported = vi.mocked(importImageFile);
 const toBackground = vi.mocked(importBackgroundFile);
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
 
-/** A pretend /api: maps the `url` parameter of each endpoint to an answer. */
-function api(routes: { image?: Record<string, number>; page?: Record<string, unknown> }) {
+/**
+ * A pretend /api: maps the `url` parameter of each endpoint to an answer.
+ * Other sites block direct fetching (a CORS error) unless `direct` lists them.
+ */
+function api(routes: { image?: Record<string, number>; page?: Record<string, unknown>; direct?: Record<string, string> }) {
   const calls: string[] = [];
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: string) => {
       const u = new URL(input, 'https://tokens.example');
+      if (!u.pathname.startsWith('/api/')) {
+        const type = routes.direct?.[input];
+        if (!type) throw new TypeError('Failed to fetch');
+        calls.push(`direct ${input}`);
+        return new Response(new Blob([PNG]), { headers: { 'Content-Type': type } });
+      }
       const target = u.searchParams.get('url')!;
       calls.push(`${u.pathname} ${target}`);
       if (u.pathname === '/api/fetch-image') {
@@ -54,6 +64,27 @@ describe('importing from a web address', () => {
     expect(calls).toEqual(['/api/fetch-image https://cdn.example/goblin-boss.png']);
     expect(imported).toHaveBeenCalledWith(expect.anything(), 'Goblin Boss');
     expect(webImportStore.getState().status).toBe('idle');
+  });
+
+  it('loads a picture straight from a site that allows it, without the proxy', async () => {
+    const calls = api({ direct: { 'https://open.example/owlbear.webp': 'image/webp' } });
+    importFromAddress('https://open.example/owlbear.webp');
+    await settle();
+    expect(calls).toEqual(['direct https://open.example/owlbear.webp']);
+    expect(imported).toHaveBeenCalledWith(expect.objectContaining({ type: 'image/webp' }), 'Owlbear');
+    expect(webImportStore.getState().status).toBe('idle');
+  });
+
+  it('treats a direct answer that is not a picture (a page) as a page', async () => {
+    const calls = api({
+      direct: { 'https://open.example/gallery': 'text/html' },
+      image: { 'https://cdn.example/bugbear.png': 200 },
+      page: { 'https://open.example/gallery': { kind: 'page', url: 'https://open.example/gallery', title: '', images: [{ url: 'https://cdn.example/bugbear.png' }] } },
+    });
+    importFromAddress('https://open.example/gallery');
+    await settle();
+    expect(calls).toEqual(['direct https://open.example/gallery', '/api/page-images https://open.example/gallery', '/api/fetch-image https://cdn.example/bugbear.png']);
+    expect(imported).toHaveBeenCalledWith(expect.anything(), 'Bugbear');
   });
 
   it('shows the pictures on a page, then loads the one picked', async () => {
@@ -113,7 +144,7 @@ describe('importing from a web address', () => {
     importFromAddress('https://strict.example/gallery');
     await settle();
     expect(webImportStore.getState()).toMatchObject({ status: 'error' });
-    expect(webImportStore.getState().error).toMatch(/Copy image address/);
+    expect(webImportStore.getState().error).toBe(BLOCKED_MESSAGE);
   });
 
   it('ignores text that is not an address when pasted, but explains in the box', () => {
@@ -144,7 +175,7 @@ describe('importing from a web address', () => {
     await settle();
     expect(imported).not.toHaveBeenCalled();
     expect(webImportStore.getState()).toMatchObject({ status: 'error' });
-    expect(webImportStore.getState().error).toMatch(/isn't running its image server/);
+    expect(webImportStore.getState().error).toBe(BLOCKED_MESSAGE);
     expect(webImportStore.getState().error).not.toMatch(/Unexpected token|isn't an image/);
   });
 });
