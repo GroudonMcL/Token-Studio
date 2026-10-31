@@ -52,6 +52,7 @@ picker each. Candidates are drawn with
 | Harlequin | Textures | Kept, with its diamonds now inside the band and meeting tip to tip; plus Jester's diamonds, Velvet harlequin, Checkered enamel (tiles line up on every shape), Stained glass, Carnival. |
 | Knotwork | Textures | Kept, plus Celtic gold, Silver on black, Carved stone knot, Braided leather, Fey knot. |
 | Starfield | Textures | Kept, plus Deep space, Star chart, Galaxy swirl, Moon phases, Aurora. |
+| Barbarian, Bard, Cleric, Druid, Fighter, Monk | Classes | Choosing: five candidates each. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.
