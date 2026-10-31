@@ -15,3 +15,6 @@ export const layered = (id: string) => () => {
   const t = LAYERED_TEMPLATES.find((x) => x.id === id)!;
   return createProject(t.make(), t.name);
 };
+import { THEMED_TEMPLATES, themedProject } from '../../../src/frame-studio/project/themedTemplates';
+/** A Frame Studio starting design (Themed) as it is now. */
+export const themed = (id: string) => () => themedProject(THEMED_TEMPLATES.find((x) => x.id === id)!);
