@@ -13,7 +13,7 @@ import { loadPictures } from '../../../src/frame-studio/render/pictures';
 import { renderProject } from '../../../src/frame-studio/render/renderProject';
 import { sampleArt } from '../../../src/frame-studio/engine/legacy/sampleArt';
 import { registerShippedFonts } from '../nodeFonts';
-import type { Candidate } from './kit';
+import type { Candidate } from '../../../src/frame-studio/project/houseStyle';
 
 registerShippedFonts();
 const [frame, outDir] = process.argv.slice(2);

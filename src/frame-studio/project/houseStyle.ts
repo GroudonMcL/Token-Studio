@@ -1,5 +1,5 @@
-// Building blocks for frame candidates, in the owner's house style (their
-// FM_* designs): a two-tone gradient band with a reversed "pressed-in step",
+// Building blocks for the built-in frames, in the owner's house style (the
+// Essentials designs): a two-tone gradient band with a reversed "pressed-in step",
 // a crease, a lit outer rim, a shadowed inner rim and one soft drop shadow.
 // Materials (photo textures, glows, ornaments) go on top of that base.
 import {
@@ -12,14 +12,16 @@ import {
   shapeLayer,
   textLayer,
   textureLayer,
-} from '../../../src/frame-studio/project/defaults';
-import { bevel, glow, shadow } from '../../../src/frame-studio/project/styles';
-import type { Effect, GradientStop, Layer, Paint, StageSettings } from '../../../src/frame-studio/project/types';
-import type { PictureId } from '../../../src/frame-studio/project/pictures';
+} from './defaults';
+import { bevel, glow, shadow } from './styles';
+import type { Effect, GradientStop, Layer, Paint, StageSettings } from './types';
+import type { PictureId } from './pictures';
+import type { ColourSlot } from './colourSlots';
 
 export { bandFillLayer, contoursLayer, fractureLayer, growthLayer, lineLayer, repeatLayer, shapeLayer, textLayer, textureLayer, bevel, glow, shadow };
 export type { Layer, Paint, Effect, StageSettings };
 
+/** A candidate design shown in the frame review (scripts/frame-studio/candidates). */
 export interface Candidate {
   id: string;
   name: string;
@@ -27,6 +29,7 @@ export interface Candidate {
   pitch: string;
   stage?: Partial<StageSettings>;
   layers: () => Layer[];
+  colours?: ColourSlot[];
 }
 
 export const solid = (color: string): Paint => ({ kind: 'solid', color });

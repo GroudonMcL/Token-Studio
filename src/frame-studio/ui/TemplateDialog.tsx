@@ -10,7 +10,7 @@ import { FRAME_GROUPS, FRAME_PRESETS } from '../engine/legacy/catalog';
 import { canConvert, differenceNote, editableGroup, editableProject } from '../project/convert';
 import { createProject, LAYERED_TEMPLATES, legacyFrameLayer, projectFromFrame } from '../project/defaults';
 import { CRAFTED_TEMPLATES } from '../project/craftedTemplates';
-import { PICTURE_FRAME_TEMPLATES } from '../project/pictureFrameTemplates';
+import { BUILT_IN_FRAMES } from '../project/builtInFrames';
 import { THEMED_TEMPLATES, themedProject } from '../project/themedTemplates';
 import { addLayer, loadProject } from '../state/projectStore';
 import { THUMB, Tile } from './Thumbnail';
@@ -80,19 +80,19 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
                 />
               ))}
             </div>
-            <section aria-label="Token Maker's built-in frames">
-              <h3>Token Maker's built-in frames</h3>
-              <p className="note">The designs Token Maker lists with its drawn frames (Gilded laurel, Iron rivets, Runestone…), made from layers and photo textures. Open one to change it, save it, and open the file in Token Maker.</p>
+            <section aria-label="Token Studio's frames">
+              <h3>Token Studio's frames</h3>
+              <p className="note">The designs Token Maker lists in its frame picker: the Essentials, the new versions of its drawn frames, and Gilded laurel, Iron rivets, Runestone… Open one to change it, save it, and open the file in Token Maker.</p>
               <div className="tiles">
-                {PICTURE_FRAME_TEMPLATES.map((t) => (
+                {BUILT_IN_FRAMES.map((t) => (
                   <Tile
                     key={t.id}
                     id={`builtin:${t.id}`}
                     name={t.name}
                     description={t.description}
-                    make={() => themedProject(t)}
+                    make={t.project}
                     onPick={() => {
-                      loadProject(themedProject(t));
+                      loadProject(t.project());
                       onClose();
                     }}
                   />

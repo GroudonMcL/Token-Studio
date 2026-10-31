@@ -7,7 +7,7 @@ import { applyBuiltInDesign, applyDesignFrame, openDesignFile } from '../editor/
 import type { DesignFrame, FrameSettings, ImageFrame } from '../document/types';
 import { loadFrameDesignPictures } from '../frameStudio/share/frameDesign';
 import { refreshDesigns, removeDesign, useDesignLibrary } from '../state/designLibrary';
-import { BUILT_IN_DESIGNS, builtInDesignFrame, isBuiltInDesign } from '../render/builtInDesigns';
+import { BUILT_IN_DESIGNS, builtInDesignById, builtInDesignFrame, isBuiltInDesign } from '../render/builtInDesigns';
 import { refreshUploadedFrames, removeUploadedFrame, useUploadedFrames } from '../state/frameLibrary';
 import { FRAME_PRESETS, framePresetById, SHAPES, type ShapeId } from '../render/catalog';
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
@@ -343,6 +343,48 @@ function BandSliders() {
   );
 }
 
+/**
+ * Every frame in the picker, in order: the Essentials designs, then the drawn
+ * frames by group with any new versions of a frame straight after it, then
+ * the other built-in designs (Crafted).
+ */
+function frameTiles(): { id: string; label: string; group: string }[] {
+  const tile = (b: (typeof BUILT_IN_DESIGNS)[number]) => ({ id: b.id, label: b.name, group: b.group });
+  const placed = new Set(FRAME_PRESETS.map((p) => p.id));
+  return [
+    ...BUILT_IN_DESIGNS.filter((b) => b.group === 'Essentials').map(tile),
+    ...FRAME_PRESETS.flatMap((p) => [{ id: p.id, label: p.name, group: p.group }, ...BUILT_IN_DESIGNS.filter((b) => b.after === p.id).map((b) => ({ ...tile(b), group: p.group }))]),
+    ...BUILT_IN_DESIGNS.filter((b) => b.group !== 'Essentials' && !(b.after && placed.has(b.after))).map(tile),
+  ];
+}
+
+/** A colour picker for each of a built-in design's colour slots (its band, its highlights…). */
+function BuiltInColours({ id }: { id: string }) {
+  const chosen = useDoc((d) => d.frame.design?.colours);
+  const slots = builtInDesignById(id)?.colours ?? [];
+  if (!slots.length) return <p className="control__hint">A Frame Studio design with its own colours. Open it in Frame Studio (New → Token Studio's frames) to change them.</p>;
+  const setColour = (slotId: string, colour: string) =>
+    updateDoc((d) => {
+      const design = builtInDesignFrame(id, { ...d.frame.design?.colours, [slotId]: colour });
+      return design ? { ...d, frame: { ...d.frame, design } } : d;
+    }, { transient: true });
+  return (
+    <>
+      {slots.map((slot) => (
+        <ColorSwatches
+          key={slot.id}
+          label={slot.name}
+          helpId="frame.color"
+          value={chosen?.[slot.id] ?? slot.default}
+          swatches={[slot.default, ...FRAME_SWATCHES.filter((c) => c !== slot.default)]}
+          onChange={(c) => setColour(slot.id, c)}
+          onCommit={commitDoc}
+        />
+      ))}
+    </>
+  );
+}
+
 /** The built-in designs, made once each (their thumbnails and photo textures are cached by id). */
 const builtInFrames = new Map(BUILT_IN_DESIGNS.map((b) => [b.id, builtInDesignFrame(b.id)!]));
 
@@ -395,16 +437,13 @@ function DrawnFrame() {
           if (p) setFrame({ kind: 'code', presetId: p.id, style: p.style, color: p.color, highlightColor: null });
           else if (isBuiltInDesign(id)) applyBuiltInDesign(id);
         }}
-        tiles={[
-          ...FRAME_PRESETS.map((p) => ({ id: p.id, label: p.name, group: p.group })),
-          ...BUILT_IN_DESIGNS.map((b) => ({ id: b.id, label: b.name, group: 'Crafted' })),
-        ].map((t) => ({
+        tiles={frameTiles().map((t) => ({
           ...t,
           preview: thumbs?.get(t.id) ? <img src={thumbs.get(t.id)} alt="" width={44} height={44} /> : <span className="tile__blank" />,
         }))}
       />
       {builtIn ? (
-        <p className="control__hint">A Frame Studio design with its own colours. Open it in Frame Studio (New → Token Maker's built-in frames) to change them.</p>
+        <BuiltInColours id={builtIn} />
       ) : (
         <ColorSwatches
           label="Frame colour"

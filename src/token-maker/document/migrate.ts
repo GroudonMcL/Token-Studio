@@ -3,7 +3,8 @@
 // defaults, so a damaged or partial file can never crash the editor.
 
 import { readFrameDesign } from '../frameStudio/share/frameDesign';
-import { builtInDesignFrame } from '../render/builtInDesigns';
+import { builtInDesignById, builtInDesignFrame } from '../render/builtInDesigns';
+import { cleanChoices } from '../frameStudio/project/colourSlots';
 import { FRAME_STYLES, SHAPES } from '../render/catalog';
 import {
   copyGradient,
@@ -377,7 +378,8 @@ export function designFrame(raw: unknown): DesignFrame | null {
   if (JSON.stringify(raw.project).length > MAX_DESIGN_CHARS) return null;
   const read = readFrameDesign(raw.project);
   if (!read.ok) return null;
-  return { id, name: str(raw.name, read.project.name).slice(0, 80), project: read.project };
+  const colours = cleanChoices(raw.colours, builtInDesignById(id)?.colours ?? []);
+  return { id, name: str(raw.name, read.project.name).slice(0, 80), project: read.project, ...(Object.keys(colours).length ? { colours } : {}) };
 }
 
 /** Most stroke data any one document keeps (about 2 MB of numbers). */

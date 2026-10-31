@@ -172,6 +172,8 @@ export interface DesignFrame {
   name: string;
   /** The design, as Frame Studio's reader checked it. */
   project: FrameProject;
+  /** A built-in design's chosen colours, by colour slot (the project is already in them). */
+  colours?: Record<string, string>;
 }
 
 /** Where a picture frame comes from: one the user uploaded (kept in IndexedDB). The built-in ones became Frame Studio designs in v11. */

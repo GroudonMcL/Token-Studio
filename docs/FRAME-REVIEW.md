@@ -1,0 +1,30 @@
+# Frame review
+
+Before launch, every ready-made frame is reviewed one at a time against the
+owner's own designs (the **Essentials**), and new versions are made in the
+same house style (`src/frame-studio/project/houseStyle.ts`): a two-tone
+gradient band lit from the top left, a reversed pressed-in step, a thin
+crease, a lit outer rim, a shadowed inner rim and one soft drop shadow, with
+photo textures (through blend modes and recolouring), blurred layered glows,
+and bevels only on real materials (gold, enamel, chiselled stone).
+
+Chosen designs go in `src/frame-studio/project/builtInFrames.ts` with their
+**colour slots** (`colourSlots.ts`), which Token Maker shows as one colour
+picker each. Candidates are drawn with
+`npx tsx scripts/frame-studio/candidates/build.ts <frame> <outDir>`.
+
+## The owner's preferences so far
+
+- Clean, saturated gradient bands rather than muddy textures.
+- Colour choices on every frame where they make sense: a band colour and a
+  highlight colour, picked separately.
+- Kept for Wizard: the calm and the rich versions (Sapphire runes, Starweave,
+  Ley lines, Gilded grimoire). Not kept: the violet crystal and lightning
+  versions.
+
+## Progress
+
+| Frame | Group | Result |
+|---|---|---|
+| Essentials (9) | Essentials | The owner's designs, added as they were made, without the "FM_" names. |
+| Wizard | Classes | Four new versions added after Wizard: Sapphire runes, Starweave, Ley lines, Gilded grimoire. |
