@@ -561,15 +561,22 @@ const harlequin: Finish = {
   step: 0,
   texture: (ctx, g, _t, base) => {
     const w = bandWidth(g);
-    const pts = alongBand(g, ornamentCount(g.shape, countFor(g, w * 0.7)));
+    // An even count, so light and dark alternate all the way round.
+    const n = ornamentCount(g.shape, countFor(g, w * 0.7));
+    const pts = alongBand(g, n + (n % 2));
+    // Each diamond stays inside the band and meets its neighbours tip to tip
+    // (owner's request: they used to overlap each other and the edges).
+    const gap = pts.length > 1 ? Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) : w;
+    const half = Math.min(w * 0.4, gap * 0.48);
+    const tall = w * 0.44;
     pts.forEach((p, i) => {
       atPoint(ctx, p, () => {
         ctx.fillStyle = i % 2 ? rgba(shade(base, -0.75), 0.6) : rgba(shade(base, 0.55), 0.35);
         ctx.beginPath();
-        ctx.moveTo(-w * 0.4, 0);
-        ctx.lineTo(0, -w * 0.55);
-        ctx.lineTo(w * 0.4, 0);
-        ctx.lineTo(0, w * 0.55);
+        ctx.moveTo(-half, 0);
+        ctx.lineTo(0, -tall);
+        ctx.lineTo(half, 0);
+        ctx.lineTo(0, tall);
         ctx.closePath();
         ctx.fill();
         ctx.strokeStyle = rgba(shade(base, -0.85), 0.5);

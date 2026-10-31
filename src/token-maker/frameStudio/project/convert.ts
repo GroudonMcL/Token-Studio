@@ -206,7 +206,8 @@ const CONVERTERS: Partial<Record<FrameStyle, Converter>> = {
   },
 
   harlequin: ({ color }) => {
-    const diamonds = { element: 'diamond' as const, mode: 'spacing' as const, spacing: 0.7, snapToCorners: true, at: 0.5, size: 1.1, stretch: 0.8 / 1.1, shaded: false, outline: shade(color, -0.85), outlineWidth: 0.02 / 1.1, clip: 'band' as const };
+    // Inside the band and meeting tip to tip, an even number so the colours alternate all round.
+    const diamonds = { element: 'diamond' as const, mode: 'spacing' as const, spacing: 0.7, snapToCorners: true, multipleOf: 2, at: 0.5, size: 0.88, stretch: 0.672 / 0.88, shaded: false, outline: shade(color, -0.85), outlineWidth: 0.02 / 0.88 };
     return stack(
       { base: color, light: 0.6, dark: 0.75, highlight: null, step: 0 },
       [

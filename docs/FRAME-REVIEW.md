@@ -46,7 +46,12 @@ picker each. Candidates are drawn with
 | Infernal | Classic | Kept, plus Hellfire runes, Brimstone, Infernal iron, Blood pact. |
 | Double line | Classic | Kept, with its diamonds now set into the band; plus Gold lines on enamel, Twin rings, Studded double, Fine lines, Cord between gold. |
 | Polished | Classic | Kept, plus Anodised titanium, Pearl, Obsidian. |
-| Oak, Cobblestone, Magma, Harlequin, Knotwork, Starfield | Textures | Choosing: five candidates each. |
+| Oak | Textures | Kept, plus Varnished oak, Brass-bound oak, Rune-carved oak, Living bark. |
+| Cobblestone | Textures | Second round: C and D kept as options, six new ones (F–K). |
+| Magma | Textures | Kept, plus Cooling crust, Obsidian & fire, Ember streaks, Volcanic script. |
+| Harlequin | Textures | Kept, with its diamonds now inside the band and meeting tip to tip; plus Jester's diamonds, Velvet harlequin, Checkered enamel (tiles line up on every shape), Stained glass, Carnival. |
+| Knotwork | Textures | Kept, plus Celtic gold, Silver on black, Carved stone knot, Braided leather, Fey knot. |
+| Starfield | Textures | Kept, plus Deep space, Star chart, Galaxy swirl, Moon phases, Aurora. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.

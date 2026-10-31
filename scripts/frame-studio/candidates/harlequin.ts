@@ -5,8 +5,9 @@ import {
 } from './common';
 
 export const CURRENT = () => projectFromFrame('harlequin');
+// Diamonds that fit inside the piping and meet tip to tip, one at each corner.
 const diamonds = (name: string, fill: string, offset: number, effects = [bevel({ size: 0.15, gloss: 0.6, highlightOpacity: 0.4 })]) => ({
-  ...repeatLayer(), name, element: 'diamond' as const, mode: 'spacing' as const, spacing: 1.2, offset, snapToCorners: false, at: 0.5, size: 1.15, stretch: 0.55, fill, raised: false, shaded: false, clip: 'band' as const, effects,
+  ...repeatLayer(), name, element: 'diamond' as const, mode: 'count' as const, count: 36, offset, snapToCorners: true, at: 0.5, size: 0.8, stretch: 0.88, fill, raised: false, shaded: false, effects,
 });
 const goldPiping = (name: string, at: number) => ({ ...lineLayer(), name, at, width: 0.09, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) });
 
@@ -42,8 +43,8 @@ export const CANDIDATES: Candidate[] = [
     colours: [slot('first', 'First colour', '#1a1a1a', ['Band']), slot('second', 'Second colour', '#f0ece4', ['Squares'])],
     layers: () => [
       ...base({ light: '#4a4a4a', dark: '#050505', step: null, rims: false }),
-      { ...repeatLayer(), name: 'Squares', element: 'square', mode: 'spacing', spacing: 0.96, snapToCorners: false, at: 0.25, size: 0.48, fill: '#f0ece4', raised: false, shaded: false, clip: 'band', effects: [bevel({ size: 0.1, gloss: 0.8, highlightOpacity: 0.4 })] },
-      { ...repeatLayer(), name: 'Squares', element: 'square', mode: 'spacing', spacing: 0.96, offset: 0.5, snapToCorners: false, at: 0.75, size: 0.48, fill: '#f0ece4', raised: false, shaded: false, clip: 'band', effects: [bevel({ size: 0.1, gloss: 0.8, highlightOpacity: 0.4 })] },
+      { ...repeatLayer(), name: 'Squares', element: 'square', mode: 'count', count: 24, snapToCorners: true, at: 0.25, size: 0.56, stretch: 1.3, fill: '#f0ece4', raised: false, shaded: false, clip: 'band', effects: [bevel({ size: 0.1, gloss: 0.8, highlightOpacity: 0.4 })] },
+      { ...repeatLayer(), name: 'Squares', element: 'square', mode: 'count', count: 24, snapToCorners: true, offset: 0.5, at: 0.75, size: 0.56, stretch: 1.3, fill: '#f0ece4', raised: false, shaded: false, clip: 'band', effects: [bevel({ size: 0.1, gloss: 0.8, highlightOpacity: 0.4 })] },
       ...rims(),
     ],
   },

@@ -37,7 +37,7 @@ import {
   type BuiltInFrame,
   type BuiltInGroup,
 } from './houseStyle';
-import { knotworkLayer } from './defaults';
+import { cellsLayer, knotworkLayer } from './defaults';
 import { wear } from './styles';
 import type { ColourSlot } from './colourSlots';
 import type { Layer, StageSettings } from './types';
@@ -188,6 +188,22 @@ const IRON = ['#020101', '#0a0808', '#1e1a19', '#4a4240', '#a09088'];
 
 // double
 const goldLine = (name: string, at: number, width = 0.11) => ({ ...lineLayer(), name, at, width, paint: goldPaint(1.4), effects: [...goldFx(0.6, WARM_GOLD)] });
+
+// oak
+const OAK = ['#140a04', '#4a2a12', '#8a5a32', '#c89060', '#f0d0a0'];
+
+// magma
+const hotRing = (name: string, at: number, color = '#ff6a1a') => ({ ...lineLayer(), name, at, width: 0.06, paint: { kind: 'solid' as const, color: '#ffd080' }, effects: [glow({ color, opacity: 1, size: 0.24 }), blur(0.02)] });
+
+// harlequin
+// Diamonds that fit inside the piping and meet tip to tip, one at each corner.
+const diamonds = (name: string, fill: string, offset: number, effects = [bevel({ size: 0.15, gloss: 0.6, highlightOpacity: 0.4 })]) => ({
+  ...repeatLayer(), name, element: 'diamond' as const, mode: 'count' as const, count: 36, offset, snapToCorners: true, at: 0.5, size: 0.8, stretch: 0.88, fill, raised: false, shaded: false, effects,
+});
+const goldPiping = (name: string, at: number) => ({ ...lineLayer(), name, at, width: 0.09, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) });
+
+// knotwork
+const knot = (name: string, color: string, patch = {}) => ({ ...knotworkLayer(), name, width: 0.24, amplitude: 0.28, waveLength: 1.1, color, double: true, shine: false, outlineWidth: 0.025, ...patch });
 
 const VERSIONS: Version[] = [
   // ── stamped ──
@@ -576,6 +592,332 @@ const VERSIONS: Version[] = [
       { ...bandFillLayer(), name: 'Glass', paint: photo('black-onyx', 6), opacity: 0.6, blend: 'overlay' },
       { ...bandFillLayer(), name: 'Glint', paint: lin(['#ffffff', '#4a3a6a', '#000000'], 45, true), opacity: 0.35, blend: 'screen', effects: [bevel({ profile: 'rounded', size: 0.5, gloss: 1, highlightOpacity: 0.9 })] },
       ...rims(),
+    ],
+  },
+  // ── oak ──
+  {
+    id: 'oak-varnished',
+    name: 'Varnished oak',
+    description: 'Real oak grain under a glossy varnish, with a pressed-in step.',
+    group: 'Textures',
+    after: 'oak',
+    colours: [slot('wood', 'Wood colour', '#8a5a32', ['Oak', 'Pressed-in oak'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Oak', paint: photo('wood-planks', 1.4, { angle: 90, lighting: 0.4 }), effects: [recolour(OAK), bevel({ size: 0.35, gloss: 0.7, highlightOpacity: 0.6, soften: 0.02 }), DROP] },
+      { ...bandFillLayer(), name: 'Pressed-in oak', from: 0.55, to: 1, paint: lin(['#140a04', '#c89060']), opacity: 0.45, blend: 'soft-light' },
+      { ...lineLayer(), name: 'Crease', at: 0.55, width: 0.03, opacity: 0.55, blend: 'overlay', paint: { kind: 'solid', color: '#190500' } },
+      ...rims(),
+    ],
+  },
+  {
+    id: 'oak-brass-bound',
+    name: 'Brass-bound oak',
+    description: 'Oak bound by two brass bands and studded with brass nails, like an old sea chest.',
+    group: 'Textures',
+    after: 'oak',
+    colours: [slot('wood', 'Wood colour', '#8a5a32', ['Oak']), slot('metal', 'Metal colour', '#a87a3a', ['Outer brass', 'Inner brass', 'Nails'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Oak', paint: photo('medieval-wood', 1.6, { angle: 90, lighting: 0.5 }), effects: [recolour(OAK), DROP] },
+      { ...bandFillLayer(), name: 'Outer brass', to: 0.2, paint: photo('hammered-metal', 1.4), effects: metalFx(BRONZE_STOPS, 0.5, 0.8) },
+      { ...bandFillLayer(), name: 'Inner brass', from: 0.8, paint: photo('hammered-metal', 1.4), effects: metalFx(BRONZE_STOPS, 0.5, 0.8) },
+      { ...repeatLayer(), name: 'Nails', element: 'bead', count: 12, at: 0.5, size: 0.24, fill: '#a87a3a', raised: true, effects: [recolour(BRONZE_STOPS), contact(0.6)] },
+    ],
+  },
+  {
+    id: 'oak-rune-carved',
+    name: 'Rune-carved oak',
+    description: 'Dark oak with a BabelStone runic inscription carved deep into it.',
+    group: 'Textures',
+    after: 'oak',
+    colours: [slot('wood', 'Wood colour', '#6a4024', ['Oak'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Oak', paint: photo('medieval-wood', 1.6, { angle: 90, lighting: 0.5 }), effects: [recolour(['#0a0402', '#2a160a', '#6a4024', '#a87850', '#e0c098']), bevel({ size: 0.3, gloss: 0.3 }), DROP] },
+      inscription('babelstone', '#1a0c04', { name: 'Carved runes', size: 0.46, spacing: 0.18, effects: [bevel({ direction: 'sunken', size: 0.6, gloss: 0.2, highlightOpacity: 0.5 })] }),
+      ...rims(),
+    ],
+  },
+  {
+    id: 'oak-living-bark',
+    name: 'Living bark',
+    description: 'Rough tree bark with patches of moss growing over it.',
+    group: 'Textures',
+    after: 'oak',
+    colours: [slot('bark', 'Bark colour', '#56473c', ['Bark']), slot('moss', 'Moss colour', '#6a8a2a', ['Moss'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Bark', paint: photo('plane-bark', 2, { angle: 90, lighting: 0.6 }), effects: [bevel({ profile: 'rounded', size: 0.45, gloss: 0.1, highlightOpacity: 0.4 }), DROP] },
+      { ...textureLayer('lichen'), name: 'Moss', color: '#6a8a2a', amount: 1.3, opacity: 0.9, seed: 0x11c4 },
+    ],
+  },
+  // ── magma ──
+  {
+    id: 'magma-crust',
+    name: 'Cooling crust',
+    description: 'Dark plates of cooled rock on bright molten lava glowing through every gap.',
+    group: 'Textures',
+    after: 'magma',
+    stage: { bloom: 0.3, bleed: 0.2 },
+    colours: [slot('fire', 'Lava colour', '#ff6a1a', ['Molten lava']), slot('rock', 'Crust colour', '#2a1e1c', ['Crust'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Molten lava', paint: lin(['#ffe080', '#ff6a1a', '#a01a02']), effects: [glow({ color: '#ff6a1a', opacity: 0.6, size: 0.14 }), DROP] },
+      { ...cellsLayer(), name: 'Crust', pattern: 'voronoi', size: 0.55, gap: 0.06, jitter: 0.9, rounding: 0.35, vary: 0.3, color: '#2a1e1c', effects: [bevel({ profile: 'rounded', size: 0.25, gloss: 0.2, surface: 'cracked', surfaceDepth: 0.5, highlightOpacity: 0.3 })] },
+    ],
+  },
+  {
+    id: 'magma-obsidian-fire',
+    name: 'Obsidian & fire',
+    description: 'Black volcanic glass with fire glowing along both edges.',
+    group: 'Textures',
+    after: 'magma',
+    stage: { bloom: 0.3 },
+    colours: [slot('glass', 'Glass colour', '#1a1416', ['Band']), slot('fire', 'Fire colour', '#ff6a1a', ['Outer fire', 'Inner fire'])],
+    layers: () => [
+      ...base({ light: '#4a3a3e', dark: '#020102', step: null, rims: false }),
+      overlay('black-onyx', 6, 'overlay', 0.7),
+      hotRing('Outer fire', 0.05),
+      hotRing('Inner fire', 0.95),
+    ],
+  },
+  {
+    id: 'magma-embers',
+    name: 'Ember streaks',
+    description: 'Streaks of embers round the band, with sparks drifting off them.',
+    group: 'Textures',
+    after: 'magma',
+    stage: { bloom: 0.25 },
+    colours: [slot('fire', 'Ember colour', '#ff6a1a', ['Embers', 'Sparks'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Embers', paint: photo('molten-rock', 2, { angle: 90 }), effects: [adjust({ contrast: 0.3 }), bevel({ size: 0.3, gloss: 0.3, highlightOpacity: 0.3 }), DROP] },
+      { ...textureLayer('sparkle'), name: 'Sparks', color: '#ffc060', amount: 0.5, scale: 0.5, seed: 0x5a2d, effects: [glow({ color: '#ff6a1a', opacity: 0.7, size: 0.06 })] },
+    ],
+  },
+  {
+    id: 'magma-script',
+    name: 'Volcanic script',
+    description: 'Dark basalt with a Sith AF inscription glowing like magma between two hot seams.',
+    group: 'Textures',
+    after: 'magma',
+    stage: { bloom: 0.25 },
+    colours: [slot('rock', 'Rock colour', '#211c17', ['Basalt']), slot('fire', 'Fire colour', '#ff5a10', ['Glowing script', 'Outer seam', 'Inner seam'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Basalt', paint: photo('dark-rock', 2.4, { lighting: 0.5 }), effects: [adjust({ brightness: -0.2 }), bevel({ profile: 'chisel', size: 0.3, gloss: 0.2, highlightOpacity: 0.3 }), DROP] },
+      inscription('sith', '#ffe0a0', { name: 'Glowing script', size: 0.44, start: 2, effects: [glow({ inner: true, color: '#fff4c0', opacity: 0.6, size: 0.04 }), glow({ color: '#ff5a10', opacity: 0.9, size: 0.18 })] }),
+      hotRing('Outer seam', 0.08, '#ff5a10'),
+      hotRing('Inner seam', 0.92, '#ff5a10'),
+    ],
+  },
+  // ── harlequin ──
+  {
+    id: 'harlequin-jester',
+    name: 'Jester’s diamonds',
+    description: 'Glossy diamonds in two colours with gold piping along both edges.',
+    group: 'Textures',
+    after: 'harlequin',
+    colours: [slot('first', 'First colour', '#8c2f4a', ['Band', 'Dark diamonds']), slot('second', 'Second colour', '#e8c050', ['Light diamonds']), slot('trim', 'Trim colour', '#c8952e', ['Outer piping', 'Inner piping'])],
+    layers: () => [
+      ...base({ light: '#d04a6a', dark: '#3a0a18', step: null, rims: false }),
+      diamonds('Light diamonds', '#e8c050', 0.5),
+      goldPiping('Outer piping', 0.04),
+      goldPiping('Inner piping', 0.96),
+    ],
+  },
+  {
+    id: 'harlequin-velvet',
+    name: 'Velvet harlequin',
+    description: 'Patterned velvet with a satin sheen and gold cord edges.',
+    group: 'Textures',
+    after: 'harlequin',
+    colours: [slot('velvet', 'Velvet colour', '#930320', ['Velvet']), slot('trim', 'Trim colour', '#c8952e', ['Outer piping', 'Inner piping'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Velvet', paint: photo('jacquard', 1.2, { lighting: 0.6 }), effects: [bevel({ size: 0.5, gloss: 0.2, highlightOpacity: 0.35 }), DROP] },
+      { ...diamonds('Sheen', '#ffffff', 0.5, []), opacity: 0.12, blend: 'screen' },
+      goldPiping('Outer piping', 0.04),
+      goldPiping('Inner piping', 0.96),
+    ],
+  },
+  {
+    id: 'harlequin-checker',
+    name: 'Checkered enamel',
+    description: 'A two-colour chequerboard in glossy enamel between rims.',
+    group: 'Textures',
+    after: 'harlequin',
+    colours: [slot('first', 'First colour', '#1a1a1a', ['Band']), slot('second', 'Second colour', '#f0ece4', ['Squares'])],
+    layers: () => [
+      ...base({ light: '#4a4a4a', dark: '#050505', step: null, rims: false }),
+      { ...repeatLayer(), name: 'Squares', element: 'square', mode: 'count', count: 24, snapToCorners: true, at: 0.25, size: 0.56, stretch: 1.3, fill: '#f0ece4', raised: false, shaded: false, clip: 'band', effects: [bevel({ size: 0.1, gloss: 0.8, highlightOpacity: 0.4 })] },
+      { ...repeatLayer(), name: 'Squares', element: 'square', mode: 'count', count: 24, snapToCorners: true, offset: 0.5, at: 0.75, size: 0.56, stretch: 1.3, fill: '#f0ece4', raised: false, shaded: false, clip: 'band', effects: [bevel({ size: 0.1, gloss: 0.8, highlightOpacity: 0.4 })] },
+      ...rims(),
+    ],
+  },
+  {
+    id: 'harlequin-stained-glass',
+    name: 'Stained glass',
+    description: 'Pieces of coloured glass in dark leading, glowing softly.',
+    group: 'Textures',
+    after: 'harlequin',
+    stage: { bloom: 0.2 },
+    colours: [slot('glass', 'Glass colour', '#3a6ad0', ['Glass']), slot('lead', 'Leading colour', '#1a1a1e', ['Leading'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Leading', paint: lin(['#4a4a50', '#1a1a1e', '#050505']), effects: [DROP] },
+      { ...cellsLayer(), name: 'Glass', pattern: 'voronoi', size: 0.55, gap: 0.07, jitter: 0.9, rounding: 0.1, vary: 0.9, color: '#3a6ad0', effects: [bevel({ size: 0.15, gloss: 0.9, highlightOpacity: 0.5 }), glow({ inner: true, color: '#ffffff', opacity: 0.25, size: 0.1 })] },
+    ],
+  },
+  {
+    id: 'harlequin-carnival',
+    name: 'Carnival',
+    description: 'Bright harlequin diamonds with little gold bells at the points.',
+    group: 'Textures',
+    after: 'harlequin',
+    colours: [slot('first', 'First colour', '#2a6ad0', ['Band']), slot('second', 'Second colour', '#e03a3a', ['Light diamonds']), slot('bells', 'Bell colour', '#c8952e', ['Bells'])],
+    layers: () => [
+      ...base({ light: '#5a9aff', dark: '#0a1a50', step: null, rims: false }),
+      diamonds('Light diamonds', '#e03a3a', 0.5),
+      { ...repeatLayer(), name: 'Bells', element: 'bead', mode: 'spacing', spacing: 1.2, snapToCorners: false, at: 0.5, size: 0.28, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), contact(0.6)] },
+      ...rims(),
+    ],
+  },
+  // ── knotwork ──
+  {
+    id: 'knotwork-celtic-gold',
+    name: 'Celtic gold',
+    description: 'Gold knotwork woven over and under on green enamel, between gold rims.',
+    group: 'Textures',
+    after: 'knotwork',
+    colours: [slot('enamel', 'Enamel colour', '#1e5a34', ['Enamel']), slot('gold', 'Gold colour', '#c8952e', ['Gold knot', 'Outer rim', 'Inner rim'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Enamel', paint: lin(['#3a8a5a', '#1e5a34', '#04140a']), effects: [bevel({ direction: 'sunken', size: 0.1, gloss: 0.9, highlightOpacity: 0.4 }), DROP] },
+      { ...knot('Gold knot', '#c8952e'), effects: [...goldFx(0.4, WARM_GOLD)] },
+      { ...lineLayer(), name: 'Outer rim', at: 0.03, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
+      { ...lineLayer(), name: 'Inner rim', at: 0.97, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
+    ],
+  },
+  {
+    id: 'knotwork-silver',
+    name: 'Silver on black',
+    description: 'Bright silver knotwork on glossy black.',
+    group: 'Textures',
+    after: 'knotwork',
+    colours: [slot('band', 'Band colour', '#1a1a20', ['Band']), slot('metal', 'Metal colour', '#a8aeb8', ['Silver knot'])],
+    layers: () => [
+      ...base({ light: '#4a4a58', dark: '#050508', step: null, rims: false }),
+      { ...knot('Silver knot', '#c8ccd4'), effects: metalFx(SILVER_STOPS, 0.4, 0.9) },
+      ...rims(),
+    ],
+  },
+  {
+    id: 'knotwork-carved-stone',
+    name: 'Carved stone knot',
+    description: 'Knotwork carved into weathered stone, with BabelStone runes along the inner edge.',
+    group: 'Textures',
+    after: 'knotwork',
+    colours: [slot('stone', 'Stone colour', '#908372', ['Stone'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Stone', paint: photo('coral-stone', 1.6, { lighting: 0.6 }), effects: [bevel({ profile: 'chisel', size: 0.2, gloss: 0.1, highlightOpacity: 0.4 }), DROP] },
+      { ...knot('Carved knot', '#5a5044', { at: 0.42, width: 0.2, amplitude: 0.22, outline: null }), opacity: 0.8, blend: 'multiply', effects: [bevel({ direction: 'sunken', size: 0.5, gloss: 0.1, highlightOpacity: 0.5 })] },
+      inscription('babelstone', '#3a3228', { name: 'Carved runes', at: 0.86, size: 0.2, spacing: 0.2, effects: [bevel({ direction: 'sunken', size: 0.6, gloss: 0.1 })] }),
+    ],
+  },
+  {
+    id: 'knotwork-leather',
+    name: 'Braided leather',
+    description: 'Tan leather strips braided over dark leather, with stitched edges.',
+    group: 'Textures',
+    after: 'knotwork',
+    colours: [slot('leather', 'Leather colour', '#3a1e0e', ['Leather']), slot('braid', 'Braid colour', '#b07040', ['Braid', 'Stitching'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Leather', paint: photo('leather', 1.6, { lighting: 0.6 }), effects: [recolour(['#0a0402', '#1e0e06', '#3a1e0e', '#6a3e22']), DROP] },
+      { ...knot('Braid', '#b07040'), effects: [bevel({ size: 0.5, gloss: 0.3, highlightOpacity: 0.5 }), contact(0.5)] },
+      { ...lineLayer(), name: 'Stitching', at: 0.07, width: 0.03, dash: 'dashed', paint: { kind: 'solid', color: '#b07040' } },
+      { ...lineLayer(), name: 'Stitching', at: 0.93, width: 0.03, dash: 'dashed', paint: { kind: 'solid', color: '#b07040' } },
+    ],
+  },
+  {
+    id: 'knotwork-fey',
+    name: 'Fey knot',
+    description: 'A glowing knot of light woven through a dark band.',
+    group: 'Textures',
+    after: 'knotwork',
+    stage: { bloom: 0.3 },
+    colours: [slot('band', 'Band colour', '#141a2a', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#6affd8', ['Glowing knot'])],
+    layers: () => [
+      ...base({ light: '#2a3448', dark: '#020306', step: 0.55 }),
+      { ...knot('Glowing knot', '#d8fff4', { outline: null, width: 0.16 }), effects: [glow({ color: '#6affd8', opacity: 0.9, size: 0.16 })] },
+    ],
+  },
+  // ── starfield ──
+  {
+    id: 'starfield-deep-space',
+    name: 'Deep space',
+    description: 'A violet nebula drifting through stars, between thin silver rims.',
+    group: 'Textures',
+    after: 'starfield',
+    stage: { bloom: 0.2 },
+    colours: [slot('sky', 'Sky colour', '#2a1a5a', ['Band']), slot('nebula', 'Nebula colour', '#d04ab0', ['Nebula'])],
+    layers: () => [
+      ...base({ light: '#3a2a7a', dark: '#04020e', step: null, rims: false }),
+      { ...textureLayer('nebula'), name: 'Nebula', color: '#d04ab0', color2: '#3a6aff', opacity: 0.8, blend: 'screen', seed: 0x2ec },
+      { ...textureLayer('sparkle'), name: 'Stars', color: '#ffffff', amount: 1.4, scale: 0.5, seed: 0x5a2e },
+      { ...lineLayer(), name: 'Silver rim', at: 0.025, width: 0.05, paint: silver, effects: [bevel({ size: 0.6, gloss: 0.9 })] },
+      { ...lineLayer(), name: 'Silver rim', at: 0.975, width: 0.05, paint: silver, effects: [bevel({ size: 0.6, gloss: 0.9 })] },
+    ],
+  },
+  {
+    id: 'starfield-star-chart',
+    name: 'Star chart',
+    description: 'A navigator\'s star chart with gold rings and an Outer Rim AF inscription.',
+    group: 'Textures',
+    after: 'starfield',
+    colours: [slot('sky', 'Chart colour', '#0e1a40', ['Band', 'Stars']), slot('ink', 'Ink colour', '#e8c878', ['Chart rings', 'Chart script', 'Compass points'])],
+    layers: () => [
+      ...base({ light: '#2a3a7a', dark: '#02040e', step: null, rims: false }),
+      { ...textureLayer('sparkle'), name: 'Stars', color: '#c8d8ff', amount: 0.8, scale: 0.4, seed: 0x5a2f },
+      { ...lineLayer(), name: 'Chart rings', at: 0.12, width: 0.025, paint: { kind: 'solid', color: '#e8c878' } },
+      { ...lineLayer(), name: 'Chart rings', at: 0.88, width: 0.025, paint: { kind: 'solid', color: '#e8c878' } },
+      inscription('outerRim', '#e8c878', { name: 'Chart script', size: 0.38, start: 1 }),
+      { ...shapeLayer(), name: 'Compass points', shape: 'star', sides: 4, innerRatio: 0.3, along: 0, across: 0.5, size: 0.85, fill: '#e8c878', outline: null, raised: false, mirror: 'four', effects: [glow({ color: '#ffe0a0', opacity: 0.5, size: 0.1 })] },
+    ],
+  },
+  {
+    id: 'starfield-galaxy',
+    name: 'Galaxy swirl',
+    description: 'Stars and gas whirling round the band like a spiral galaxy.',
+    group: 'Textures',
+    after: 'starfield',
+    stage: { bloom: 0.3 },
+    colours: [slot('sky', 'Sky colour', '#140a30', ['Band']), slot('core', 'Glow colour', '#8a6aff', ['Swirl'])],
+    layers: () => [
+      ...base({ light: '#2a1a5a', dark: '#020108', step: null, rims: false }),
+      { ...textureLayer('nebula'), name: 'Swirl', color: '#8a6aff', color2: '#ff6ac8', opacity: 0.9, blend: 'screen', seed: 0x2ed, effects: [{ kind: 'blur', on: true, mode: 'spin', amount: 0.6, keepShape: true }] },
+      { ...textureLayer('sparkle'), name: 'Stars', color: '#ffffff', amount: 1.2, scale: 0.45, seed: 0x5a30 },
+    ],
+  },
+  {
+    id: 'starfield-moons',
+    name: 'Moon phases',
+    description: 'Silver moons waxing and waning round a starry midnight band.',
+    group: 'Textures',
+    after: 'starfield',
+    colours: [slot('sky', 'Sky colour', '#141c3a', ['Band', 'Stars']), slot('moon', 'Moon colour', '#e4e8f0', ['Moons'])],
+    layers: () => [
+      ...base({ light: '#2a3a6a', dark: '#02040a', step: null }),
+      { ...textureLayer('sparkle'), name: 'Stars', color: '#e8ecff', amount: 0.8, scale: 0.45, seed: 0x5a31 },
+      { ...repeatLayer(), name: 'Moons', element: 'circle', count: 8, at: 0.5, size: 0.7, fill: '#e4e8f0', raised: false, effects: [bevel({ size: 0.6, gloss: 0.6 }), glow({ color: '#c8d8ff', opacity: 0.5, size: 0.1 })] },
+      { ...repeatLayer(), name: 'Moon shadows', element: 'circle', count: 8, at: 0.44, size: 0.62, fill: '#0a0e1e', raised: false, shaded: false, opacity: 0.9, offset: 0.06 },
+    ],
+  },
+  {
+    id: 'starfield-aurora',
+    name: 'Aurora',
+    description: 'Ribbons of green and violet aurora over a starry night.',
+    group: 'Textures',
+    after: 'starfield',
+    stage: { bloom: 0.3 },
+    colours: [slot('first', 'First light', '#40ffa0', ['Aurora']), slot('second', 'Second light', '#a060ff', ['Aurora glow'])],
+    layers: () => [
+      ...base({ light: '#1a2a4a', dark: '#020408', step: null, rims: false }),
+      { ...textureLayer('sparkle'), name: 'Stars', color: '#ffffff', amount: 0.9, scale: 0.4, seed: 0x5a32 },
+      { ...bandFillLayer(), name: 'Aurora', from: 0.15, to: 0.6, paint: lin(['#40ffa0', '#40ffa0', '#20a0ff'], 0), opacity: 0.6, blend: 'screen', clip: 'band', effects: [blur(0.06)] },
+      { ...bandFillLayer(), name: 'Aurora glow', from: 0.4, to: 0.85, paint: lin(['#a060ff', '#ff60c0'], 0), opacity: 0.5, blend: 'screen', clip: 'band', effects: [blur(0.06)] },
+      overlay('blue-onyx', 8, 'soft-light', 0.3),
     ],
   },
   // ── next ──

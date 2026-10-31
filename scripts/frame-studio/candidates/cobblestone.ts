@@ -1,34 +1,12 @@
 // Cobblestone: candidates for new versions of Token Maker's Cobblestone frame.
 import {
-  bandFillLayer, base, bevel, cellsLayer, DROP, glow, goldFx, goldPaint, inscription, lineLayer, overlay, photo,
-  projectFromFrame, rims, slot, textureLayer, WARM_GOLD, type Candidate,
+  bandFillLayer, base, bevel, cellsLayer, DROP, fractureLayer, glow, goldFx, goldPaint, lin, lineLayer,
+  overlay, photo, projectFromFrame, recolour, rims, slot, textureLayer, WARM_GOLD, type Candidate,
 } from './common';
 
 export const CURRENT = () => projectFromFrame('cobblestone');
 
 export const CANDIDATES: Candidate[] = [
-  {
-    id: 'a-castle-wall',
-    name: 'A · Castle wall',
-    pitch: 'Real castle brickwork wrapped round the band, with chiselled edges and deep mortar.',
-    colours: [slot('stone', 'Stone colour', '#87785e', ['Bricks'])],
-    layers: () => [
-      { ...bandFillLayer(), name: 'Mortar', paint: { kind: 'solid', color: '#3a342a' }, effects: [DROP] },
-      { ...cellsLayer(), name: 'Bricks', pattern: 'brick', size: 0.5, gap: 0.05, rounding: 0.12, vary: 0.3, color: '#87785e', effects: [bevel({ profile: 'chisel', size: 0.12, gloss: 0.15, highlightOpacity: 0.5, surface: 'cracked', surfaceDepth: 0.4 })] },
-      overlay('castle-brick', 1.2, 'overlay', 0.7),
-    ],
-  },
-  {
-    id: 'b-rune-stones',
-    name: 'B · Rune stones',
-    pitch: 'A ring of separate cut stones with a Yugurian inscription glowing across them.',
-    stage: { bloom: 0.2 },
-    colours: [slot('stone', 'Stone colour', '#7d7a72', ['Stones']), slot('glow', 'Glow colour', '#7ae6ff', ['Glowing inscription'])],
-    layers: () => [
-      { ...cellsLayer(), name: 'Stones', pattern: 'brick', size: 0.9, gap: 0.05, rounding: 0.3, vary: 0.25, color: '#7d7a72', effects: [bevel({ profile: 'chisel', size: 0.15, gloss: 0.15, surface: 'cracked', surfaceDepth: 0.4 }), DROP] },
-      inscription('yugurian', '#e0faff', { name: 'Glowing inscription', size: 0.4, start: 1, effects: [glow({ inner: true, color: '#ffffff', opacity: 0.5, size: 0.04 }), glow({ color: '#7ae6ff', opacity: 0.9, size: 0.14 })] }),
-    ],
-  },
   {
     id: 'c-mossy',
     name: 'C · Mossy cobbles',
@@ -53,14 +31,69 @@ export const CANDIDATES: Candidate[] = [
     ],
   },
   {
-    id: 'e-granite',
-    name: 'E · Polished granite',
-    pitch: 'Dark speckled granite polished to a shine, with your pressed-in step. Clean and heavy.',
-    colours: [slot('stone', 'Stone colour', '#4e4e4f', ['Band', 'Pressed-in step'])],
+    id: 'f-flagstones',
+    name: 'F · Fitted flagstones',
+    pitch: 'Neat, rounded hexagonal flagstones fitted tightly together, smooth and clean like a game board.',
+    colours: [slot('stone', 'Stone colour', '#8a8a86', ['Flagstones']), slot('joints', 'Joint colour', '#2a2a28', ['Joints'])],
     layers: () => [
-      ...base({ light: '#9a9a9c', dark: '#0a0a0c', step: 0.55, rims: false }),
-      overlay('granite', 2, 'overlay', 0.9),
-      { ...bandFillLayer(), name: 'Shine', paint: { kind: 'linear', angle: 45, followLight: true, stops: [{ at: 0, color: '#ffffff', opacity: 0.35 }, { at: 0.5, color: '#ffffff', opacity: 0 }] }, blend: 'screen' },
+      { ...bandFillLayer(), name: 'Joints', paint: lin(['#4a4a46', '#2a2a28', '#0a0a0a']), effects: [DROP] },
+      { ...cellsLayer(), name: 'Flagstones', pattern: 'hex', size: 1.1, gap: 0.06, rounding: 0.35, vary: 0.18, color: '#8a8a86', effects: [bevel({ profile: 'rounded', size: 0.3, gloss: 0.35, highlightOpacity: 0.6 })] },
+      overlay('granite', 2, 'overlay', 0.4),
+    ],
+  },
+  {
+    id: 'g-dungeon',
+    name: 'G · Torchlit dungeon',
+    pitch: 'Dark dungeon blocks with warm torchlight glowing out of the joints between them.',
+    stage: { bloom: 0.25 },
+    colours: [slot('stone', 'Stone colour', '#3a3632', ['Blocks']), slot('light', 'Light colour', '#ff9a3a', ['Torchlight'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Torchlight', paint: lin(['#ffd080', '#ff9a3a', '#6a2a06']), effects: [DROP] },
+      { ...cellsLayer(), name: 'Blocks', pattern: 'brick', size: 1.0, gap: 0.06, rounding: 0.15, vary: 0.25, color: '#3a3632', effects: [bevel({ profile: 'chisel', size: 0.12, gloss: 0.2, surface: 'cracked', surfaceDepth: 0.5, highlightOpacity: 0.35 }), glow({ color: '#ff9a3a', opacity: 0.6, size: 0.06 })] },
+    ],
+  },
+  {
+    id: 'h-pebbles',
+    name: 'H · River pebbles',
+    pitch: 'Smooth, wet river pebbles of slightly different greys, glossy as if just out of the water.',
+    colours: [slot('stone', 'Pebble colour', '#7a7a80', ['Pebbles']), slot('bed', 'Bed colour', '#1e2a2a', ['Riverbed'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Riverbed', paint: lin(['#3a4a4a', '#1e2a2a', '#050a0a']), effects: [DROP] },
+      { ...cellsLayer(), name: 'Pebbles', pattern: 'voronoi', size: 0.85, gap: 0.08, jitter: 0.9, rounding: 0.9, vary: 0.45, color: '#7a7a80', effects: [bevel({ profile: 'rounded', size: 0.5, depth: 1.4, gloss: 0.95, highlightOpacity: 0.75 })] },
+    ],
+  },
+  {
+    id: 'i-kintsugi',
+    name: 'I · Kintsugi stone',
+    pitch: 'Pale weathered stone cracked and mended with gold, the cracks catching the light.',
+    colours: [slot('stone', 'Stone colour', '#b8b0a2', ['Stone', 'Pressed-in step']), slot('gold', 'Gold colour', '#c8952e', ['Gold seams'])],
+    layers: () => [
+      ...base({ light: '#e8e0d2', dark: '#5a544a', step: 0.55, rims: false }),
+      overlay('coral-stone', 1.6, 'multiply', 0.6),
+      { ...fractureLayer(), name: 'Gold seams', kind: 'cracks', from: 0.05, to: 0.95, count: 18, length: 2.8, branching: 0.7, jagged: 0.5, width: 0.09, color: '#c8952e', effects: [recolour(WARM_GOLD), bevel({ size: 0.6, gloss: 0.9 }), glow({ color: '#ffd070', opacity: 0.35, size: 0.06 })] },
+      ...rims(),
+    ],
+  },
+  {
+    id: 'j-sandstone',
+    name: 'J · Sandstone',
+    pitch: 'Warm desert sandstone in soft layered bands, worn smooth by the wind.',
+    colours: [slot('stone', 'Stone colour', '#d0a070', ['Band', 'Pressed-in step', 'Layers'])],
+    layers: () => [
+      ...base({ light: '#f0c890', dark: '#6a3a1a', step: 0.55, rims: false }),
+      { ...textureLayer('wood'), name: 'Layers', color: '#9a6038', opacity: 0.7, blend: 'multiply', seed: 0x5a5d },
+      overlay('cracked-mud', 2.4, 'soft-light', 0.5),
+      ...rims(),
+    ],
+  },
+  {
+    id: 'k-slate',
+    name: 'K · Slate scales',
+    pitch: 'Overlapping blue-grey slate tiles, like a castle roof, with a soft sheen.',
+    colours: [slot('stone', 'Slate colour', '#4a5260', ['Slates'])],
+    layers: () => [
+      { ...bandFillLayer(), name: 'Under', paint: { kind: 'solid', color: '#14161a' }, effects: [DROP] },
+      { ...cellsLayer(), name: 'Slates', pattern: 'scales', size: 0.95, gap: 0.04, rounding: 0.2, vary: 0.2, color: '#4a5260', effects: [bevel({ profile: 'chisel', size: 0.15, gloss: 0.6, highlightOpacity: 0.5 })] },
       ...rims(),
     ],
   },
