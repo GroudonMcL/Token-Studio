@@ -1,20 +1,18 @@
 // The built-in background pictures (DESIGN.md §6.3), saved in public/backgrounds/
-// as 1024 px squares with 96 px thumbnails. Since owner feedback most are
-// open-licence paintings, space pictures and photo textures (CC0 or public
-// domain; each one's source is below and in ASSETS-CREDITS.md). The "Drawn"
-// ones are drawn by code (scripts/make-backgrounds.ts), with nothing to credit.
+// as 1024 px squares with 96 px thumbnails: open-licence paintings, night-sky
+// and space pictures, and photo textures (CC0 or public domain; each one's
+// source is below and in ASSETS-CREDITS.md). The ten that were once drawn by
+// code (forest, dungeon…) kept their ids, so saved tokens show the new picture.
 
-export type BackgroundGroup = 'Paintings' | 'Space' | 'Textures & paper' | 'Drawn';
+export type BackgroundGroup = 'Paintings' | 'Space' | 'Textures & paper';
 
 export interface LibraryBackground {
   id: string;
   name: string;
   group: BackgroundGroup;
-  /** Where an open-licence picture came from (none for the drawn ones). */
-  credit?: { title: string; by: string; source: string };
+  /** Where the open-licence picture came from. */
+  credit: { title: string; by: string; source: string };
 }
-
-const drawn = (id: string, name: string): LibraryBackground => ({ id, name, group: 'Drawn' });
 
 export const BACKGROUND_LIBRARY: readonly LibraryBackground[] = [
   { id: 'twilight-sky', name: 'Twilight sky', group: 'Paintings', credit: { title: "Twilight in the Wilderness", by: "Frederic Edwin Church, 1860", source: 'https://clevelandart.org/art/1965.233' } },
@@ -34,10 +32,20 @@ export const BACKGROUND_LIBRARY: readonly LibraryBackground[] = [
   { id: 'river-castle', name: 'River Castle', group: 'Paintings', credit: { title: "Castle on a River", by: "Salomon van Ruysdael, 1644", source: 'https://clevelandart.org/art/1973.2' } },
   { id: 'gothic-ruin', name: 'Gothic Ruin', group: 'Paintings', credit: { title: "Gothic Windows in the Ruins of the Monastery at Oybin", by: "Carl Gustav Carus, ca. 1828", source: 'https://www.metmuseum.org/art/collection/search/439122' } },
   { id: 'gothic-nave', name: 'Cathedral', group: 'Paintings', credit: { title: "Interior of a Gothic Church at Night", by: "Pieter Neeffs the Younger, ca. 1660", source: 'https://www.metmuseum.org/art/collection/search/437189' } },
+  { id: 'forest', name: 'Forest', group: 'Paintings', credit: { title: "Forest Stream with Vista", by: "Asher B. Durand, 1872", source: 'https://clevelandart.org/art/1960.162' } },
+  { id: 'swamp', name: 'Swamp', group: 'Paintings', credit: { title: "The Devil and Tom Walker", by: "John Quidor, 1856", source: 'https://clevelandart.org/art/1967.18' } },
+  { id: 'water', name: 'Water', group: 'Paintings', credit: { title: "Low Tide at Pourville, near Dieppe", by: "Claude Monet, 1882", source: 'https://clevelandart.org/art/1947.196' } },
+  { id: 'snow', name: 'Snow', group: 'Paintings', credit: { title: "Winter Landscape", by: "Jan Griffier, c. 1680–1718", source: 'https://clevelandart.org/art/2008.287' } },
+  { id: 'lava', name: 'Lava', group: 'Paintings', credit: { title: "Mount Vesuvius at Midnight", by: "Albert Bierstadt, 1868", source: 'https://clevelandart.org/art/1949.541' } },
+  { id: 'desert', name: 'Desert', group: 'Paintings', credit: { title: "Leaving the Oasis", by: "Jean-Léon Gérôme, 1880s", source: 'https://clevelandart.org/art/1977.126' } },
+  { id: 'tavern', name: 'Tavern', group: 'Paintings', credit: { title: "Peasants Smoking in an Inn", by: "David Teniers, c. 1640", source: 'https://clevelandart.org/art/1916.1046' } },
+  { id: 'dungeon', name: 'Dungeon', group: 'Paintings', credit: { title: "Subterranean Jail for the Stage", by: "Abel Schlicht, 1788", source: 'https://clevelandart.org/art/2003.23' } },
+  { id: 'night-sky', name: 'Night sky', group: 'Space', credit: { title: "Perseid Meteor Shower (the Milky Way over Spruce Knob, West Virginia)", by: "NASA/Bill Ingalls, 2021", source: 'https://images.nasa.gov/details/NHQ202108110005' } },
   { id: 'nebula-cliffs', name: 'Nebula', group: 'Space', credit: { title: "\"Cosmic Cliffs\" in the Carina Nebula (Webb NIRCam)", by: "NASA, ESA, CSA, STScI, 2022", source: 'https://images.nasa.gov/details/carina_nebula' } },
   { id: 'star-cluster', name: 'Star field', group: 'Space', credit: { title: "Hubble Catches Stellar Exodus in Action (globular cluster 47 Tucanae)", by: "NASA, ESA, H. Richer & J. Heyl, 2015", source: 'https://images.nasa.gov/details/hubble-catches-stellar-exodus-in-action_17644845341_o' } },
   { id: 'vellum', name: 'Vellum', group: 'Textures & paper', credit: { title: "Hours of Charles the Noble, King of Navarre: blank fly leaf (vellum)", by: "Master of the Brussels Initials and Associates, c. 1405", source: 'https://clevelandart.org/art/1964.40.329.a' } },
   { id: 'old-paper', name: 'Old Paper', group: 'Textures & paper', credit: { title: "Page from Tales of a Parrot (Tuti-nama): blank page", by: "Mughal India, court of Akbar, c. 1560", source: 'https://clevelandart.org/art/1962.279.1.a' } },
+  { id: 'parchment', name: 'Parchment', group: 'Textures & paper', credit: { title: "Paper 005 (crumples lit from its height map, coloured as parchment)", by: "ambientCG", source: 'https://ambientcg.com/view?id=Paper005' } },
   { id: 'old-leather', name: 'Leather', group: 'Textures & paper', credit: { title: "Brown Leather", by: "Rob Tuytel", source: 'https://polyhaven.com/a/brown_leather' } },
   { id: 'tavern-planks', name: 'Tavern Planks', group: 'Textures & paper', credit: { title: "Dark Wooden Planks", by: "Amal Kumar", source: 'https://polyhaven.com/a/dark_wooden_planks' } },
   { id: 'dungeon-wall', name: 'Stone wall', group: 'Textures & paper', credit: { title: "Castle Wall Slates", by: "Rob Tuytel", source: 'https://polyhaven.com/a/castle_wall_slates' } },
@@ -47,16 +55,6 @@ export const BACKGROUND_LIBRARY: readonly LibraryBackground[] = [
   { id: 'aged-brass', name: 'Aged Brass', group: 'Textures & paper', credit: { title: "Metal 007", by: "ambientCG", source: 'https://ambientcg.com/view?id=Metal007' } },
   { id: 'lava-flow', name: 'Lava crust', group: 'Textures & paper', credit: { title: "Lava 003", by: "ambientCG", source: 'https://ambientcg.com/view?id=Lava003' } },
   { id: 'snowy-ground', name: 'Snowy ground', group: 'Textures & paper', credit: { title: "Snow 015", by: "ambientCG", source: 'https://ambientcg.com/view?id=Snow015' } },
-  drawn('forest', 'Forest'),
-  drawn('dungeon', 'Dungeon stone'),
-  drawn('parchment', 'Parchment'),
-  drawn('night-sky', 'Night sky'),
-  drawn('lava', 'Lava'),
-  drawn('water', 'Water'),
-  drawn('tavern', 'Tavern wood'),
-  drawn('snow', 'Snow'),
-  drawn('swamp', 'Swamp'),
-  drawn('desert', 'Desert'),
 ];
 
 export const libraryBackground = (id: string) => BACKGROUND_LIBRARY.find((b) => b.id === id);

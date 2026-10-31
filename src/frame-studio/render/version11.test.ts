@@ -5,6 +5,7 @@ import { createCanvas } from '@napi-rs/canvas';
 import { SHAPES } from '../engine/legacy/catalog';
 import { shapePolygon } from '../engine/legacy/shapes';
 import { CRAFTED_TEMPLATES } from '../project/craftedTemplates';
+import { PICTURE_FRAME_TEMPLATES } from '../project/pictureFrameTemplates';
 import { bandFillLayer, createProject, NEW_EFFECT, shapeLayer, textureLayer, TEXTURES } from '../project/defaults';
 import { parseProject, serializeProject } from '../project/migrate';
 import { themedProject } from '../project/themedTemplates';
@@ -199,6 +200,26 @@ describe('the crafted borders', () => {
     for (const shape of SHAPES) {
       const d = draw({ ...p, stage: { ...p.stage, shape: shape.id, showArt: false } }, 120);
       expect(opaque(d)).toBeGreaterThan(120 * 120 * 0.1);
+    }
+  });
+});
+
+describe("Token Maker's built-in frames (once picture frames)", () => {
+  it('are the eight Token Maker had as pictures, and most use photo textures', () => {
+    expect(PICTURE_FRAME_TEMPLATES.map((t) => t.id)).toEqual(['gilded-laurel', 'iron-rivets', 'runestone', 'thorns', 'dragon-scales', 'celestial', 'rope', 'shield-rim']);
+    const photos = PICTURE_FRAME_TEMPLATES.filter((t) => JSON.stringify(t.make()).includes('"kind":"picture"'));
+    expect(photos.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it.each(PICTURE_FRAME_TEMPLATES.map((t) => [t.name, t] as const))('%s survives a file round trip and draws on every shape', (_n, t) => {
+    const p = themedProject(t);
+    const r = parseProject(serializeProject(p));
+    if (!r.ok) throw new Error(r.error);
+    expect(r.warnings).toEqual([]);
+    expect(r.project).toEqual(p);
+    for (const shape of SHAPES) {
+      const d = draw({ ...p, stage: { ...p.stage, shape: shape.id, showArt: false } }, 120);
+      expect(opaque(d)).toBeGreaterThan(120 * 120 * 0.05);
     }
   });
 });

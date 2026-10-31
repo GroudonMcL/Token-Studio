@@ -4,7 +4,7 @@
 import type { FrameProject } from '../frameStudio/share/frameDesign';
 import type { FrameStyle, ShapeId } from '../render/catalog';
 
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 export type SizePreset = 'tiny' | 'small' | 'medium' | 'large' | 'huge' | 'gargantuan' | 'custom';
 
@@ -174,8 +174,8 @@ export interface DesignFrame {
   project: FrameProject;
 }
 
-/** Where a picture frame comes from: a built-in one, or one the user uploaded (kept in IndexedDB). */
-export type ImageFrameSource = { type: 'library'; id: string } | { type: 'upload'; id: string };
+/** Where a picture frame comes from: one the user uploaded (kept in IndexedDB). The built-in ones became Frame Studio designs in v11. */
+export type ImageFrameSource = { type: 'upload'; id: string };
 
 /**
  * A picture (PNG) frame (DESIGN.md §6.9). The picture fills the token's
@@ -272,7 +272,12 @@ export interface BackgroundLayer {
   zoom: number;
   offsetX: number;
   offsetY: number;
+  /** Colour changes to the picture (v11), with the same maths as the art's adjustments. */
+  adjust: BackgroundAdjustments;
 }
+
+/** A background picture's colour changes (v11): 0 leaves it as it is. Hue is in degrees (−180…180), the rest −100…100. */
+export type BackgroundAdjustments = Pick<ImageAdjustments, 'brightness' | 'contrast' | 'saturation' | 'hue' | 'temperature'>;
 
 export type BlendMode = 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light';
 

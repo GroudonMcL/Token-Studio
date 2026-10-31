@@ -17,6 +17,7 @@ import { setCanvasFactory as setFrameStudioCanvas } from '../frameStudio/render/
 import { renderProject } from '../frameStudio/render/renderProject';
 import { loadFrameDesignPictures, readFrameDesign, type FrameProject } from '../frameStudio/share/frameDesign';
 import { setCanvasFactory } from '../image/processedArt';
+import { BUILT_IN_DESIGNS, builtInDesignFrame } from './builtInDesigns';
 import { SHAPES } from './catalog';
 import type { Ctx } from './frameKit';
 import { renderToken } from './render';
@@ -117,6 +118,16 @@ describe('Frame Studio designs as frames', () => {
       expect(a.some((v) => v !== 0), s.id).toBe(true);
       expect(a.every((v, i) => v === b[i]), s.id).toBe(true);
     }
+  });
+
+  it.each(BUILT_IN_DESIGNS.map((b) => [b.name, b] as const))('the built-in %s design looks the same as in Frame Studio once its photos have loaded', async (_name, b) => {
+    const design = builtInDesignFrame(b.id)!;
+    await loadFrameDesignPictures(design.project);
+    const doc = frameOnly(design.project, (d) => (d.frame = { ...d.frame, thickness: b.band.thickness, outerSpacing: Math.max(d.frame.outerSpacing, b.band.outerSpacing) }));
+    const a = inTokenMaker(doc, 128);
+    const c = inFrameStudio(doc, 128);
+    expect(a.some((v) => v !== 0)).toBe(true);
+    expect(a.every((v, i) => v === c[i])).toBe(true);
   });
 
   it('follows the token’s thickness and spacing, and its size', () => {

@@ -107,6 +107,23 @@ describe('backgrounds', () => {
     expect(art(MID).slice(0, 3)).toEqual([0xaa, 0x00, 0xaa]);
   });
 
+  it('colour changes recolour the picture (v11), and only the picture', () => {
+    const src: [string, RenderSource][] = [['asset:bg', flat('#228833')]];
+    const base = { kind: 'image' as const, image: { type: 'asset' as const, assetId: 'asset:bg' } };
+    const adjust = createDocument().background.adjust;
+    const plain = draw(bg(base), src)(MID);
+    expect(lum(draw(bg({ ...base, adjust: { ...adjust, brightness: -60 } }), src)(MID))).toBeLessThan(lum(plain) - 30);
+    const grey = draw(bg({ ...base, adjust: { ...adjust, saturation: -100 } }), src)(MID);
+    expect(Math.max(...grey.slice(0, 3)) - Math.min(...grey.slice(0, 3))).toBeLessThan(3);
+    const turned = draw(bg({ ...base, adjust: { ...adjust, hue: 180 } }), src)(MID);
+    expect(turned[0]).toBeGreaterThan(turned[1]); // green turned towards magenta
+    const cold = draw(bg({ ...base, adjust: { ...adjust, temperature: -100 } }), src)(MID);
+    expect(cold[2]).toBeGreaterThan(plain[2] + 20);
+    // A colour background is left as it is.
+    const colour = draw(bg({ kind: 'color', color: '#336699', adjust: { ...adjust, hue: 180, brightness: 50 } }))(MID);
+    expect(colour).toEqual([0x33, 0x66, 0x99, 255]);
+  });
+
   it('a missing picture just leaves the background out', () => {
     expect(draw(bg({ kind: 'image', image: { type: 'library', id: 'forest' } }))(MID)[3]).toBe(0);
   });

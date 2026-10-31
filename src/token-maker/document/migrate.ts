@@ -3,6 +3,7 @@
 // defaults, so a damaged or partial file can never crash the editor.
 
 import { readFrameDesign } from '../frameStudio/share/frameDesign';
+import { builtInDesignFrame } from '../render/builtInDesigns';
 import { FRAME_STYLES, SHAPES } from '../render/catalog';
 import {
   copyGradient,
@@ -92,6 +93,18 @@ export const MIGRATIONS: Record<number, (doc: Json) => Json> = {
   8: (doc) => doc,
   // v9 → v10 (drop shadow controls): shadows were always the size of what cast them, so `spread` starts at 0 (filled in by sanitize).
   9: (doc) => doc,
+  // v10 → v11 (owner feedback): background pictures get colour changes (`background.adjust`, filled in
+  // by sanitize), and the built-in picture frames became Frame Studio designs (see builtInFrameFor).
+  10: (doc) => {
+    const frame = obj(doc.frame);
+    const image = obj(frame.image);
+    const source = obj(image.source);
+    if (source.type !== 'library' || typeof source.id !== 'string') return doc;
+    // Only the frame in use is swapped; one kept behind a drawn frame or a design is dropped.
+    const inUse = frame.kind === 'image';
+    const design = inUse ? builtInDesignFrame(source.id) : null;
+    return { ...doc, frame: { ...frame, kind: inUse ? (design ? 'design' : 'code') : frame.kind, image: null, design: design ?? frame.design } };
+  },
 };
 
 /** The effect kind each old foreground overlay became (v8). */
@@ -178,6 +191,7 @@ function gradient(raw: Json, base: Gradient): Gradient {
 
 function background(raw: Json, d: BackgroundLayer): BackgroundLayer {
   const img = obj(raw.image);
+  const adj = obj(raw.adjust);
   const image: BackgroundImageSource | null =
     img.type === 'library' && typeof img.id === 'string'
       ? { type: 'library', id: img.id }
@@ -196,6 +210,13 @@ function background(raw: Json, d: BackgroundLayer): BackgroundLayer {
     zoom: num(raw.zoom, d.zoom, 0.2, 8),
     offsetX: num(raw.offsetX, d.offsetX, -5, 5),
     offsetY: num(raw.offsetY, d.offsetY, -5, 5),
+    adjust: {
+      brightness: num(adj.brightness, d.adjust.brightness, -100, 100),
+      contrast: num(adj.contrast, d.adjust.contrast, -100, 100),
+      saturation: num(adj.saturation, d.adjust.saturation, -100, 100),
+      hue: num(adj.hue, d.adjust.hue, -180, 180),
+      temperature: num(adj.temperature, d.adjust.temperature, -100, 100),
+    },
   };
 }
 
@@ -332,7 +353,7 @@ export function imageFrame(raw: unknown): ImageFrame | null {
   if (!isObject(raw)) return null;
   const src = obj(raw.source);
   const id = typeof src.id === 'string' ? src.id.slice(0, 80) : '';
-  if (!id || (src.type !== 'library' && src.type !== 'upload')) return null;
+  if (!id || src.type !== 'upload') return null;
   const hole = Array.isArray(raw.hole) ? raw.hole.filter((n): n is number => typeof n === 'number' && Number.isFinite(n)) : [];
   if (hole.length < 6 || hole.length > MAX_HOLE_POINTS * 2 || hole.length % 2) return null;
   const nudge = obj(raw.nudge);

@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { toast } from '../ui/toast';
 import { importWithMessage } from './importWithMessage';
 
-/** The sample picture new visitors can try (public/sample/, drawn by `npm run make-fixture`). */
-export const SAMPLE_URL = '/sample/goblin.png';
+/** The sample picture new visitors can try: True Goblin, drawn by the owner (public/sample/). */
+export const SAMPLE_URL = '/sample/true-goblin.png';
 
 /** "Try a sample": loads a ready-made goblin picture, just as if it had been uploaded (Phase 10). */
 export function SampleButton() {
@@ -19,7 +19,7 @@ export function SampleButton() {
         try {
           const res = await fetch(SAMPLE_URL);
           if (!res.ok) throw new Error(String(res.status));
-          await importWithMessage(await res.blob(), 'Goblin.png');
+          await importWithMessage(await res.blob(), 'True Goblin.png');
         } catch {
           toast("The sample picture couldn't be loaded. Try uploading one of your own.", 'error');
         } finally {

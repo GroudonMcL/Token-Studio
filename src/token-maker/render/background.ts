@@ -1,9 +1,12 @@
 // Layer 3 (DESIGN.md §6.3): the background behind the art, inside the
 // frame's opening: a colour, a gradient or a picture (built-in, the user's
-// own, or an enlarged copy of the art), with its own blur, move and zoom.
+// own, or an enlarged copy of the art), with its own blur, move, zoom and
+// colour changes.
 // Lighting can light it too, so the art and its background match (§6.5).
 
-import type { BackgroundLayer, Gradient, LightingSettings, TokenDocument } from '../document/types';
+import { DEFAULT_ADJUST } from '../document/defaults';
+import type { BackgroundAdjustments, BackgroundLayer, Gradient, LightingSettings, TokenDocument } from '../document/types';
+import { adjustColours, hasColourAdjustments } from '../image/adjust';
 import { blurImage } from '../image/filters';
 import { newCanvas } from '../image/processedArt';
 import { parseHex, rgba } from './color';
@@ -72,6 +75,35 @@ export function blurredSource(src: RenderSource, blur: number): RenderSource {
   return out;
 }
 
+const adjusted = new WeakMap<object, Map<string, RenderSource>>();
+/** Colour changes work on a copy at most this many pixels across (the built-in pictures are 1024). */
+const ADJUST_SIDE = 1024;
+
+/** The picture with its colour changes (the art's maths, so it looks the same everywhere), cached. Same width and height as the original. */
+export function adjustedSource(src: RenderSource, a: BackgroundAdjustments): RenderSource {
+  const all = { ...DEFAULT_ADJUST, ...a };
+  if (!hasColourAdjustments(all)) return src;
+  let byKey = adjusted.get(src.image as object);
+  if (!byKey) adjusted.set(src.image as object, (byKey = new Map()));
+  const key = [a.brightness, a.contrast, a.saturation, a.hue, a.temperature].join(',');
+  const hit = byKey.get(key);
+  if (hit) return hit;
+  const k = Math.min(1, ADJUST_SIDE / Math.max(src.width, src.height));
+  const w = Math.max(1, Math.round(src.width * k));
+  const h = Math.max(1, Math.round(src.height * k));
+  const c = newCanvas(w, h);
+  const ctx = c.getContext('2d') as CanvasRenderingContext2D;
+  ctx.drawImage(src.image, 0, 0, w, h);
+  const img = ctx.getImageData(0, 0, w, h);
+  adjustColours({ data: img.data, width: w, height: h }, all);
+  ctx.putImageData(img, 0, 0);
+  const out = { image: c as CanvasImageSource, width: src.width, height: src.height };
+  // Dragging a slider makes a new picture at every step: keep only the last few.
+  if (byKey.size > 6) byKey.clear();
+  byKey.set(key, out);
+  return out;
+}
+
 /** Paints the background into the clip polygon (`clip` in pixels from the token centre; `R` the token's half-size). */
 export function drawBackground(ctx: Ctx, doc: TokenDocument, assets: AssetMap, clip: Point[], R: number): void {
   const bg = doc.background;
@@ -100,7 +132,7 @@ function drawPicture(ctx: Ctx, bg: BackgroundLayer, doc: TokenDocument, assets: 
   const id = backgroundAssetId(doc);
   const src = id ? assets.get(id) : undefined;
   if (!src) return false;
-  const shown = blurredSource(src, bg.blur);
+  const shown = adjustedSource(blurredSource(src, bg.blur), bg.adjust);
   const unitClip = clip.map((p) => ({ x: p.x / R, y: p.y / R }));
   const s = baseScale(src.width, src.height, unitClip) * bg.zoom * R;
   ctx.save();

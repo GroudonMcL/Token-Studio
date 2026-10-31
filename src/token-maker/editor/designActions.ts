@@ -3,6 +3,7 @@
 // this browser's design library, and copied into the document.
 
 import type { DesignFrame } from '../document/types';
+import { BUILT_IN_DESIGNS, builtInDesignFrame } from '../render/builtInDesigns';
 import { readFrameDesign, type FrameProject } from '../frameStudio/share/frameDesign';
 import { saveDesign } from '../state/designLibrary';
 import { toast } from '../ui/toast';
@@ -15,6 +16,21 @@ const MAX_DESIGN_BYTES = 5_000_000;
 export function applyDesignFrame(id: string, name: string, project: FrameProject): void {
   const design: DesignFrame = { id, name, project };
   updateFrameAndArt((d) => ({ ...d, frame: { ...d.frame, kind: 'design', design } }));
+}
+
+/**
+ * Uses a built-in design as the frame (one undo step), with the band
+ * thickness it was made for, and enough room outside it for anything that
+ * reaches past the band (the Celestial star's points).
+ */
+export function applyBuiltInDesign(id: string): void {
+  const design = builtInDesignFrame(id);
+  const band = BUILT_IN_DESIGNS.find((b) => b.id === design?.id)?.band;
+  if (!design || !band) return;
+  updateFrameAndArt((d) => ({
+    ...d,
+    frame: { ...d.frame, kind: 'design', design, thickness: band.thickness, outerSpacing: Math.max(d.frame.outerSpacing, band.outerSpacing) },
+  }));
 }
 
 /** Reads a .framestudio.json file, keeps it in the design library and uses it as the frame. */

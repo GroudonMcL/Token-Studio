@@ -99,9 +99,9 @@ test('upload a ring PNG, add mirrored horns, save a preset, export it and load i
   // 1. My own ring PNG as a picture frame: the hole is found automatically.
   let panel = await openSection(page, 'Frame & shape');
   await panel.getByRole('radio', { name: 'Picture' }).click();
+  await expect(panel.getByText(/No picture frames yet/)).toBeVisible();
   await panel.getByTestId('frame-file-input').setInputFiles(RING);
   await expect(panel.getByRole('radio', { name: 'Purple Ring' })).toHaveAttribute('aria-checked', 'true');
-  await expect(panel.getByText('Your frames')).toBeVisible();
 
   // 2. Mirrored horns: one decoration, drawn on both sides.
   panel = await openSection(page, 'Decorations');
@@ -180,10 +180,12 @@ test('built-in picture frame and preset; drag a decoration on the canvas to anot
   // The tapped decoration is selected: its card is open and it has handles.
   await expect(page.getByTestId('decor-rotate-handle')).toBeVisible();
 
-  // A built-in picture frame.
+  // A built-in Frame Studio design, listed with the drawn frames (v11).
   panel = await openSection(page, 'Frame & shape');
-  await panel.getByRole('radio', { name: 'Picture' }).click();
+  await panel.getByRole('radio', { name: 'Drawn' }).click();
   await panel.getByRole('radio', { name: 'Runestone' }).click();
   await expect(panel.getByRole('radio', { name: 'Runestone' })).toHaveAttribute('aria-checked', 'true');
-  expect(await previewVsExport(page, m)).toBeLessThan(6);
+  await expect(panel.getByRole('radio', { name: 'Drawn' })).toHaveAttribute('aria-checked', 'true');
+  // Its stone photo arrives a moment later; then the preview matches the export.
+  await expect.poll(() => previewVsExport(page, m), { timeout: 15_000 }).toBeLessThan(6);
 });

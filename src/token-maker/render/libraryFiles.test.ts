@@ -12,11 +12,8 @@ describe('built-in pictures', () => {
     }
   });
 
-  it('every open-licence background says where it came from; the drawn ones need nothing', () => {
-    for (const b of BACKGROUND_LIBRARY) {
-      if (b.group === 'Drawn') expect(b.credit, b.id).toBeUndefined();
-      else expect(b.credit?.source, b.id).toMatch(/^https:\/\//);
-    }
+  it('every background is an open-licence picture that says where it came from', () => {
+    for (const b of BACKGROUND_LIBRARY) expect(b.credit.source, b.id).toMatch(/^https:\/\//);
   });
 
   it('ids and names are unique', () => {

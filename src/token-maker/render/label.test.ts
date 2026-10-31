@@ -151,7 +151,7 @@ describe('curved text', () => {
 
   it('ring text follows a picture frame’s hole', () => {
     const doc = tokenWith({ shape: 'ring' });
-    doc.frame = { ...doc.frame, kind: 'image', image: { source: { type: 'library', id: 'x' }, name: 'Ring', hole: circleHole(0.6), outer: 0.95, nudge: { x: 0, y: 0, scale: 1 } } };
+    doc.frame = { ...doc.frame, kind: 'image', image: { source: { type: 'upload', id: 'x' }, name: 'Ring', hole: circleHole(0.6), outer: 0.95, nudge: { x: 0, y: 0, scale: 1 } } };
     const l = layoutLabel(measure, doc, R)!;
     for (const p of onLine(l)) expect(Math.hypot(p.x, p.y) / R).toBeCloseTo((0.6 + 0.95) / 2, 1);
   });

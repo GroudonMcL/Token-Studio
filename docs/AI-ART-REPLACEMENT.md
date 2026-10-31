@@ -19,10 +19,10 @@ How much each group matters:
 
 | ✓ | What | Files | Size and format |
 |---|---|---|---|
-| [ ] | 10 drawn backgrounds ("Drawn" group): forest, dungeon, parchment, night-sky, lava, water, tavern, snow, swamp, desert | `backgrounds/<name>.webp` + `<name>-thumb.webp` | 1024 × 1024 WebP, no transparency; thumb 96 × 96 |
-| [ ] | 8 picture frames: gilded-laurel, iron-rivets, runestone, thorns, dragon-scales, celestial, rope, shield-rim | `frames/<name>.webp` + `<name>-thumb.webp` | 1024 × 1024 WebP **with a see-through hole** in the middle (the app finds the hole itself); thumb 96 × 96 |
-| [ ] | "Try a sample" goblin | `sample/goblin.png` | 600 × 800 PNG, a character on a plain background |
-| [ ] | Favicon (browser-tab icon) | `favicon.svg` | SVG (or send a 512 px PNG) |
+| [x] | 10 drawn backgrounds ("Drawn" group): forest, dungeon, parchment, night-sky, lava, water, tavern, snow, swamp, desert | `backgrounds/<name>.webp` + `<name>-thumb.webp` | **Done:** replaced by open-licence paintings, a NASA photo and an ambientCG texture (credited in `ASSETS-CREDITS.md`); the "Drawn" group is gone |
+| [~] | 8 picture frames: gilded-laurel, iron-rivets, runestone, thorns, dragon-scales, celestial, rope, shield-rim | was `frames/<name>.webp` | **Rebuilt as Frame Studio designs** (listed under Drawn → Crafted; `src/frame-studio/project/pictureFrameTemplates.ts`). The picture files are gone, but the designs were still made by the AI: open one in Frame Studio (New → Token Maker's built-in frames), rework it and send the `.framestudio.json` back |
+| [x] | "Try a sample" goblin | now `sample/true-goblin.png` | **Done:** the owner's True Goblin |
+| [x] | Favicon (browser-tab icon) | `favicon.svg` | **Done:** the owner's TM ring, also the top-bar logo |
 
 ### Drawn by code (`B-code-drawn-reference/token-maker/`)
 
@@ -42,7 +42,7 @@ How much each group matters:
 
 | ✓ | What | Code |
 |---|---|---|
-| [ ] | Logo in the top bar (placeholder gold ring and star, same as the favicon) | `src/token-maker/layout/BrandMark.tsx` |
+| [x] | Logo in the top bar (now the owner's TM ring, same as the favicon) | `src/token-maker/layout/BrandMark.tsx` |
 | [ ] | 6 label-shape picker icons | `src/token-maker/sections/LabelSection.tsx` (`ShapeIcon`) |
 
 Every other interface icon is from Lucide (ISC licence), not the AI.

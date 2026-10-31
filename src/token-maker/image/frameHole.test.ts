@@ -3,7 +3,6 @@
 // drawn as plain pixels, plus the built-in frames from public/frames/.
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { readFileSync } from 'node:fs';
-import { FRAME_LIBRARY } from '../render/imageFrames';
 import type { PixelBuffer } from './adjust';
 import { circleHole, findFrameHole, nudgedHole } from './frameHole';
 
@@ -86,8 +85,8 @@ describe('finding a picture frame’s hole', () => {
     expect(moved[1]).toEqual({ x: 0.1, y: 0.8 });
   });
 
-  it.each(FRAME_LIBRARY.map((f) => [f.name, f.id] as const))('finds a closed, round-ish hole in the built-in %s frame', async (_name, id) => {
-    const img = await loadImage(readFileSync(`public/frames/${id}.webp`));
+  it('finds a closed, round-ish hole in an uploaded ring frame', async () => {
+    const img = await loadImage(readFileSync('e2e/token-maker/fixtures/purple-ring.png'));
     const c = createCanvas(256, 256);
     c.getContext('2d').drawImage(img, 0, 0, 256, 256);
     const h = findFrameHole(c.getContext('2d').getImageData(0, 0, 256, 256));

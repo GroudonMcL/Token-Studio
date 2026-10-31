@@ -2,7 +2,8 @@ import { Move, RotateCcw, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { ColorSwatches, GradientEditor, SegmentedButtons, Slider, TileGrid } from '../components';
 import { DEFAULT_BACKGROUND } from '../document/defaults';
-import type { BackgroundKind, BackgroundLayer } from '../document/types';
+import type { BackgroundAdjustments, BackgroundKind, BackgroundLayer } from '../document/types';
+import type { HelpId } from '../help/helpContent';
 import { setTool, useTool } from '../editor/tools';
 import { UploadButton } from '../editor/UploadButton';
 import { BACKGROUND_LIBRARY, libraryBackground, libraryThumbUrl } from '../render/backgroundLibrary';
@@ -15,8 +16,20 @@ const COLOR_SWATCHES = ['#1d1f27', '#3a4a5c', '#2b3a22', '#4a2f22', '#5b2d7a', '
 
 type Source = 'library' | 'asset' | 'art';
 
+/** The picture's colour sliders (v11). */
+const COLOUR_SLIDERS: { key: keyof BackgroundAdjustments; label: string; helpId: HelpId; min: number; max: number; unit?: string }[] = [
+  { key: 'brightness', label: 'Brightness', helpId: 'background.brightness', min: -100, max: 100 },
+  { key: 'contrast', label: 'Contrast', helpId: 'background.contrast', min: -100, max: 100 },
+  { key: 'saturation', label: 'Saturation', helpId: 'background.saturation', min: -100, max: 100 },
+  { key: 'hue', label: 'Hue', helpId: 'background.hue', min: -180, max: 180, unit: '°' },
+  { key: 'temperature', label: 'Temperature', helpId: 'background.temperature', min: -100, max: 100 },
+];
+
 const setBackground = (patch: Partial<BackgroundLayer>, transient = false) =>
   updateDoc((d) => ({ ...d, background: { ...d.background, ...patch } }), { transient });
+
+const setAdjust = (patch: Partial<BackgroundAdjustments>, transient = false) =>
+  updateDoc((d) => ({ ...d, background: { ...d.background, adjust: { ...d.background.adjust, ...patch } } }), { transient });
 
 /** Background section (DESIGN.md §6.3): a colour, gradient or picture behind the art inside the frame. Removing the art's own background is in Cut-out. */
 export function BackgroundSection() {
@@ -136,6 +149,28 @@ export function BackgroundSection() {
             onChange={(v) => setBackground({ zoom: v / 100 }, true)}
             onCommit={commitDoc}
           />
+          <Slider
+            label="Move left or right"
+            helpId="background.offsetX"
+            unit="%"
+            min={-100}
+            max={100}
+            value={Math.round(bg.offsetX * 100)}
+            defaultValue={0}
+            onChange={(v) => setBackground({ offsetX: v / 100 }, true)}
+            onCommit={commitDoc}
+          />
+          <Slider
+            label="Move up or down"
+            helpId="background.offsetY"
+            unit="%"
+            min={-100}
+            max={100}
+            value={Math.round(bg.offsetY * 100)}
+            defaultValue={0}
+            onChange={(v) => setBackground({ offsetY: v / 100 }, true)}
+            onCommit={commitDoc}
+          />
           <div className="control control--row" data-control="background-move" data-help-id="background.move">
             <button
               type="button"
@@ -155,6 +190,32 @@ export function BackgroundSection() {
             >
               <RotateCcw size={14} aria-hidden="true" />
               Reset position
+            </button>
+          </div>
+          <div className="control-group">
+            <h4 className="control-group__title">Colour</h4>
+            {COLOUR_SLIDERS.map((def) => (
+              <Slider
+                key={def.key}
+                label={def.label}
+                helpId={def.helpId}
+                unit={def.unit}
+                min={def.min}
+                max={def.max}
+                value={bg.adjust[def.key]}
+                defaultValue={DEFAULT_BACKGROUND.adjust[def.key]}
+                onChange={(v) => setAdjust({ [def.key]: v }, true)}
+                onCommit={commitDoc}
+              />
+            ))}
+            <button
+              type="button"
+              className="btn btn--ghost btn--small"
+              disabled={COLOUR_SLIDERS.every((def) => bg.adjust[def.key] === 0)}
+              onClick={() => setAdjust({ ...DEFAULT_BACKGROUND.adjust })}
+            >
+              <RotateCcw size={14} aria-hidden="true" />
+              Reset colours
             </button>
           </div>
         </>
@@ -177,7 +238,7 @@ export function BackgroundSection() {
   );
 }
 
-/** Where the chosen open-licence picture came from (the drawn ones have nothing to credit). */
+/** Where the chosen open-licence picture came from. */
 function LibraryCredit({ id }: { id: string | null }) {
   const credit = id ? libraryBackground(id)?.credit : undefined;
   if (!credit) return null;

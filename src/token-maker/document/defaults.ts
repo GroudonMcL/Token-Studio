@@ -110,6 +110,7 @@ export const DEFAULT_BACKGROUND: BackgroundLayer = {
   zoom: 1,
   offsetX: 0,
   offsetY: 0,
+  adjust: { brightness: 0, contrast: 0, saturation: 0, hue: 0, temperature: 0 },
 };
 
 export const DEFAULT_LIGHTING: LightingSettings = {
@@ -391,7 +392,7 @@ export function createDocument(name = 'Untitled token'): TokenDocument {
     size: { preset: 'medium', squares: 1 },
     shape: 'circle',
     art: { assetId: null, transform: { ...DEFAULT_TRANSFORM }, adjust: { ...DEFAULT_ADJUST }, removal: { ...DEFAULT_REMOVAL }, strokes: [], popOut: { enabled: true, strokes: [] } },
-    background: { ...DEFAULT_BACKGROUND, gradient: copyGradient(DEFAULT_BACKGROUND.gradient) },
+    background: { ...DEFAULT_BACKGROUND, gradient: copyGradient(DEFAULT_BACKGROUND.gradient), adjust: { ...DEFAULT_BACKGROUND.adjust } },
     lighting: { ...DEFAULT_LIGHTING, rim: { ...DEFAULT_LIGHTING.rim } },
     effects: [],
     frame: {

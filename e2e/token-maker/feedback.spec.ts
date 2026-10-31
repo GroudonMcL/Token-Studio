@@ -9,7 +9,7 @@ import { openSection, setMenuStyle } from './panel';
 async function sample(page: Page) {
   await page.goto('/token-maker/');
   await page.getByRole('button', { name: /Try a sample/ }).click();
-  await expect(page.locator('.token-summary__name').first()).toHaveText('Goblin');
+  await expect(page.locator('.token-summary__name').first()).toHaveText('True Goblin');
 }
 
 test('menu style hides, folds or shows the Advanced settings, and is remembered', async ({ page }) => {

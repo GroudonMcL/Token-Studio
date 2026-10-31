@@ -1,7 +1,7 @@
-// Picture frames (DESIGN.md §6.9): built-in ones are fetched from the site
-// when first used; uploaded ones are kept in IndexedDB (their own database,
-// so "New token" never deletes them). Either way the picture goes into the
-// asset store under frameAssetId(), and the hole is found once per picture.
+// Picture frames (DESIGN.md §6.9): the user's uploads, kept in IndexedDB
+// (their own database, so "New token" never deletes them). The picture goes
+// into the asset store under frameAssetId(), and the hole is found once per
+// picture.
 
 import { createStore as createIdbStore, del, entries, get, set, type UseStore } from 'idb-keyval';
 import { useStore } from 'zustand';
@@ -11,7 +11,7 @@ import type { PixelBuffer } from '../image/adjust';
 import { findFrameHole, type FrameHole } from '../image/frameHole';
 import { newCanvas } from '../image/processedArt';
 import { decodeImage } from '../import/decode';
-import { FRAME_LIBRARY, frameAssetId, frameImageUrl } from '../render/imageFrames';
+import { frameAssetId } from '../render/imageFrames';
 import type { RenderSource } from '../render/render';
 import { addAsset, assetStore } from './assets';
 import { docHistory } from './tokenStore';
@@ -58,16 +58,9 @@ export function loadFrameImage(source: ImageFrameSource): Promise<RenderSource> 
   let p = loading.get(id);
   if (!p) {
     p = (async () => {
-      let blob: Blob | undefined;
-      if (source.type === 'library') {
-        const res = await fetch(frameImageUrl(source.id));
-        if (!res.ok) throw new Error(`Could not load the ${source.id} frame.`);
-        blob = await res.blob();
-      } else {
-        const db = store();
-        blob = db ? (await get<UploadedFrame>(source.id, db))?.blob : undefined;
-        if (!blob) throw new Error('That frame is no longer saved in this browser.');
-      }
+      const db = store();
+      const blob = db ? (await get<UploadedFrame>(source.id, db))?.blob : undefined;
+      if (!blob) throw new Error('That frame is no longer saved in this browser.');
       const asset = { id, blob, ...(await decodeImage(blob)) };
       addAsset(asset);
       return asset;
@@ -135,8 +128,6 @@ export async function removeUploadedFrame(id: string): Promise<void> {
 export function newFrameId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2);
 }
-
-export const libraryFrameName = (id: string) => FRAME_LIBRARY.find((f) => f.id === id)?.name ?? 'Picture frame';
 
 /** Keeps the document's frame picture loaded (undo, autosave restore, presets). Returns a stop function. */
 export function watchFrameImages(): () => void {

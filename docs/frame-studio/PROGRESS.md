@@ -240,3 +240,7 @@ A checklist of build phases, following [`BUILD-PROMPTS.md`](BUILD-PROMPTS.md). D
 - There is no zoom, so small shapes on a thin band are fiddly to edit on the canvas; the numeric values in Advanced help.
 - Wavy lines have small kinks at the corners of square and hexagon tokens (as Token Maker's own wavy lines do).
 - Groups can't be moved or turned as a whole on the canvas; their layers are moved one by one.
+
+## Token Maker's built-in frames (owner feedback)
+
+- [x] New → Token Maker's built-in frames: the 8 frames Token Maker had as pictures (Gilded laurel, Iron rivets, Runestone, Thorns, Dragon scales, Celestial star, Rope, Shield rim), rebuilt from ordinary layers with photo textures (`src/project/pictureFrameTemplates.ts`, copied into Token Maker by `npm run fs:share-copy`); each survives a file round trip and draws on every shape

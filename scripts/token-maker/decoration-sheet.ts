@@ -1,16 +1,13 @@
 // Renders every decoration (at its default snap point, with mirroring as it
-// starts) and every built-in picture frame on one sheet, for checking by eye
-// like the frame and effect sheets. Uses the same renderer and the same hole
-// detection as the site.
+// starts) on one sheet, for checking by eye like the frame and effect sheets.
+// Uses the same renderer as the site.
 //   npm run decoration-sheet -- out.png [size]
-import { createCanvas, loadImage } from '@napi-rs/canvas';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { createCanvas } from '@napi-rs/canvas';
+import { writeFileSync } from 'node:fs';
 import { createDocument, DECORATIONS, newDecoration } from '../../src/token-maker/document/defaults';
 import type { TokenDocument } from '../../src/token-maker/document/types';
-import { findFrameHole } from '../../src/token-maker/image/frameHole';
 import { setCanvasFactory } from '../../src/token-maker/image/processedArt';
 import type { Ctx } from '../../src/token-maker/render/frameKit';
-import { FRAME_LIBRARY, frameAssetId } from '../../src/token-maker/render/imageFrames';
 import { renderToken, type RenderSource } from '../../src/token-maker/render/render';
 import { sampleArt } from '../../src/token-maker/render/sampleArt';
 
@@ -21,20 +18,7 @@ setCanvasFactory(make);
 
 const cols = 6;
 const label = 24;
-const frames = await Promise.all(
-  FRAME_LIBRARY.map(async (f) => {
-    const img = await loadImage(readFileSync(`public/frames/${f.id}.webp`));
-    const c = createCanvas(img.width, img.height);
-    const x = c.getContext('2d');
-    x.drawImage(img, 0, 0);
-    const small = createCanvas(512, 512);
-    small.getContext('2d').drawImage(c, 0, 0, 512, 512);
-    const data = small.getContext('2d').getImageData(0, 0, 512, 512);
-    return { f, source: { image: c, width: img.width, height: img.height } as unknown as RenderSource, hole: findFrameHole(data) };
-  }),
-);
-
-const cells = DECORATIONS.length + frames.length;
+const cells = DECORATIONS.length;
 const rows = Math.ceil(cells / cols);
 const sheet = createCanvas(cols * size, rows * (size + label));
 const ctx = sheet.getContext('2d');
@@ -58,12 +42,6 @@ DECORATIONS.forEach((info, i) => {
   doc.art.assetId = 'asset:sample';
   doc.decorations = [newDecoration(info.kind, 'd')];
   cell(i, info.name, doc, new Map([['asset:sample', art]]));
-});
-frames.forEach(({ f, source, hole }, i) => {
-  const doc = createDocument();
-  doc.art.assetId = 'asset:sample';
-  doc.frame = { ...doc.frame, kind: 'image', image: { source: { type: 'library', id: f.id }, name: f.name, hole: hole.hole, outer: hole.outer, nudge: { x: 0, y: 0, scale: 1 } } };
-  cell(DECORATIONS.length + i, `${f.name}${hole.found ? '' : ' (no hole!)'}`, doc, new Map([['asset:sample', art], [frameAssetId(doc.frame.image!.source), source]]));
 });
 writeFileSync(out, sheet.toBuffer('image/png'));
 console.log(`Wrote ${out}`);
