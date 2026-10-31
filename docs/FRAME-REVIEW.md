@@ -46,6 +46,7 @@ picker each. Candidates are drawn with
 | Infernal | Classic | Kept, plus Hellfire runes, Brimstone, Infernal iron, Blood pact. |
 | Double line | Classic | Kept, with its diamonds now set into the band; plus Gold lines on enamel, Twin rings, Studded double, Fine lines, Cord between gold. |
 | Polished | Classic | Kept, plus Anodised titanium, Pearl, Obsidian. |
+| Oak, Cobblestone, Magma, Harlequin, Knotwork, Starfield | Textures | Choosing: five candidates each. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.
