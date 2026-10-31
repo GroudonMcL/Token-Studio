@@ -217,10 +217,12 @@ describe('converting Token Maker frames (Phase 4)', () => {
     const editable = FRAME_PRESETS.filter((p) => canConvert(p.style));
     // Every frame but "No frame" (Arcane and Infernal share their drawing code: 25 converters, 26 frames).
     expect(editable.length).toBe(26);
-    for (const f of editable) expect(screen.getByRole('button', { name: `${f.name} Editable` })).toBeInTheDocument();
-    for (const f of FRAME_PRESETS) expect(screen.getByRole('button', { name: f.name })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'No frame Editable' })).toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: 'Paladin Editable' }));
+    // Queried within their own sections: the dialog also lists every built-in design, so searching all of it is slow.
+    const editableSection = within(screen.getByRole('region', { name: 'Token Maker frames as editable layers' }));
+    for (const f of editable) expect(editableSection.getByRole('button', { name: `${f.name} Editable` })).toBeInTheDocument();
+    for (const f of FRAME_PRESETS) expect(within(screen.getByRole('region', { name: f.group })).getByRole('button', { name: f.name })).toBeInTheDocument();
+    expect(editableSection.queryByRole('button', { name: 'No frame Editable' })).toBeNull();
+    await userEvent.click(editableSection.getByRole('button', { name: 'Paladin Editable' }));
     const p = history.getState().present;
     expect(p.name).toBe('Paladin');
     expect(p.layers.map((l) => l.type)).not.toContain('legacyFrame');

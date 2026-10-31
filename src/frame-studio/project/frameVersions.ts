@@ -499,6 +499,53 @@ const grimIron = (stops = GRIM_IRON): Layer[] => bandShading([
 ], { step: null });
 const grimEmblems = (element: string, fill: string, effects: Layer['effects'], show: boolean[] = [true, false], size = 0.92): Layer => ({ ...repeatLayer(), name: element === 'skull' ? 'Skulls' : 'Emblems', element: element as never, count: 8, snapToCorners: false, at: 0.5, size, fill, show, raised: false, effects });
 
+// ── Themed designs, round 1 ──
+// themed-enamel
+const ENAMEL_STAGE = { thickness: 0.18 };
+/** Gold (or another metal) either side of an enamel channel, each shaded with its own gradient. */
+const metalBands = (stops: string[]): Layer[] => [
+  { ...bandFillLayer(), name: 'Metal', to: 0.28, paint: lin(['#ffffff', '#505050']), effects: [recolour(stops), DROP] },
+  { ...bandFillLayer(), name: 'Metal', from: 0.72, paint: lin(['#404040', '#f0f0f0']), effects: [recolour(stops), DROP] },
+];
+const enamelBand = (light: string, dark: string, glowColor: string): Layer[] => [
+  { ...bandFillLayer(), name: 'Enamel', from: 0.26, to: 0.74, paint: lin([dark, light]), effects: [glow({ inner: true, color: glowColor, opacity: 0.25, size: 0.1 })] },
+  { ...lineLayer(), name: 'Enamel edge', at: 0.27, width: 0.03, paint: { kind: 'solid', color: '#000000' }, opacity: 0.4, blend: 'multiply' },
+];
+const beading = (fill: string, stops: string[]): Layer[] => [0.13, 0.87].map((at) => ({ ...repeatLayer(), name: 'Beading', element: 'bead' as const, mode: 'spacing' as const, spacing: 0.28, snapToCorners: false, at, size: 0.14, fill, raised: false, effects: [...metalFx(stops, 0.6, 0.9)] }));
+const setStones = (fill: string, setting: string, stops: string[], cut: 'brilliant' | 'cabochon' = 'brilliant', count = 4): Layer => ({ ...repeatLayer(), name: 'Stones', element: 'gem', count, snapToCorners: false, at: 0.5, size: 0.85, fill, raised: false, gemCut: cut, gemFacets: 10, gemSparkle: 0.8, setting: 'claws4', settingColor: setting, settingEffects: metalFx(stops, 0.3, 0.9), effects: [contact(0.7)] });
+// themed-iron
+const IRON_RING_STAGE = { thickness: 0.2 };
+const WORN_IRON = ['#020203', '#14161a', '#3e4248', '#787e88', '#c0c6ce'];
+const wornIron = (stops = WORN_IRON, w = { chips: 0.3, polish: 0.5, grime: 0.45, scratches: 0.6, scale: 0.25 }): Layer[] =>
+  bandShading([{ ...bandFillLayer(), name: 'Iron ring', paint: photo('hammered-metal', 1.4, { lighting: 0.3 }), effects: [recolour(stops), wear(w), DROP] }], { step: 0.82 });
+const wornRivets = (fill: string, stops: string[], count = 12, at = 0.42, size = 0.3): Layer => ({ ...repeatLayer(), name: 'Rivets', element: 'bead', count, snapToCorners: false, at, size, fill, raised: true, effects: [...metalFx(stops, 0.6, 0.8), contact(0.8)] });
+// themed-rose
+const ROSE_STAGE = { thickness: 0.18 };
+const woodHoop = (stops: string[], picture: 'wood-planks' | 'bark' | 'plane-bark' = 'wood-planks'): Layer[] =>
+  bandShading([{ ...bandFillLayer(), name: 'Hoop', from: 0.15, to: 0.85, paint: photo(picture, 1.4, { angle: 90, lighting: 0.3 }), effects: [recolour(stops), DROP] }], { step: null });
+const roseVine = (stem: string, leaf: string, o: { extra?: 'leaves' | 'berries' | 'thorns'; seed?: number; count?: number; size?: number } = {}): Layer => ({ ...growthLayer('vine'), name: o.extra === 'berries' ? 'Berries' : 'Vine', count: o.count ?? 2, thickness: 0.05, amplitude: 0.26, waveLength: 2, extra: o.extra ?? 'leaves', extraSize: o.size ?? 0.42, color: stem, extraColor: leaf, seed: o.seed ?? 3, effects: [bevel({ size: 0.4, gloss: 0.3 }), contact(0.6)] });
+const roseBlooms = (fill: string, effects: Layer['effects'], count = 4, size = 0.95): Layer => ({ ...repeatLayer(), name: 'Roses', element: 'icon-rose', count, snapToCorners: false, at: 0.5, size, fill, raised: false, effects });
+const HOOP_WOOD = ['#140a04', '#3a2210', '#7a5230', '#b08a60', '#e0c8a0'];
+// themed-fey
+const FEY_STAGE = { thickness: 0.18, bloom: 0.4 };
+const feyTendrils = (color: string, glowColor: string): Layer => ({ ...growthLayer('tendrils'), name: 'Tendrils', count: 2, thickness: 0.035, color, extraColor: '#ffffff', effects: [glow({ color: glowColor, opacity: 0.35, size: 0.1 }), contact(0.5)] });
+const dewdrops = (fill: string, glowColor: string, count = 14): Layer => ({ ...repeatLayer(), name: 'Dewdrops', element: 'gem', gemCut: 'cabochon', count, snapToCorners: false, at: 0.5, size: 0.24, fill, raised: false, altSizes: [1, 0.6, 0.8], wander: 0.6, seed: 5, effects: [glow({ color: glowColor, opacity: 0.7, size: 0.1 })] });
+const fairyMotes = (fill: string, glowColor: string): Layer => ({ ...repeatLayer(), name: 'Motes', element: 'star', count: 40, snapToCorners: false, at: 0.5, size: 0.1, fill, shaded: false, raised: false, altSizes: [1, 0.5, 0.7], wander: 0.8, skipChance: 0.3, seed: 8, effects: [glow({ color: glowColor, opacity: 0.8, size: 0.06 })] });
+// themed-gothic
+const GOTHIC_STAGE = { thickness: 0.18, bloom: 0.25 };
+const gothicStone = (stops = ['#020202', '#0c0a0c', '#24202a', '#4a4450', '#7a7480']): Layer[] =>
+  bandShading([{ ...bandFillLayer(), name: 'Black stone', paint: photo('dark-rock', 1.4), effects: [recolour(stops), DROP] }]);
+const gothicBriars = (stem: string, thorn: string, effects: Layer['effects'] = [bevel({ size: 0.5, gloss: 0.5 }), contact(0.8)]): Layer => ({ ...growthLayer('thorns'), name: 'Briars', count: 2, thickness: 0.055, amplitude: 0.28, waveLength: 1.9, extraSize: 0.26, color: stem, extraColor: thorn, effects });
+/** Iron spikes round the outside: reaching past the band is the point. */
+const gothicSpikes = (): Layer => ({ ...repeatLayer(), name: 'Iron spikes', element: 'spike', count: 12, at: -0.18, size: 0.55, stretch: 0.55, fill: '#5a5e68', raised: false, effects: [bevel({ profile: 'chisel', size: 0.3, gloss: 0.5 }), recolour(STEEL_STOPS), contact(0.7)] });
+// themed-tidal
+const TIDAL_STAGE = { thickness: 0.2 };
+const seaWaves = (swell: string, foam: string): Layer[] => [
+  { ...lineLayer(), name: 'Swell', at: 0.42, width: 0.3, paint: { kind: 'solid', color: swell }, waveAmplitude: 0.16, waveFit: 1.3, clip: 'band', opacity: 0.85 },
+  { ...lineLayer(), name: 'Foam crests', at: 0.28, width: 0.06, paint: { kind: 'solid', color: foam }, waveAmplitude: 0.16, waveFit: 1.3, wavePhase: 0.1, clip: 'band', effects: [{ kind: 'distort', on: true, amount: 0.05, scale: 0.12, seed: 9 } as never, glow({ color: foam, opacity: 0.4, size: 0.08 })] },
+];
+const pearlString = (fill = '#f4f0ea'): Layer => ({ ...repeatLayer(), name: 'Pearls', element: 'bead', count: 36, snapToCorners: false, at: 0.9, size: 0.12, fill, raised: true, effects: [bevel({ profile: 'rounded', size: 0.8, gloss: 1 }), contact(0.5)] });
+
 const VERSIONS: Version[] = [
   // ── stamped ──
   {
@@ -3237,6 +3284,189 @@ const VERSIONS: Version[] = [
     stage: GRIM_STAGE,
     colours: [slot('iron', 'Iron colour', '#2a2824', ['Iron', 'Chainmail']), slot('gold', 'Gold colour', '#d8a838', ['Emblems'])],
     layers: () => [...grimIron(['#020202', '#0c0c0c', '#2a2824', '#4a4844', '#7a7670']), grimEmblems('icon-crowned-skull', '#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.7)], [true], 0.9)],
+  },
+  // ── themed-enamel ──
+  {
+    id: 'enamel-gold-sapphire',
+    name: 'Sapphire enamel',
+    description: 'Warm gold shaded with gradients, a glossy blue enamel channel, gold beading and four sapphires in claws.',
+    group: 'Crafted',
+    after: 'enamel-gold',
+    stage: ENAMEL_STAGE,
+    colours: [slot('gold', 'Metal colour', '#c8952e', ['Metal', 'Beading']), slot('enamel', 'Enamel colour', '#1d3f8f', ['Enamel']), slot('gems', 'Stone colour', '#2a5ad0', ['Stones'])],
+    layers: () => [...metalBands(WARM_GOLD), ...enamelBand('#3a6ad0', '#081a48', '#7aa8ff'), ...beading('#e8c060', WARM_GOLD), setStones('#2a5ad0', '#d8a838', WARM_GOLD)],
+  },
+  {
+    id: 'enamel-gold-cloisonne',
+    name: 'Ruby cloisonné',
+    description: 'Red enamel divided by fine gold wires into cells, with cabochon rubies.',
+    group: 'Crafted',
+    after: 'enamel-gold',
+    stage: ENAMEL_STAGE,
+    colours: [slot('gold', 'Metal colour', '#c8952e', ['Metal', 'Wires']), slot('enamel', 'Enamel colour', '#a01828', ['Enamel']), slot('gems', 'Stone colour', '#c0102a', ['Stones'])],
+    layers: () => [
+      ...metalBands(WARM_GOLD),
+      ...enamelBand('#d83040', '#3a0408', '#ff7a8a'),
+      { ...repeatLayer(), name: 'Wires', element: 'tick', count: 32, snapToCorners: false, at: 0.5, size: 0.5, stretch: 0.08, fill: '#e8c060', raised: false, effects: metalFx(WARM_GOLD, 0.6, 0.9) },
+      setStones('#c0102a', '#d8a838', WARM_GOLD, 'cabochon', 8),
+    ],
+  },
+  {
+    id: 'enamel-gold-silver-green',
+    name: 'Silver & green enamel',
+    description: 'Silver with an emerald-green enamel channel and emeralds in silver claws.',
+    group: 'Crafted',
+    after: 'enamel-gold',
+    stage: ENAMEL_STAGE,
+    colours: [slot('metal', 'Metal colour', '#a8aeb8', ['Metal', 'Beading']), slot('enamel', 'Enamel colour', '#0f6a4a', ['Enamel']), slot('gems', 'Stone colour', '#0f9a5a', ['Stones'])],
+    layers: () => [...metalBands(SILVER_STOPS), ...enamelBand('#2aa878', '#02200e', '#7affc0'), ...beading('#e4e8f0', SILVER_STOPS), setStones('#0f9a5a', '#d8dce4', SILVER_STOPS)],
+  },
+  // ── themed-iron ──
+  {
+    id: 'worn-iron-battered',
+    name: 'Battered iron',
+    description: 'Chipped, scratched blackened iron shaded with gradients and a pressed-in inner rim, with heavy steel rivets.',
+    group: 'Crafted',
+    after: 'worn-iron',
+    stage: IRON_RING_STAGE,
+    colours: [slot('iron', 'Iron colour', '#3e4248', ['Iron ring', 'Rivets'])],
+    layers: () => [...wornIron(), wornRivets('#a8b0ba', STEEL_STOPS)],
+  },
+  {
+    id: 'worn-iron-smouldering',
+    name: 'Smouldering iron',
+    description: 'Worn iron with embers still glowing in its cracks.',
+    group: 'Crafted',
+    after: 'worn-iron',
+    stage: { ...IRON_RING_STAGE, bloom: 0.25 },
+    colours: [slot('iron', 'Iron colour', '#3e4248', ['Iron ring', 'Rivets']), slot('glow', 'Ember colour', '#ff6a1a', ['Glowing cracks'])],
+    layers: () => [...wornIron(), glowCracks('#1a0602', '#ff6a1a', '#ffb05a', 23, 0.7), wornRivets('#8a929c', STEEL_STOPS)],
+  },
+  {
+    id: 'worn-iron-rusted',
+    name: 'Rust-eaten iron',
+    description: 'Iron gone orange with rust, the rivets nearly rusted away.',
+    group: 'Crafted',
+    after: 'worn-iron',
+    stage: IRON_RING_STAGE,
+    colours: [slot('iron', 'Iron colour', '#5a4a3a', ['Iron ring']), slot('rust', 'Rust colour', '#9a4a1e', ['Rust'])],
+    layers: () => [
+      ...wornIron(['#060402', '#2a1a0e', '#5a4a3a', '#8a7a6a', '#c0b0a0']),
+      { ...bandFillLayer(), name: 'Rust', paint: photo('rust', 1.2), opacity: 0.75, blend: 'color', clip: 'band' },
+      { ...bandFillLayer(), name: 'Rust', paint: photo('rust', 1.2), opacity: 0.4, blend: 'multiply', clip: 'band' },
+      wornRivets('#8a4a24', ['#140602', '#4a1a08', '#9a4a1e', '#d0884a', '#f0c090']),
+    ],
+  },
+  // ── themed-rose ──
+  {
+    id: 'rose-wreath-red',
+    name: 'Red rose wreath',
+    description: 'A wooden hoop shaded with gradients, a leafy vine, red berries and four deep red roses.',
+    group: 'Crafted',
+    after: 'rose-wreath',
+    stage: ROSE_STAGE,
+    colours: [slot('leaves', 'Leaf colour', '#4a8a2a', ['Vine']), slot('roses', 'Rose colour', '#b01828', ['Roses', 'Berries'])],
+    layers: () => [...woodHoop(HOOP_WOOD), roseVine('#3a5220', '#4a8a2a'), roseVine('#3a5220', '#c8283a', { extra: 'berries', count: 1, seed: 7, size: 0.28 }), roseBlooms('#b01828', [bevel({ size: 0.4, gloss: 0.5 }), contact(0.7)])],
+  },
+  {
+    id: 'rose-wreath-briar',
+    name: 'Briar rose',
+    description: 'A thorny briar wound round dark bark, with dark red roses blooming along it.',
+    group: 'Crafted',
+    after: 'rose-wreath',
+    stage: ROSE_STAGE,
+    colours: [slot('stem', 'Stem colour', '#3a2a1a', ['Vine']), slot('roses', 'Rose colour', '#8a0a1a', ['Roses'])],
+    layers: () => [...woodHoop(['#060402', '#1a120a', '#3a2a1a', '#6a5440', '#9a8470'], 'bark'), roseVine('#3a2a1a', '#1a1008', { extra: 'thorns', size: 0.35 }), roseVine('#2a3a1a', '#3a6a2a', { seed: 9, count: 1, size: 0.34 }), roseBlooms('#8a0a1a', [bevel({ size: 0.4, gloss: 0.6 }), contact(0.7)], 6, 0.85)],
+  },
+  {
+    id: 'rose-wreath-golden',
+    name: 'Golden roses',
+    description: 'A jeweller’s wreath: gilded vine, leaves and roses in warm gold.',
+    group: 'Crafted',
+    after: 'rose-wreath',
+    stage: ROSE_STAGE,
+    colours: [slot('gold', 'Gold colour', '#c8952e', ['Vine', 'Roses'])],
+    layers: () => [
+      { ...growthLayer('vine'), name: 'Vine', count: 2, thickness: 0.05, amplitude: 0.26, waveLength: 2, extra: 'leaves', extraSize: 0.45, color: '#a8782a', extraColor: '#d8a838', seed: 3, effects: [...goldFx(0.35, WARM_GOLD), DROP] },
+      roseBlooms('#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.7)], 4, 1),
+    ],
+  },
+  // ── themed-fey ──
+  {
+    id: 'fey-glade-twilight',
+    name: 'Fey twilight',
+    description: 'Teal-to-violet twilight in the twin gradient bands, silver-green tendrils, glowing dewdrops and fairy motes.',
+    group: 'Crafted',
+    after: 'fey-glade',
+    stage: FEY_STAGE,
+    colours: [slot('band', 'Band colour', '#1e3a3a', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#7affc8', ['Dewdrops', 'Motes', 'Tendrils'])],
+    layers: () => [...base({ light: '#2a5a5a', dark: '#0e0a24', step: 0.6 }), { ...textureLayer('nebula'), name: 'Mist', color: '#3a8a6a', color2: '#5a3aa0', opacity: 0.4, blend: 'screen', seed: 0x2f4 }, feyTendrils('#9ad0b0', '#7affc8'), dewdrops('#7affd8', '#8affe0'), fairyMotes('#ffffe0', '#e0ffb0')],
+  },
+  {
+    id: 'fey-glade-moonlit',
+    name: 'Moonlit glade',
+    description: 'Midnight blue and silver: pale tendrils, moonlit dewdrops and cool motes.',
+    group: 'Crafted',
+    after: 'fey-glade',
+    stage: FEY_STAGE,
+    colours: [slot('band', 'Band colour', '#141e40', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#b0d0ff', ['Dewdrops', 'Motes', 'Tendrils'])],
+    layers: () => [...base({ light: '#2a3a6a', dark: '#02040e', step: 0.6 }), feyTendrils('#c8d8f0', '#b0d0ff'), dewdrops('#d8e8ff', '#b0d0ff'), fairyMotes('#ffffff', '#c0d8ff')],
+  },
+  {
+    id: 'fey-glade-fireflies',
+    name: 'Firefly glade',
+    description: 'Deep forest green with warm golden fireflies glowing all round it.',
+    group: 'Crafted',
+    after: 'fey-glade',
+    stage: { ...FEY_STAGE, bloom: 0.5 },
+    colours: [slot('band', 'Band colour', '#14301a', ['Band', 'Pressed-in step']), slot('glow', 'Firefly colour', '#ffd060', ['Fireflies', 'Tendrils'])],
+    layers: () => [
+      ...base({ light: '#2a5030', dark: '#020a04', step: 0.6 }),
+      feyTendrils('#4a7a3a', '#3aff6a'),
+      { ...dewdrops('#fff0a0', '#ffc040', 24), name: 'Fireflies', gemCut: 'cabochon', size: 0.16 },
+    ],
+  },
+  // ── themed-gothic ──
+  {
+    id: 'gothic-thorns-shaded',
+    name: 'Gothic thorns',
+    description: 'Black stone in the twin gradient bands, bleeding red cracks that glow, thorny briars and iron spikes round the edge.',
+    group: 'Crafted',
+    after: 'gothic-thorns',
+    stage: GOTHIC_STAGE,
+    colours: [slot('stone', 'Stone colour', '#24202a', ['Black stone']), slot('glow', 'Glow colour', '#ff1a2a', ['Glowing cracks'])],
+    layers: () => [gothicSpikes(), ...gothicStone(), glowCracks('#200206', '#ff1a2a', '#ff7080', 25, 0.8), gothicBriars('#1a1012', '#2a1418')],
+  },
+  {
+    id: 'gothic-thorns-blood-roses',
+    name: 'Blood roses',
+    description: 'Black briars over dark stone, blooming with blood-red roses.',
+    group: 'Crafted',
+    after: 'gothic-thorns',
+    stage: GOTHIC_STAGE,
+    colours: [slot('stone', 'Stone colour', '#24202a', ['Black stone']), slot('roses', 'Rose colour', '#8a0a1a', ['Roses'])],
+    layers: () => [...gothicStone(), gothicBriars('#1a1012', '#2a1418'), { ...repeatLayer(), name: 'Roses', element: 'icon-rose', count: 6, snapToCorners: false, at: 0.5, size: 0.85, fill: '#8a0a1a', raised: false, effects: [bevel({ size: 0.4, gloss: 0.6 }), glow({ color: '#ff1a2a', opacity: 0.3, size: 0.06 }), contact(0.7)] }],
+  },
+  {
+    id: 'gothic-thorns-bone',
+    name: 'Bone thorns',
+    description: 'Pale bone-white thorns wound over black stone, with a sickly green glow from the cracks.',
+    group: 'Crafted',
+    after: 'gothic-thorns',
+    stage: GOTHIC_STAGE,
+    colours: [slot('bone', 'Thorn colour', '#e8dcc0', ['Briars']), slot('glow', 'Glow colour', '#6aff4a', ['Glowing cracks'])],
+    layers: () => [...gothicStone(), glowCracks('#041a02', '#6aff4a', '#c0ffb0', 29, 0.7), gothicBriars('#e8dcc0', '#fffcf0', [recolour(['#2a2418', '#6a5e48', '#c8bca0', '#ece4d0', '#fffcf2']), bevel({ size: 0.5, gloss: 0.4 }), contact(0.8)])],
+  },
+  // ── themed-tidal ──
+  {
+    id: 'tidal-ring-lagoon',
+    name: 'Lagoon',
+    description: 'Clear turquoise lagoon water over sand, with gentle foam and pearls.',
+    group: 'Crafted',
+    after: 'tidal-ring',
+    stage: TIDAL_STAGE,
+    colours: [slot('sea', 'Sea colour', '#1ab0b8', ['Band', 'Pressed-in step', 'Swell'])],
+    layers: () => [...base({ light: '#5ae0e0', dark: '#0a5a6a', step: 0.8 }), ...seaWaves('#8af0f0', '#ffffff'), pearlString('#fff8f0')],
   },
   // ── next ──
 ];

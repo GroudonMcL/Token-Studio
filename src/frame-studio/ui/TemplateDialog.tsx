@@ -9,7 +9,7 @@ import { X } from 'lucide-react';
 import { FRAME_GROUPS, FRAME_PRESETS } from '../engine/legacy/catalog';
 import { canConvert, differenceNote, editableGroup, editableProject } from '../project/convert';
 import { createProject, LAYERED_TEMPLATES, legacyFrameLayer, projectFromFrame } from '../project/defaults';
-import { BORDER_IDS, BUILT_IN_FRAMES, LAYERED_IDS, RETIRED_FRAMES } from '../project/builtInFrames';
+import { BORDER_IDS, BUILT_IN_FRAMES, LAYERED_IDS, RETIRED_FRAMES, THEMED_IDS } from '../project/builtInFrames';
 import { THEMED_TEMPLATES, themedProject } from '../project/themedTemplates';
 import { addLayer, loadProject } from '../state/projectStore';
 import { THUMB, Tile } from './Thumbnail';
@@ -20,6 +20,9 @@ const listed = BUILT_IN_FRAMES.filter((f) => !RETIRED_FRAMES.has(f.id));
 /** New versions of the Layered designs, listed after them; the Layered originals themselves come from LAYERED_TEMPLATES. */
 const isLayered = (f: (typeof BUILT_IN_FRAMES)[number]) => LAYERED_IDS.has(f.id) || (!!f.after && LAYERED_IDS.has(f.after));
 const layeredVersions = listed.filter((f) => !!f.after && LAYERED_IDS.has(f.after));
+/** The same for the Themed designs. */
+const isThemed = (f: (typeof BUILT_IN_FRAMES)[number]) => THEMED_IDS.has(f.id) || (!!f.after && THEMED_IDS.has(f.after));
+const themedVersions = listed.filter((f) => !!f.after && THEMED_IDS.has(f.after));
 
 const frameMakers = new Map(FRAME_PRESETS.map((p) => [p.id, () => projectFromFrame(p.id)]));
 const editableMakers = new Map(FRAME_PRESETS.filter((p) => canConvert(p.style)).map((p) => [p.id, () => editableProject(p.id)!]));
@@ -103,7 +106,7 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
               <h3>Token Studio's frames</h3>
               <p className="note">The designs Token Maker lists in its frame picker: the Essentials, the new versions of its drawn frames, and Gilded laurel, Iron rivets, Runestone… Open one to change it, save it, and open the file in Token Maker.</p>
               <div className="tiles">
-                {listed.filter((f) => !isBorder(f) && !isLayered(f)).map((t) => (
+                {listed.filter((f) => !isBorder(f) && !isLayered(f) && !isThemed(f)).map((t) => (
                   <Tile
                     key={t.id}
                     id={`builtin:${t.id}`}
@@ -141,7 +144,7 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
               <h3>Themed borders</h3>
               <p className="note">Ready-made borders in popular styles (metal and enamel, wreaths, gothic, elemental, clockwork, knotwork…), every part editable. A few come with their own lighting (Lighting… over the canvas).</p>
               <div className="tiles">
-                {THEMED_TEMPLATES.map((t) => (
+                {THEMED_TEMPLATES.filter((t) => !RETIRED_FRAMES.has(t.id)).map((t) => (
                   <Tile
                     key={t.id}
                     id={`themed:${t.id}`}
@@ -150,6 +153,19 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
                     make={() => themedProject(t)}
                     onPick={() => {
                       loadProject(themedProject(t));
+                      onClose();
+                    }}
+                  />
+                ))}
+                {themedVersions.map((t) => (
+                  <Tile
+                    key={t.id}
+                    id={`builtin:${t.id}`}
+                    name={t.name}
+                    description={t.description}
+                    make={t.project}
+                    onPick={() => {
+                      loadProject(t.project());
                       onClose();
                     }}
                   />

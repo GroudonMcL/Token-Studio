@@ -101,6 +101,12 @@ picker each. Candidates are drawn with
 | Celtic knots | Layered | Retired; Emerald & gold, Carved stone. |
 | Royal | Layered | Retired; Crimson royal, Royal blue, Purple & silver, Ermine (crown raised over the top gem). |
 | Grim iron | Layered | Retired; Bone ring, Crowned skulls. |
+| Enamelled gold | Themed | Retired; Sapphire enamel, Ruby cloisonné, Silver & green enamel. |
+| Worn iron ring | Themed | Retired; Battered iron, Smouldering iron, Rust-eaten iron. |
+| Rose wreath | Themed | Retired; Red rose wreath, Briar rose, Golden roses. |
+| Fey glade | Themed | Kept, plus Fey twilight, Moonlit glade, Firefly glade. |
+| Gothic thorns | Themed | Kept, plus Gothic thorns, Blood roses, Bone thorns. |
+| Tidal ring | Themed | Kept, plus Lagoon. |
 | Dragon scales | Crafted | Also Serpent coil: overlapping rows (third steps) with soft outlines, row shadows and clipped gradient bands. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
