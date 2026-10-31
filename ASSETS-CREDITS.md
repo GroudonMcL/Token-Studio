@@ -28,7 +28,7 @@ Every font, icon, image and other asset bundled with Token Maker, with its sourc
 | 48 ornament icons in Frame Studio designs (`src/frameStudio/project/iconGlyphs.ts`) | Lorc, Delapouite, Carl Olsen and Caro Asercion, [game-icons.net](https://game-icons.net) (each icon's page is listed in that file and in [Frame Studio's credits](https://github.com/GroudonMcL/Frame-Studio/blob/main/docs/CREDITS.md)) | CC BY 3.0 |
 | 20 photo textures in Frame Studio designs (`src/frameStudio/render/pictureData.ts`) | [Poly Haven](https://polyhaven.com) and [ambientCG](https://ambientcg.com) (resized to 512 px; each photo's page is in `src/frameStudio/project/pictures.ts`) | CC0 1.0 |
 | Lucide icons | [lucide.dev](https://lucide.dev) (`lucide-react`) | ISC |
-| Logo and favicon (`public/favicon.svg`, `src/token-maker/layout/BrandMark.tsx`) | Designed by the owner, GroudonMcL; its letters turned into outlines with Uncial Antiqua (above) so every browser shows them | Owner's own |
+| Logo and favicon (`public/favicon.svg`, `src/token-maker/layout/BrandMark.tsx`) | Designed by the owner, GroudonMcL (letters as outlines) | Owner's own |
 | 27 code-drawn frames and 5 shapes | Ported from the owner's own [LK-to-Owlbear-Combined](https://github.com/GroudonMcL/LK-to-Owlbear-Combined) extension | Owner's own code |
 | Background “Forest” (`public/backgrounds/forest.webp`) | Forest Stream with Vista, Asher B. Durand, 1872 ([source](https://clevelandart.org/art/1960.162)), cropped and resized | CC0 1.0 |
 | Background “Swamp” (`public/backgrounds/swamp.webp`) | The Devil and Tom Walker, John Quidor, 1856 ([source](https://clevelandart.org/art/1967.18)), cropped and resized | CC0 1.0 |
