@@ -28,9 +28,18 @@ Every font, icon, image and other asset bundled with Token Maker, with its sourc
 | 48 ornament icons in Frame Studio designs (`src/frameStudio/project/iconGlyphs.ts`) | Lorc, Delapouite, Carl Olsen and Caro Asercion, [game-icons.net](https://game-icons.net) (each icon's page is listed in that file and in [Frame Studio's credits](https://github.com/GroudonMcL/Frame-Studio/blob/main/docs/CREDITS.md)) | CC BY 3.0 |
 | 20 photo textures in Frame Studio designs (`src/frameStudio/render/pictureData.ts`) | [Poly Haven](https://polyhaven.com) and [ambientCG](https://ambientcg.com) (resized to 512 px; each photo's page is in `src/frameStudio/project/pictures.ts`) | CC0 1.0 |
 | Lucide icons | [lucide.dev](https://lucide.dev) (`lucide-react`) | ISC |
-| Placeholder logo / favicon | Made for the project | — |
+| Logo and favicon (`public/favicon.svg`, `src/token-maker/layout/BrandMark.tsx`) | Designed by the owner, GroudonMcL (letters as outlines) | Owner's own |
 | 27 code-drawn frames and 5 shapes | Ported from the owner's own [LK-to-Owlbear-Combined](https://github.com/GroudonMcL/LK-to-Owlbear-Combined) extension | Owner's own code |
-| 10 drawn background pictures (`public/backgrounds/`: forest, dungeon, parchment, night-sky, lava, water, tavern, snow, swamp, desert) | Drawn by code for the project (`scripts/make-backgrounds.ts`) | — (made for the project; no attribution needed) |
+| Background “Forest” (`public/backgrounds/forest.webp`) | Forest Stream with Vista, Asher B. Durand, 1872 ([source](https://clevelandart.org/art/1960.162)), cropped and resized | CC0 1.0 |
+| Background “Swamp” (`public/backgrounds/swamp.webp`) | The Devil and Tom Walker, John Quidor, 1856 ([source](https://clevelandart.org/art/1967.18)), cropped and resized | CC0 1.0 |
+| Background “Water” (`public/backgrounds/water.webp`) | Low Tide at Pourville, near Dieppe, Claude Monet, 1882 ([source](https://clevelandart.org/art/1947.196)), cropped and resized | CC0 1.0 |
+| Background “Snow” (`public/backgrounds/snow.webp`) | Winter Landscape, Jan Griffier, c. 1680–1718 ([source](https://clevelandart.org/art/2008.287)), cropped and resized | CC0 1.0 |
+| Background “Lava” (`public/backgrounds/lava.webp`) | Mount Vesuvius at Midnight, Albert Bierstadt, 1868 ([source](https://clevelandart.org/art/1949.541)), cropped and resized | CC0 1.0 |
+| Background “Desert” (`public/backgrounds/desert.webp`) | Leaving the Oasis, Jean-Léon Gérôme, 1880s ([source](https://clevelandart.org/art/1977.126)), cropped and resized | CC0 1.0 |
+| Background “Tavern” (`public/backgrounds/tavern.webp`) | Peasants Smoking in an Inn, David Teniers, c. 1640 ([source](https://clevelandart.org/art/1916.1046)), cropped and resized | CC0 1.0 |
+| Background “Dungeon” (`public/backgrounds/dungeon.webp`) | Subterranean Jail for the Stage, Abel Schlicht, 1788 ([source](https://clevelandart.org/art/2003.23)), cropped and resized | CC0 1.0 |
+| Background “Night sky” (`public/backgrounds/night-sky.webp`) | Perseid Meteor Shower: the Milky Way over Spruce Knob, West Virginia, NASA/Bill Ingalls, 2021 ([source](https://images.nasa.gov/details/NHQ202108110005)), cropped and resized | Public domain (NASA) |
+| Background “Parchment” (`public/backgrounds/parchment.webp`) | Paper 005, ambientCG ([source](https://ambientcg.com/view?id=Paper005)): its colour map lit from its height map and coloured as parchment | CC0 1.0 |
 | Background “Twilight sky” (`public/backgrounds/twilight-sky.webp`) | Twilight in the Wilderness, Frederic Edwin Church, 1860 ([source](https://clevelandart.org/art/1965.233)), cropped and resized | CC0 1.0 |
 | Background “Red sunset” (`public/backgrounds/red-sunset.webp`) | Red Sunset, Arkhyp Kuindzhi, 1905–8 ([source](https://www.metmuseum.org/art/collection/search/436833)), cropped and resized | Public domain |
 | Background “Mountains” (`public/backgrounds/mountains.webp`) | The Rocky Mountains, Lander's Peak, Albert Bierstadt, 1863 ([source](https://www.metmuseum.org/art/collection/search/10154)), cropped and resized | Public domain |
@@ -85,10 +94,10 @@ Every font, icon, image and other asset bundled with Token Maker, with its sourc
 | Decoration “Knotwork divider” (`public/pictures/deco-orn-knotwork-divider.webp`) | GDJ, [Openclipart 291167](https://openclipart.org/detail/291167) (uploaded 2017-11-29; drawn from the SVG at 256 px, turned light grey so it can be tinted) | CC0 1.0 |
 | Decoration “Antique corner” (`public/pictures/deco-orn-antique-corner.webp`) | Darkmoon-Art, [Openclipart 333685](https://openclipart.org/detail/333685) (uploaded 2021-10-11; drawn from the SVG at 256 px, turned light grey so it can be tinted) | CC0 1.0 |
 | Decoration “Dragon head” (`public/pictures/deco-orn-dragon-head.webp`) | kuba, [Openclipart 64849](https://openclipart.org/detail/64849) (uploaded 2010-06-07; drawn from the SVG at 256 px, turned light grey so it can be tinted) | CC0 1.0 |
-| 8 built-in picture frames (`public/frames/`) | Drawn by code for the project (`scripts/make-frames.ts`) | — (made for the project; no attribution needed) |
+| 8 built-in Frame Studio frames (Gilded laurel, Iron rivets, Runestone, Thorns, Dragon scales, Celestial star, Rope, Shield rim; once picture frames) | Built from Frame Studio layers for the project (`src/frame-studio/project/pictureFrameTemplates.ts`), using the photo textures above | — (made for the project) |
 | 18 decorations (gems, crown, star, skull, horn, wing, ribbon, laurel, chain, leaf, class icons) | Drawn by code at render time (`src/render/decorationPainters.ts`) | — |
 | Label shapes (banner, plaque, pill, box) | Drawn by code at render time (`src/render/label.ts`) | — |
 | Overlay effects (foliage, smoke, mist, cobwebs, vignette, edge shadow) | Drawn by code at render time (`src/render/overlays.ts`) | — |
 | Sample art in frame tiles, frame sheet and tests | Drawn by code for the project (`src/render/sampleArt.ts`, `scripts/make-fixture.ts`) | — |
-| "Try a sample" goblin picture (`public/sample/goblin.png`) | Drawn by code for the project (`scripts/make-fixture.ts`) | — |
+| "Try a sample" picture, True Goblin (`public/sample/true-goblin.png`) | Drawn by the owner, GroudonMcL | Owner's own |
 | Help-tip before/after pictures (`public/help/`) | Drawn by the site's own renderer (`scripts/help-images.ts`, `scripts/help-token-pictures.ts`) | — |

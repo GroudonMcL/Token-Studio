@@ -45,7 +45,10 @@ describe('presets', () => {
     expect(p.schemaVersion).toBe(PRESET_SCHEMA_VERSION);
     expect(p.docVersion).toBe(SCHEMA_VERSION);
     const json = presetToJson(p);
-    for (const word of ['asset:goblin', 'brightness', '"strokes"', 'Goblin boss', 'squares', 'asset:my-forest']) expect(json).not.toContain(word);
+    for (const word of ['asset:goblin', '"strokes"', 'Goblin boss', 'squares', 'asset:my-forest']) expect(json).not.toContain(word);
+    // The art's adjustments stay with the art (the background's colour changes are part of the look).
+    expect(p.look).not.toHaveProperty('art');
+    expect(json).not.toContain('"sharpness"');
     // A background picture of the user's own is theirs too: it is left out.
     expect(p.look.background.kind).toBe('none');
     expect(p.look.background.image).toBeNull();

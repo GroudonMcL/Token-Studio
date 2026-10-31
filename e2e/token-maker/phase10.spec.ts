@@ -256,7 +256,7 @@ test.describe('first visit', () => {
     await card.getByRole('button', { name: 'Try a sample' }).click();
     await expect(page.locator('.stage')).toHaveAttribute('data-has-art', 'true');
     await expect(card).toHaveCount(0);
-    await expect(page.getByRole('img', { name: 'Token preview: Goblin' })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Token preview: True Goblin' })).toBeVisible();
     // It is an ordinary import: one undo step takes it away again.
     await page.keyboard.press('Control+z');
     await expect(page.locator('.stage')).not.toHaveAttribute('data-has-art', 'true');

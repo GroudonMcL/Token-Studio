@@ -4,7 +4,7 @@
 // Called by scripts/help-images.ts (npm run help-images).
 import { createCanvas, GlobalFonts, loadImage, type Canvas, type Image } from '@napi-rs/canvas';
 import { existsSync, readFileSync } from 'node:fs';
-import { createDocument, DEFAULT_REMOVAL, LIGHT_PRESETS, newDecoration, newEffect, newLabel, newPictureDecoration, newPictureEffect, RING_TEXT_STYLE } from '../../src/token-maker/document/defaults';
+import { createDocument, DEFAULT_BACKGROUND, DEFAULT_REMOVAL, LIGHT_PRESETS, newDecoration, newEffect, newLabel, newPictureDecoration, newPictureEffect, RING_TEXT_STYLE } from '../../src/token-maker/document/defaults';
 import type { Decoration, EffectKind, EffectLayer, LabelSettings, LightPresetId, PictureSource, PopOutStroke, TokenDocument } from '../../src/token-maker/document/types';
 import { setAiMaskLookup } from '../../src/token-maker/image/process';
 import { pictureAssetId } from '../../src/token-maker/render/pictureLibrary';
@@ -17,6 +17,8 @@ import { BUILT_IN_PRESETS } from '../../src/token-maker/presets/builtins';
 import { LOOK_KEYS } from '../../src/token-maker/presets/preset';
 import { editableProject } from '../../src/token-maker/frameStudio/project/convert';
 import { setCanvasFactory as setFrameStudioCanvas } from '../../src/token-maker/frameStudio/render/canvas';
+import { loadPictures, setPictureDecoder } from '../../src/token-maker/frameStudio/render/pictures';
+import { BUILT_IN_DESIGNS, builtInDesignFrame } from '../../src/token-maker/render/builtInDesigns';
 
 // Frame Studio's renderer (designs as frames) draws on canvases of its own.
 setFrameStudioCanvas((w, h) => createCanvas(w, h) as unknown as HTMLCanvasElement);
@@ -184,16 +186,16 @@ const imageFrame = (id: string, nudge = { x: 0, y: 0, scale: 1 }): Change => (d)
   d.frame = { ...d.frame, kind: 'image', image: { source: f.source, name: id, hole: f.hole, outer: f.outer, nudge } };
 };
 
-const frames = new Map<string, { source: { type: 'library' | 'upload'; id: string }; hole: number[]; outer: number }>();
+const frames = new Map<string, { source: { type: 'upload'; id: string }; hole: number[]; outer: number }>();
 
-async function addFrame(id: string, file: string, type: 'library' | 'upload') {
+async function addFrame(id: string, file: string) {
   const img = await loadImage(readFileSync(file));
   const c = createCanvas(img.width, img.height);
   c.getContext('2d').drawImage(img, 0, 0);
   const small = createCanvas(512, 512);
   small.getContext('2d').drawImage(c, 0, 0, 512, 512);
   const found = findFrameHole(small.getContext('2d').getImageData(0, 0, 512, 512));
-  const src = { type, id };
+  const src = { type: 'upload' as const, id };
   assets.set(frameAssetId(src), source(c));
   frames.set(id, { source: src, hole: found.hole, outer: found.outer });
 }
@@ -300,7 +302,6 @@ export async function tokenPictures(save: Save): Promise<void> {
   assets.set('asset:boss', source(bossImg));
   goblinImage = goblin;
   for (const id of ['forest', 'night-sky', 'tavern', 'dungeon']) assets.set(`library:${id}`, source(await loadImage(readFileSync(`public/backgrounds/${id}.webp`))));
-  for (const id of ['gilded-laurel', 'rope', 'dragon-scales']) await addFrame(id, `public/frames/${id}.webp`, 'library');
   for (const id of ['fx-smoke-puffs', 'fx-twinkles', 'deco-heart', 'deco-potion']) assets.set(pictureAssetId({ type: 'library', id }), source(await loadImage(readFileSync(`public/pictures/${id}.webp`))));
   assets.set(pictureAssetId({ type: 'upload', id: 'demo' }), source(await loadImage(readFileSync('public/backgrounds/night-sky.webp'))));
   // The AI cut-out of the boss goblin, made once with the real model (BiRefNet-lite) and kept as a fixture.
@@ -310,7 +311,7 @@ export async function tokenPictures(save: Save): Promise<void> {
   const aiRgba = aiCanvas.getContext('2d').getImageData(0, 0, aiImg.width, aiImg.height).data;
   const aiMask = { id: 1, width: aiImg.width, height: aiImg.height, data: Uint8Array.from({ length: aiImg.width * aiImg.height }, (_, i) => aiRgba[i * 4]!) };
   setAiMaskLookup((id) => (id === 'asset:boss' ? aiMask : null));
-  await addFrame('ring', 'e2e/token-maker/fixtures/purple-ring.png', 'upload');
+  await addFrame('ring', 'e2e/token-maker/fixtures/purple-ring.png');
   // null: the empty token you start with, before any picture is imported.
   const empty = () => with_((d) => (d.art.assetId = null), bg({ kind: 'none' }));
   const p = (id: string, before: (Change | undefined)[] | null, after: (Change | undefined)[] | null, backdrop: Backdrop = 'dark') =>
@@ -377,6 +378,14 @@ export async function tokenPictures(save: Save): Promise<void> {
   const ai: Change = (d) => (d.art.removal = { ...DEFAULT_REMOVAL, enabled: true, method: 'ai' });
   p('background.removeMethod', [busy], [busy, ai]);
   p('background.aiRemove', [busy], [busy, ai]);
+  p('background.offsetX', [forest({ zoom: 1.6 })], [forest({ zoom: 1.6, offsetX: 0.5 })]);
+  p('background.offsetY', [forest({ zoom: 1.6 })], [forest({ zoom: 1.6, offsetY: -0.5 })]);
+  const tone = (adjust: Partial<TokenDocument['background']['adjust']>) => forest({ adjust: { ...DEFAULT_BACKGROUND.adjust, ...adjust } });
+  p('background.brightness', [forest()], [tone({ brightness: -50 })]);
+  p('background.contrast', [forest()], [tone({ contrast: -60 })]);
+  p('background.saturation', [forest()], [tone({ saturation: -100 })]);
+  p('background.hue', [forest()], [tone({ hue: 160 })]);
+  p('background.temperature', [forest()], [tone({ temperature: -100 })]);
   p('background.opacity', [forest(), frame({ backingColor: '#7a2f2f' })], [forest({ opacity: 0.35 }), frame({ backingColor: '#7a2f2f' })]);
 
   // ---- Effects: overlays and pictures (v8) ----
@@ -506,8 +515,16 @@ export async function tokenPictures(save: Save): Promise<void> {
 
   // ---- Frame & shape ----
   p('frame.shape', [], [(d) => (d.shape = 'hexagon')]);
-  p('frame.kind', [], [imageFrame('gilded-laurel')]);
-  p('frame.picture', [imageFrame('rope')], [imageFrame('dragon-scales')]);
+  // The built-in designs' photo textures, decoded here as the tests do.
+  setPictureDecoder(async (url) => loadImage(Buffer.from(url.slice(url.indexOf(',') + 1), 'base64')));
+  const builtIn = (id: string): Change => (d) => {
+    const design = builtInDesignFrame(id)!;
+    const band = BUILT_IN_DESIGNS.find((b) => b.id === design.id)!.band;
+    d.frame = { ...d.frame, kind: 'design', design, thickness: band.thickness };
+  };
+  for (const b of BUILT_IN_DESIGNS) await loadPictures(builtInDesignFrame(b.id)!.project);
+  p('frame.kind', [], [builtIn('gilded-laurel')]);
+  p('frame.picture', [], [imageFrame('ring')]);
   p('frame.upload', [], [imageFrame('ring')]);
   // A Frame Studio design: Token Maker's Paladin, rebuilt from editable layers and lit from the bottom right.
   const design = editableProject('paladin')!;

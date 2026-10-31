@@ -42,6 +42,11 @@ export function frameThumbnails(shape: ShapeId, px = 96): Map<string, string> {
 const designCache = new Map<string, string>();
 
 /** A data URL of a Frame Studio design as a frame on `shape`, drawn by the real renderer on a default token (cached by design id). */
+/** Forgets the thumbnails of these designs (after their photo textures arrive, so they are drawn with them). */
+export function clearDesignThumbnails(ids: string[]): void {
+  for (const key of [...designCache.keys()]) if (ids.some((id) => key.startsWith(`${id}|`))) designCache.delete(key);
+}
+
 export function designThumbnail(id: string, project: DesignFrame['project'], shape: ShapeId, px = 96): string | null {
   const key = `${id}|${shape}|${px}`;
   const hit = designCache.get(key);

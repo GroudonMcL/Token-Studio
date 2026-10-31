@@ -3,14 +3,15 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ColorSwatches, SegmentedButtons, Slider, TileGrid } from '../components';
 import { updateFrameAndArt } from '../editor/artActions';
 import { nudgeHole, pickImageFrame, uploadFrame } from '../editor/frameActions';
-import { applyDesignFrame, openDesignFile } from '../editor/designActions';
+import { applyBuiltInDesign, applyDesignFrame, openDesignFile } from '../editor/designActions';
 import type { DesignFrame, FrameSettings, ImageFrame } from '../document/types';
+import { loadFrameDesignPictures } from '../frameStudio/share/frameDesign';
 import { refreshDesigns, removeDesign, useDesignLibrary } from '../state/designLibrary';
-import { FRAME_LIBRARY, frameThumbUrl } from '../render/imageFrames';
-import { libraryFrameName, refreshUploadedFrames, removeUploadedFrame, useUploadedFrames } from '../state/frameLibrary';
+import { BUILT_IN_DESIGNS, builtInDesignFrame, isBuiltInDesign } from '../render/builtInDesigns';
+import { refreshUploadedFrames, removeUploadedFrame, useUploadedFrames } from '../state/frameLibrary';
 import { FRAME_PRESETS, framePresetById, SHAPES, type ShapeId } from '../render/catalog';
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
-import { designThumbnail, frameThumbnails } from './frameThumbs';
+import { clearDesignThumbnails, designThumbnail, frameThumbnails } from './frameThumbs';
 import { createDocument } from '../document/defaults';
 import { frameAccent } from '../render/frames';
 
@@ -34,14 +35,19 @@ const toPct = (v: number) => Math.round(v * 50 * 10) / 10;
 const fromPct = (p: number) => p / 50;
 
 /**
- * Frame & shape section (DESIGN.md §6.9, §6.12): shape, 27 frames drawn by
- * code (colour, thickness, spacing), a picture frame (built-in or your own,
- * with its hole) or a Frame Studio design (on the same band as a drawn
- * frame), and the backing.
+ * Frame & shape section (DESIGN.md §6.9, §6.12): shape, the frames drawn by
+ * code (colour, thickness, spacing) and the built-in Frame Studio designs
+ * listed with them, a picture frame of your own (with its hole) or a Frame
+ * Studio design you opened (on the same band as a drawn frame), and the
+ * backing.
  */
 export function FrameSection() {
   const frame = useDoc((d) => d.frame);
-  const kind = frame.kind === 'image' && frame.image ? 'image' : frame.kind === 'design' ? 'design' : 'code';
+  const uploads = useUploadedFrames();
+  // "Picture" can be chosen before any frame is uploaded, so remember the choice here too.
+  const [pictureChosen, setPictureChosen] = useState(false);
+  const builtIn = frame.kind === 'design' && isBuiltInDesign(frame.design?.id);
+  const kind = frame.kind === 'image' && frame.image ? 'image' : frame.kind === 'design' && !builtIn ? 'design' : pictureChosen ? 'image' : 'code';
   return (
     <>
       <SegmentedButtons
@@ -49,10 +55,15 @@ export function FrameSection() {
         helpId="frame.kind"
         value={kind}
         onChange={(k) => {
+          setPictureChosen(k === 'image');
           if (k === 'code') updateFrameAndArt((d) => ({ ...d, frame: { ...d.frame, kind: 'code' } }));
-          else if (k === 'design') updateFrameAndArt((d) => ({ ...d, frame: { ...d.frame, kind: 'design' } }));
+          // A built-in design belongs with the drawn frames: Frame Studio starts with no design picked.
+          else if (k === 'design') updateFrameAndArt((d) => ({ ...d, frame: { ...d.frame, kind: 'design', design: isBuiltInDesign(d.frame.design?.id) ? null : d.frame.design } }));
           else if (frame.image) updateFrameAndArt((d) => ({ ...d, frame: { ...d.frame, kind: 'image' } }));
-          else void pickImageFrame({ type: 'library', id: FRAME_LIBRARY[0]!.id }, FRAME_LIBRARY[0]!.name);
+          else {
+            const first = uploads.frames[0];
+            if (first) void pickImageFrame({ type: 'upload', id: first.id }, first.name);
+          }
         }}
         options={[
           { value: 'code', label: 'Drawn' },
@@ -60,7 +71,7 @@ export function FrameSection() {
           { value: 'design', label: 'Frame Studio' },
         ]}
       />
-      {kind === 'image' ? <PictureFrame image={frame.image!} /> : kind === 'design' ? <DesignFramePanel design={frame.design} /> : <DrawnFrame />}
+      {kind === 'image' ? <PictureFrame image={frame.kind === 'image' ? frame.image : null} /> : kind === 'design' ? <DesignFramePanel design={frame.design} /> : <DrawnFrame />}
       <ColorSwatches
         label="Backing colour"
         helpId="frame.backingColor"
@@ -84,55 +95,41 @@ export function FrameSection() {
   );
 }
 
-/** A picture frame: built-in or uploaded pictures, and the hole's nudge. */
-function PictureFrame({ image }: { image: ImageFrame }) {
+/** A picture frame of your own: the uploaded pictures, and the hole's nudge. */
+function PictureFrame({ image }: { image: ImageFrame | null }) {
   const { frames: uploads, loaded } = useUploadedFrames();
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!loaded) void refreshUploadedFrames();
   }, [loaded]);
-  const value = `${image.source.type}:${image.source.id}`;
-  const own = image.source.type === 'upload';
-  const n = image.nudge;
+  const n = image?.nudge ?? { x: 0, y: 0, scale: 1 };
   const nudged = n.x !== 0 || n.y !== 0 || n.scale !== 1;
   return (
     <>
-      <TileGrid
-        label="Picture frame"
-        helpId="frame.picture"
-        value={value}
-        onChange={(v) => {
-          const [type, ...rest] = v.split(':');
-          const id = rest.join(':');
-          if (type === 'library') void pickImageFrame({ type, id }, libraryFrameName(id));
-          else void pickImageFrame({ type: 'upload', id }, uploads.find((f) => f.id === id)?.name ?? 'My frame');
-        }}
-        tiles={[
-          ...FRAME_LIBRARY.map((f) => ({
-            id: `library:${f.id}`,
-            label: f.name,
-            group: 'Built-in',
-            preview: <img src={frameThumbUrl(f.id)} alt="" width={44} height={44} loading="lazy" />,
-          })),
-          ...uploads.map((f) => ({
-            id: `upload:${f.id}`,
-            label: f.name,
-            group: 'Your frames',
-            preview: <img src={f.url} alt="" width={44} height={44} />,
-          })),
-        ]}
-      />
+      {uploads.length > 0 ? (
+        <TileGrid
+          label="Picture frame"
+          helpId="frame.picture"
+          value={image?.source.id ?? ''}
+          onChange={(id) => void pickImageFrame({ type: 'upload', id }, uploads.find((f) => f.id === id)?.name ?? 'My frame')}
+          tiles={uploads.map((f) => ({ id: f.id, label: f.name, preview: <img src={f.url} alt="" width={44} height={44} /> }))}
+        />
+      ) : (
+        <p className="control__hint">No picture frames yet. Upload a PNG ring with a see-through middle.</p>
+      )}
       <div className="control control--row" data-control="frame-upload" data-help-id="frame.upload">
         <button type="button" className="btn btn--small" onClick={() => input.current?.click()}>
           <Upload size={14} aria-hidden="true" />
           Upload a frame
         </button>
-        {own && (
+        {image && (
           <button
             type="button"
             className="btn btn--ghost btn--small"
             onClick={() => {
-              void removeUploadedFrame(image.source.id).then(() => pickImageFrame({ type: 'library', id: FRAME_LIBRARY[0]!.id }, FRAME_LIBRARY[0]!.name));
+              void removeUploadedFrame(image.source.id).then(() =>
+                updateFrameAndArt((d) => ({ ...d, frame: { ...d.frame, kind: 'code', image: null } })),
+              );
             }}
           >
             <Trash2 size={14} aria-hidden="true" />
@@ -155,47 +152,51 @@ function PictureFrame({ image }: { image: ImageFrame }) {
         />
       </div>
       <p className="control__hint">Use a PNG with a see-through middle; the art shows through the hole. Picture frames grow with the token.</p>
-      <Slider
-        label="Hole size"
-        helpId="frame.holeSize"
-        unit="%"
-        defaultValue={100}
-        min={50}
-        max={150}
-        value={Math.round(n.scale * 100)}
-        onChange={(v) => nudgeHole({ scale: v / 100 }, true)}
-        onCommit={commitDoc}
-      />
-      <Slider
-        label="Move hole sideways"
-        helpId="frame.holeX"
-        unit="%"
-        defaultValue={0}
-        min={-25}
-        max={25}
-        step={0.5}
-        value={Math.round(n.x * 500) / 10}
-        onChange={(v) => nudgeHole({ x: v / 50 }, true)}
-        onCommit={commitDoc}
-      />
-      <Slider
-        label="Move hole up or down"
-        helpId="frame.holeY"
-        unit="%"
-        defaultValue={0}
-        min={-25}
-        max={25}
-        step={0.5}
-        value={Math.round(n.y * 500) / 10}
-        onChange={(v) => nudgeHole({ y: v / 50 }, true)}
-        onCommit={commitDoc}
-      />
-      <div className="control" data-control="frame-hole-reset" data-help-id="frame.holeReset">
-        <button type="button" className="btn btn--ghost btn--small" disabled={!nudged} onClick={() => nudgeHole({ x: 0, y: 0, scale: 1 })}>
-          <RotateCcw size={14} aria-hidden="true" />
-          Reset the hole
-        </button>
-      </div>
+      {image && (
+        <>
+          <Slider
+            label="Hole size"
+            helpId="frame.holeSize"
+            unit="%"
+            defaultValue={100}
+            min={50}
+            max={150}
+            value={Math.round(n.scale * 100)}
+            onChange={(v) => nudgeHole({ scale: v / 100 }, true)}
+            onCommit={commitDoc}
+          />
+          <Slider
+            label="Move hole sideways"
+            helpId="frame.holeX"
+            unit="%"
+            defaultValue={0}
+            min={-25}
+            max={25}
+            step={0.5}
+            value={Math.round(n.x * 500) / 10}
+            onChange={(v) => nudgeHole({ x: v / 50 }, true)}
+            onCommit={commitDoc}
+          />
+          <Slider
+            label="Move hole up or down"
+            helpId="frame.holeY"
+            unit="%"
+            defaultValue={0}
+            min={-25}
+            max={25}
+            step={0.5}
+            value={Math.round(n.y * 500) / 10}
+            onChange={(v) => nudgeHole({ y: v / 50 }, true)}
+            onCommit={commitDoc}
+          />
+          <div className="control" data-control="frame-hole-reset" data-help-id="frame.holeReset">
+            <button type="button" className="btn btn--ghost btn--small" disabled={!nudged} onClick={() => nudgeHole({ x: 0, y: 0, scale: 1 })}>
+              <RotateCcw size={14} aria-hidden="true" />
+              Reset the hole
+            </button>
+          </div>
+        </>
+      )}
     </>
   );
 }
@@ -342,17 +343,41 @@ function BandSliders() {
   );
 }
 
-/** A frame drawn by code: shape, the 27 frames, colour, thickness and spacing. */
+/** The built-in designs, made once each (their thumbnails and photo textures are cached by id). */
+const builtInFrames = new Map(BUILT_IN_DESIGNS.map((b) => [b.id, builtInDesignFrame(b.id)!]));
+
+/**
+ * The drawn frames: shape, the frames drawn by code (colour, thickness and
+ * spacing) and, in their Crafted group, the built-in Frame Studio designs.
+ */
 function DrawnFrame() {
   const shape = useDoc((d) => d.shape);
   const frame = useDoc((d) => d.frame);
-  const accent = frameAccent(frame.style);
+  const builtIn = frame.kind === 'design' && isBuiltInDesign(frame.design?.id) ? frame.design!.id : null;
+  const accent = builtIn ? null : frameAccent(frame.style);
   const [thumbs, setThumbs] = useState<Map<string, string> | null>(null);
 
   useEffect(() => {
-    // Drawn after the panel appears, so opening it stays snappy.
-    const id = requestAnimationFrame(() => setThumbs(frameThumbnails(shape)));
-    return () => cancelAnimationFrame(id);
+    let live = true;
+    // Drawn after the panel appears, so opening it stays snappy; the Crafted ones again once their photos arrive.
+    const draw = () => {
+      if (!live) return;
+      const next = new Map(frameThumbnails(shape));
+      for (const [id, d] of builtInFrames) {
+        const url = designThumbnail(id, d.project, shape);
+        if (url) next.set(id, url);
+      }
+      setThumbs(next);
+    };
+    const id = requestAnimationFrame(draw);
+    void Promise.all([...builtInFrames.values()].map((d) => loadFrameDesignPictures(d.project).catch(() => {}))).then(() => {
+      clearDesignThumbnails([...builtInFrames.keys()]);
+      draw();
+    });
+    return () => {
+      live = false;
+      cancelAnimationFrame(id);
+    };
   }, [shape]);
 
   const setFrame = (patch: Partial<FrameSettings>, transient = false) =>
@@ -364,26 +389,32 @@ function DrawnFrame() {
       <TileGrid
         label="Frame"
         helpId="frame.style"
-        value={frame.presetId}
+        value={builtIn ?? frame.presetId}
         onChange={(id) => {
           const p = framePresetById(id);
-          if (p) setFrame({ presetId: p.id, style: p.style, color: p.color, highlightColor: null });
+          if (p) setFrame({ kind: 'code', presetId: p.id, style: p.style, color: p.color, highlightColor: null });
+          else if (isBuiltInDesign(id)) applyBuiltInDesign(id);
         }}
-        tiles={FRAME_PRESETS.map((p) => ({
-          id: p.id,
-          label: p.name,
-          group: p.group,
-          preview: thumbs?.get(p.id) ? <img src={thumbs.get(p.id)} alt="" width={44} height={44} /> : <span className="tile__blank" />,
+        tiles={[
+          ...FRAME_PRESETS.map((p) => ({ id: p.id, label: p.name, group: p.group })),
+          ...BUILT_IN_DESIGNS.map((b) => ({ id: b.id, label: b.name, group: 'Crafted' })),
+        ].map((t) => ({
+          ...t,
+          preview: thumbs?.get(t.id) ? <img src={thumbs.get(t.id)} alt="" width={44} height={44} /> : <span className="tile__blank" />,
         }))}
       />
-      <ColorSwatches
-        label="Frame colour"
-        helpId="frame.color"
-        value={frame.color}
-        swatches={FRAME_SWATCHES}
-        onChange={(c) => updateDoc((d) => ({ ...d, frame: { ...d.frame, color: c } }), { transient: true })}
-        onCommit={commitDoc}
-      />
+      {builtIn ? (
+        <p className="control__hint">A Frame Studio design with its own colours. Open it in Frame Studio (New → Token Maker's built-in frames) to change them.</p>
+      ) : (
+        <ColorSwatches
+          label="Frame colour"
+          helpId="frame.color"
+          value={frame.color}
+          swatches={FRAME_SWATCHES}
+          onChange={(c) => updateDoc((d) => ({ ...d, frame: { ...d.frame, color: c } }), { transient: true })}
+          onCommit={commitDoc}
+        />
+      )}
       {accent && (
         <ColorSwatches
           label="Frame highlights colour"

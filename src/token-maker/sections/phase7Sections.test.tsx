@@ -75,20 +75,50 @@ describe('Decorations section', () => {
 });
 
 describe('Frame section: picture frames', () => {
-  it('switches to a picture frame and back, keeping the drawn frame’s settings', async () => {
+  it('with no frames uploaded, Picture offers an upload and keeps the frame in use', () => {
     const { container } = render(<FrameSection />);
-    const before = getDoc().frame.style;
+    const before = getDoc().frame;
     fireEvent.click(screen.getByRole('radio', { name: 'Picture' }));
-    await waitFor(() => expect(getDoc().frame.kind).toBe('image'));
-    expect(getDoc().frame.image?.source).toEqual({ type: 'library', id: 'gilded-laurel' });
     expect(screen.getByRole('button', { name: 'Upload a frame' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Reset the hole' })).toBeDisabled();
+    expect(screen.getByText(/No picture frames yet/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Reset the hole' })).toBeNull();
+    expect(getDoc().frame).toEqual(before);
     helpIds(container);
-    fireEvent.click(screen.getByRole('radio', { name: /^Rope$/ }));
-    await waitFor(() => expect(getDoc().frame.image?.source.id).toBe('rope'));
     fireEvent.click(screen.getByRole('radio', { name: 'Drawn' }));
     expect(getDoc().frame.kind).toBe('code');
+  });
+});
+
+describe('Frame section: built-in Frame Studio designs (v11)', () => {
+  it('lists them with the drawn frames, uses one with its band, and goes back to a drawn frame', () => {
+    const { container } = render(<FrameSection />);
+    const before = getDoc().frame.style;
+    fireEvent.click(screen.getByRole('radio', { name: /^Rope$/ }));
+    const frame = getDoc().frame;
+    expect(frame.kind).toBe('design');
+    expect(frame.design?.id).toBe('builtin:rope');
+    expect(frame.design?.project.layers.length).toBeGreaterThan(0);
+    expect(frame.thickness).toBe(0.14);
+    // Still a drawn frame in the panel, without a colour (the design has its own).
+    expect(screen.getByRole('radio', { name: 'Drawn' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: /^Rope$/ })).toBeChecked();
+    expect(screen.queryByText('Frame colour')).toBeNull();
+    helpIds(container);
+    undo();
+    expect(getDoc().frame.kind).toBe('code');
+    fireEvent.click(screen.getByRole('radio', { name: /^Celestial star$/ }));
+    expect(getDoc().frame.outerSpacing).toBeGreaterThanOrEqual(0.14);
+    fireEvent.click(screen.getByRole('radio', { name: /^Stamped$/ }));
+    expect(getDoc().frame.kind).toBe('code');
     expect(getDoc().frame.style).toBe(before);
+  });
+
+  it('Frame Studio starts with no design rather than the built-in one', () => {
+    render(<FrameSection />);
+    fireEvent.click(screen.getByRole('radio', { name: /^Thorns$/ }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Frame Studio' }));
+    expect(getDoc().frame.kind).toBe('design');
+    expect(getDoc().frame.design).toBeNull();
   });
 });
 

@@ -295,7 +295,7 @@ export const helpContent = {
     text: "A built-in scene, a picture of your own (uploaded or from a link), or an enlarged copy of the token's own art.",
     media: beforeAfter('background-source', 'the forest is swapped for a blurred, enlarged copy of the art'),
   },
-  'background.library': { title: 'Built-in pictures', text: 'Scenes drawn for Token Maker, free to use on any token.', media: beforeAfter('background-library', 'a night sky appears behind the goblin') },
+  'background.library': { title: 'Built-in pictures', text: 'Open-licence paintings, night skies and textures, free to use on any token. The credit for the one you pick shows below.', media: beforeAfter('background-library', 'a night sky appears behind the goblin') },
   'background.upload': { title: 'Your own background', text: 'Choose a picture from your device, or paste a link below. It only changes the background, not your art.', media: beforeAfter('background-upload', 'a wooden picture is used as the background') },
   'background.blur': {
     title: 'Blur',
@@ -304,6 +304,13 @@ export const helpContent = {
   },
   'background.zoom': { title: 'Zoom', text: 'Makes the background picture bigger or smaller, without changing the art.', media: beforeAfter('background-zoom', 'the forest is zoomed in') },
   'background.move': { title: 'Move the background', text: 'Turn this on, then drag on the canvas to slide the background picture. Reset puts it back in the middle.', media: beforeAfter('background-move', 'the forest slides to one side') },
+  'background.offsetX': { title: 'Move left or right', text: 'Slides the background picture sideways behind the art, as a percentage of the token.', media: beforeAfter('background-offsetX', 'the forest slides to the right') },
+  'background.offsetY': { title: 'Move up or down', text: 'Slides the background picture up or down behind the art, as a percentage of the token.', media: beforeAfter('background-offsetY', 'the forest slides upwards') },
+  'background.brightness': { title: 'Brightness', text: 'Makes the background picture lighter or darker, without changing the art.', media: beforeAfter('background-brightness', 'the forest behind the goblin gets darker') },
+  'background.contrast': { title: 'Contrast', text: 'Pushes the background picture’s lights and darks apart, or flattens them so the art stands out.', media: beforeAfter('background-contrast', 'the forest gets flatter and greyer') },
+  'background.saturation': { title: 'Saturation', text: 'Makes the background picture’s colours stronger, or fades them towards grey.', media: beforeAfter('background-saturation', 'the forest fades to grey') },
+  'background.hue': { title: 'Hue', text: 'Turns every colour in the background picture round the colour wheel: green woods can turn blue or purple.', media: beforeAfter('background-hue', 'the green forest turns blue') },
+  'background.temperature': { title: 'Temperature', text: 'Makes the background picture warmer (more orange) or cooler (more blue).', media: beforeAfter('background-temperature', 'the forest turns a cold blue') },
   'background.opacity': { title: 'Opacity', text: 'How solid the background is. Below 100% the backing colour shows through.', media: beforeAfter('background-opacity', 'the forest fades so the red backing shows through') },
 
   // ---- Lighting (Phase 4) ----
@@ -570,13 +577,13 @@ export const helpContent = {
   'frame.shape': { title: 'Shape', text: 'The outline of the token. Hexagons suit hex-grid maps.', media: beforeAfter('frame-shape', 'a round token becomes a hexagon') },
   'frame.kind': {
     title: 'Frame type',
-    text: 'Drawn frames are made by the site in any colour and thickness, and Frame Studio frames are designs you made in Frame Studio. Picture frames use a PNG with a see-through middle, built in or your own.',
-    media: beforeAfter('frame-kind', 'a drawn frame becomes a gold laurel picture frame'),
+    text: 'Drawn frames are made by the site and follow the token’s shape and thickness, and Frame Studio frames are designs you made in Frame Studio. Picture frames use a PNG of your own with a see-through middle.',
+    media: beforeAfter('frame-kind', 'a plain frame becomes the gilded laurel frame'),
   },
   'frame.picture': {
     title: 'Picture frame',
-    text: 'Pick a frame picture. Unlike drawn frames, picture frames grow with the token, so on a Large token the border is twice as thick on the map.',
-    media: beforeAfter('frame-picture', 'a rope frame becomes a dragon-scale frame'),
+    text: 'Pick one of the frame pictures you uploaded. Unlike drawn frames, picture frames grow with the token, so on a Large token the border is twice as thick on the map.',
+    media: beforeAfter('frame-picture', 'an uploaded purple ring picture becomes the frame'),
   },
   'frame.upload': {
     title: 'Upload a frame',
@@ -599,7 +606,7 @@ export const helpContent = {
   'frame.holeReset': { title: 'Reset the hole', text: 'Go back to the hole the site found in the picture.', media: beforeAfter('frame-holeReset', 'a nudged hole goes back to the one that was found') },
   'frame.style': {
     title: 'Frame',
-    text: 'The border drawn around the art. Every frame takes any colour, thickness and spacing.',
+    text: 'The border drawn around the art. Most frames take any colour; the Crafted ones are Frame Studio designs with their own colours, and every frame takes any thickness and spacing.',
     media: beforeAfter('frame-style', 'the frame changes to the Druid vines'),
   },
   'frame.color': {

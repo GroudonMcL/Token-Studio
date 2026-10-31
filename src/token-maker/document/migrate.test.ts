@@ -1,5 +1,6 @@
 import { createDocument, MAX_DECORATIONS, MAX_EFFECTS, newDecoration, newEffect, newLabel } from './defaults';
 import { DocumentVersionError, migrateDocument } from './migrate';
+import { BUILT_IN_DESIGNS } from '../render/builtInDesigns';
 import { SCHEMA_VERSION } from './types';
 
 describe('migrateDocument', () => {
@@ -352,5 +353,44 @@ describe('v10: drop shadow size', () => {
     const base = createDocument();
     const doc = migrateDocument({ ...base, shadows: { ...base.shadows, outer: { ...base.shadows.outer, spread: 9 } } });
     expect(doc.shadows.outer.spread).toBe(0.5);
+  });
+});
+
+describe('v11: background colours, and the built-in picture frames as Frame Studio designs', () => {
+  const v10 = () => ({ ...JSON.parse(JSON.stringify(createDocument('Old'))), schemaVersion: 10 });
+
+  it('a version-10 background picture keeps its colours', () => {
+    const old = v10();
+    delete old.background.adjust;
+    const doc = migrateDocument(old);
+    expect(doc.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(doc.background.adjust).toEqual({ brightness: 0, contrast: 0, saturation: 0, hue: 0, temperature: 0 });
+  });
+
+  it('keeps colour changes within range', () => {
+    const base = createDocument();
+    const doc = migrateDocument({ ...base, background: { ...base.background, adjust: { brightness: 500, contrast: -500, saturation: 'x', hue: 999, temperature: 20 } } });
+    expect(doc.background.adjust).toEqual({ brightness: 100, contrast: -100, saturation: 0, hue: 180, temperature: 20 });
+  });
+
+  it.each(BUILT_IN_DESIGNS.map((b) => b.id.replace('builtin:', '')))('a token with the old %s picture frame gets its Frame Studio design', (id) => {
+    const old = v10();
+    old.frame = { ...old.frame, kind: 'image', image: { source: { type: 'library', id }, name: id, hole: [0.7, 0, 0, 0.7, -0.7, 0, 0, -0.7], outer: 0.96, nudge: { x: 0, y: 0, scale: 1 } } };
+    const doc = migrateDocument(old);
+    expect(doc.frame.kind).toBe('design');
+    expect(doc.frame.image).toBeNull();
+    expect(doc.frame.design?.id).toBe(`builtin:${id}`);
+    expect(doc.frame.design?.project.layers.length).toBeGreaterThan(0);
+  });
+
+  it('an old built-in picture kept behind a drawn frame is dropped; uploaded picture frames stay', () => {
+    const old = v10();
+    old.frame = { ...old.frame, kind: 'code', image: { source: { type: 'library', id: 'rope' }, name: 'Rope', hole: [0.7, 0, 0, 0.7, -0.7, 0, 0, -0.7], outer: 0.96, nudge: { x: 0, y: 0, scale: 1 } } };
+    const doc = migrateDocument(old);
+    expect(doc.frame.kind).toBe('code');
+    expect(doc.frame.image).toBeNull();
+    const mine = v10();
+    mine.frame = { ...mine.frame, kind: 'image', image: { source: { type: 'upload', id: 'my-ring' }, name: 'My ring', hole: [0.7, 0, 0, 0.7, -0.7, 0, 0, -0.7], outer: 0.96, nudge: { x: 0, y: 0, scale: 1 } } };
+    expect(migrateDocument(mine).frame.image?.source).toEqual({ type: 'upload', id: 'my-ring' });
   });
 });

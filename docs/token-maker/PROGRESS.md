@@ -163,6 +163,14 @@ A checklist of build phases, following [`BUILD-PROMPTS.md`](BUILD-PROMPTS.md). D
 - [x] Help tip with a before/after picture
 - [x] Tests: search addresses; direct loading and its fallback; Playwright: the buttons, paste, file drop, a non-picture drop, a drag from another tab, a link, and the blocked message, each import then exporting a PNG
 
+## Owner's art and open-licence backgrounds (document v11)
+
+- [x] The 10 drawn backgrounds replaced by open-licence pictures with the same ids (Cleveland Museum of Art CC0 paintings, a NASA night-sky photo, an ambientCG paper texture), each credited in the picker and ASSETS-CREDITS.md; the "Drawn" group and `make-backgrounds` script are gone
+- [x] Background picture sliders: Move left or right, Move up or down, and Colour (Brightness, Contrast, Saturation, Hue, Temperature) with Reset colours; `background.adjust` (v10 → v11), drawn with the art's colour maths on a cached copy
+- [x] The 8 picture frames rebuilt as Frame Studio designs with photo textures (`src/frame-studio/project/pictureFrameTemplates.ts`, copied into `src/token-maker/frameStudio/`), listed under Drawn → Crafted with the band they were made for, and in Frame Studio's New → Token Maker's built-in frames; tokens using the old pictures get the design (v10 → v11); Picture frames are now only your own uploads; `public/frames/` and `make-frames` are gone
+- [x] "Try a sample" loads the owner's True Goblin; the logo and favicon are the owner's TM ring
+- [x] Help tips with before/after pictures for the new sliders; unit tests (migration, background colours, built-in designs drawn the same in both apps, Frame Studio file round trips) and Playwright tests
+
 ## Later (not phases yet)
 
 From DESIGN.md §15. Don't build these until the owner decides to: AI auto pop-out, AI relighting, animated borders/overlays with GIF export, Pinterest board browsing, sending tokens to Owlbear/Foundry, condition-variant packs, accounts and cloud saving, premium asset packs, switching adverts on.

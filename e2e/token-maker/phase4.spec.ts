@@ -129,6 +129,34 @@ test('overlays can be reordered, hidden and removed; presets stay editable', asy
   await expect(dial).toHaveAttribute('aria-valuenow', '275');
 });
 
+test('the background picture moves with sliders and takes colour changes (v11)', async ({ page }) => {
+  // Cut the character out, so the background shows above its head.
+  await (await openSection(page, 'Cut-out')).getByRole('switch', { name: 'Remove background' }).click();
+  const panel = await openSection(page, 'Background');
+  await panel.getByRole('radio', { name: 'Picture' }).click();
+  await panel.getByRole('radio', { name: 'Water' }).click();
+  await expect(panel.getByTestId('background-credit')).toContainText('Claude Monet');
+  const [before] = await previewPixels(page, [SKY]);
+  // The sea is blue; turned half way round the colour wheel it goes orange.
+  expect(before![2]!).toBeGreaterThan(before![0]!);
+  await setNumber(panel, 'Hue', '180');
+  await expect.poll(async () => (await previewPixels(page, [SKY]))[0]![0]!).toBeGreaterThan(before![0]! + 10);
+  await setNumber(panel, 'Saturation', '-100');
+  await expect.poll(async () => {
+    const [p] = await previewPixels(page, [SKY]);
+    return Math.max(p![0]!, p![1]!, p![2]!) - Math.min(p![0]!, p![1]!, p![2]!);
+  }).toBeLessThan(8);
+  await panel.getByRole('button', { name: 'Reset colours' }).click();
+  await expect(panel.getByRole('button', { name: 'Reset colours' })).toBeDisabled();
+  // The position sliders move it, and Reset position puts it back.
+  await expect(panel.getByRole('button', { name: 'Reset position' })).toBeDisabled();
+  await setNumber(panel, 'Move left or right', '40');
+  await setNumber(panel, 'Move up or down', '-30');
+  await expect(panel.getByRole('button', { name: 'Reset position' })).toBeEnabled();
+  await panel.getByRole('button', { name: 'Reset position' }).click();
+  await expect(panel.getByRole('textbox', { name: 'Move left or right value' })).toHaveValue('0');
+});
+
 test('your own picture as the background, moved on the canvas', async ({ page, isMobile }) => {
   test.skip(!!isMobile, 'canvas drag is covered by the brush tests on phones');
   const panel = await openSection(page, 'Background');
