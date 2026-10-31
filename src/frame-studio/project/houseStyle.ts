@@ -15,7 +15,7 @@ import {
   textureLayer,
 } from './defaults';
 import { bevel, glow, shadow } from './styles';
-import type { Effect, FrameProject, GradientStop, Layer, Paint, StageSettings } from './types';
+import type { Effect, FrameProject, GradientStop, Layer, Paint, StageSettings, TextFont } from './types';
 import type { PictureId } from './pictures';
 import type { ColourSlot } from './colourSlots';
 
@@ -173,3 +173,54 @@ export const fromLayers = (name: string, layers: () => Layer[], stage: Partial<S
 
 export const slot = (id: string, name: string, colour: string, layers: string[]): ColourSlot => ({ id, name, default: colour, layers });
 
+
+// ── Inscriptions ────────────────────────────────────────────────────────────
+
+/** Words for inscriptions in the fictional alphabets (owner's request): the owner's names and phrases. */
+export const INSCRIPTION_WORDS = [
+  'TOKEN MAKER',
+  'CRYSTAL FROG MAPS',
+  'GREYHAWK',
+  'SAMMY SMELLS',
+  'FORTUNE FAVOURS THE BOLD',
+  'ROLL FOR INITIATIVE',
+  'THE MAP IS NOT THE TERRITORY',
+  'BEWARE THE FROG BENEATH THE CRYSTAL',
+  'WHAT IS DRAWN IS REMEMBERED',
+  'EVERY HERO NEEDS A FRAME',
+];
+
+/** An inscription long enough to go all the way round: the words from `start`, joined by dots, repeated. */
+export const inscriptionText = (start = 0, times = 2) => {
+  const words = [...INSCRIPTION_WORDS.slice(start), ...INSCRIPTION_WORDS.slice(0, start)];
+  return `${words.join(' · ')} · `.repeat(times);
+};
+
+/** A text layer running round the band in one of the fonts. */
+export function inscription(font: TextFont, fill: string, o: { at?: number; size?: number; spacing?: number; start?: number; name?: string; effects?: Effect[] } = {}): Layer {
+  return {
+    ...textLayer(),
+    name: o.name ?? 'Inscription',
+    font,
+    text: inscriptionText(o.start ?? 0),
+    size: o.size ?? 0.36,
+    spacing: o.spacing ?? 0.14,
+    at: o.at ?? 0.5,
+    fill,
+    effects: o.effects ?? [],
+  };
+}
+
+// ── More metals ──────────────────────────────────────────────────────────────
+
+export const ROSE_STOPS = ['#3a1a14', '#8a4a3a', '#d8907a', '#f6d0c0', '#fff4ee'];
+export const STEEL_STOPS = ['#101418', '#3a4048', '#7a828c', '#c8ced6', '#f4f8fc'];
+export const BRONZE_STOPS = ['#1e1206', '#5a3a18', '#a87a3a', '#e0c08a', '#fff0d0'];
+/** Polished metal on any shape: gently rounded, glossy, recoloured. */
+export const metalFx = (stops: string[], size = 0.35, gloss = 0.7): Effect[] => [
+  bevel({ profile: 'rounded', size, depth: 1, gloss, highlightOpacity: 0.75, shadowOpacity: 0.45, soften: 0.02 }),
+  recolour(stops),
+  shadow({ opacity: 0.5, distance: 0.04, blur: 0.05 }),
+];
+/** A warmer, deeper gold than the Essentials' champagne gold. */
+export const WARM_GOLD = ['#241402', '#6e4a0e', '#c8952e', '#f4d27a', '#fff8e0'];

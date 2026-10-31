@@ -23,6 +23,12 @@ picker each. Candidates are drawn with
   matt clay and patinated copper.
 - Frame picker: the pop-out gallery (P1), with versions stacked behind their
   frame.
+- Inscriptions use the fictional alphabets (BabelStone Runic, Outer Rim AF,
+  Sith AF, Yugurian) as well as the runes, and mix in Token Maker, Crystal
+  Frog Maps, Greyhawk and Sammy Smells with made-up phrases
+  (houseStyle.ts: INSCRIPTION_WORDS). Rellanic, Davek, Iokharic and Barazhad
+  are free for personal use only, so they can't be bundled.
+- Usually keeps the current frame and most new versions; drops busy or matt ones.
 - Kept for Wizard: the calm and the rich versions (Sapphire runes, Starweave,
   Ley lines, Gilded grimoire). Not kept: the violet crystal and lightning
   versions.
@@ -34,7 +40,12 @@ picker each. Candidates are drawn with
 | Essentials (9) | Essentials | The owner's designs, added as they were made, without the "FM_" names. |
 | Wizard | Classes | Four new versions added after Wizard: Sapphire runes, Starweave, Ley lines, Gilded grimoire. |
 | Stamped | Classic | Kept as it is, plus four versions after it: Veined stamp, Tooled leather, Brass & enamel, Ember stamp. |
-| Gilded, Engraved, Arcane, Infernal, Double line, Polished | Classic | Choosing: five candidates each. |
+| Gilded | Classic | Kept, plus Filigree and Gold on lacquer. |
+| Engraved | Classic | Kept, plus Scrollwork steel, Silver inlay (Sith AF), Damascus, Etched knotwork, Engraved bronze (Yugurian). |
+| Arcane | Classic | Kept, plus Sigil band, Arcane crystal, Spellbook, Arcane circuitry. |
+| Infernal | Classic | Kept, plus Hellfire runes, Brimstone, Infernal iron, Blood pact. |
+| Double line | Classic | Kept, with its diamonds now set into the band; plus Gold lines on enamel, Twin rings, Studded double, Fine lines, Cord between gold. |
+| Polished | Classic | Kept, plus Anodised titanium, Pearl, Obsidian. |
 
 After Token Maker's 34 frames, Frame Studio's 43 starting designs (Layered,
 Crafted borders, Themed) are reviewed the same way: 77 frames in all.

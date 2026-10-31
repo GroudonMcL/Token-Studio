@@ -159,22 +159,52 @@ const double: Finish = {
     groove(ctx, g, 0.78, base, 0.08);
   },
   ornament: (ctx, g, base) => {
+    // Diamonds set into the band (owner's request): each sits in a seat cut
+    // into the metal, whose walls are shaded against the light, and is cut
+    // into four facets lit by it.
     const w = bandWidth(g);
     const s = w * 0.2;
+    const corners = (k: number) => [
+      { x: -s * 1.3 * k, y: 0 },
+      { x: 0, y: -s * k },
+      { x: s * 1.3 * k, y: 0 },
+      { x: 0, y: s * k },
+    ];
+    const poly = (pts: { x: number; y: number }[], color: string) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      pts.forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)));
+      ctx.closePath();
+      ctx.fill();
+    };
+    noShadow(ctx);
     for (const p of alongBand(g, ornamentCount(g.shape, 12))) {
+      const light = localLight(p);
       atPoint(ctx, p, () => {
-        raised(ctx, w);
-        const gradient = ctx.createLinearGradient(-s, -s, s, s);
-        gradient.addColorStop(0, shade(base, 0.6));
-        gradient.addColorStop(1, shade(base, -0.5));
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.moveTo(-s * 1.3, 0);
-        ctx.lineTo(0, -s);
-        ctx.lineTo(s * 1.3, 0);
-        ctx.lineTo(0, s);
-        ctx.closePath();
-        ctx.fill();
+        const outer = corners(1.45);
+        const inner = corners(1.05);
+        const stone = corners(0.92);
+        // The seat's four walls: each faces outwards, so the one facing the light is in shade.
+        for (let i = 0; i < 4; i++) {
+          const a = inner[i];
+          const b = inner[(i + 1) % 4];
+          const mx = (a.x + b.x) / 2;
+          const my = (a.y + b.y) / 2;
+          const len = Math.hypot(mx, my) || 1;
+          const facing = (mx / len) * light.x + (my / len) * light.y;
+          poly([outer[i], outer[(i + 1) % 4], b, a], shade(base, -0.55 * facing - 0.1));
+        }
+        poly(inner, shade(base, -0.7));
+        // The stone's four facets: each tilts outwards, so the one facing the light is bright.
+        for (let i = 0; i < 4; i++) {
+          const a = stone[i];
+          const b = stone[(i + 1) % 4];
+          const mx = (a.x + b.x) / 2;
+          const my = (a.y + b.y) / 2;
+          const len = Math.hypot(mx, my) || 1;
+          const facing = (mx / len) * light.x + (my / len) * light.y;
+          poly([{ x: 0, y: 0 }, a, b], shade(base, 0.3 + 0.55 * facing));
+        }
       });
     }
   },

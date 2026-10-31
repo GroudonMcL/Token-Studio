@@ -45,6 +45,9 @@ import {
   type StageSettings,
 } from './types';
 
+/** Most characters a text layer keeps (enough to go round a big band twice). */
+const MAX_TEXT = 600;
+
 export type ParseResult = { ok: true; project: FrameProject; warnings: string[] } | { ok: false; error: string };
 
 type Obj = Record<string, unknown>;
@@ -545,7 +548,7 @@ function checkLayer(l: unknown, index: number, warnings: string[], ids: Set<stri
       return {
         ...common,
         type,
-        text: typeof o.text === 'string' ? o.text.slice(0, 200) : d.text,
+        text: typeof o.text === 'string' ? o.text.slice(0, MAX_TEXT) : d.text,
         font: oneOf(o.font, TEXT_FONTS, d.font),
         size: num(o.size, d.size, 0.05, 3),
         spacing: num(o.spacing, d.spacing, -0.5, 3),
@@ -553,6 +556,7 @@ function checkLayer(l: unknown, index: number, warnings: string[], ids: Set<stri
         along: (((num(o.along, d.along, -10, 10) % 1) + 1) % 1),
         align: oneOf(o.align, ['centre', 'start'] as const, d.align),
         reverse: bool(o.reverse, d.reverse),
+        fit: bool(o.fit, false),
         follow: idOrNull(o.follow),
         fill: hex(o.fill, d.fill),
         outline: hexOrNull(o.outline, d.outline),

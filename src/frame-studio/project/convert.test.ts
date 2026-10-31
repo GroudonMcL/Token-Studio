@@ -31,7 +31,7 @@ const LIMITS: Record<string, { mean: number; over: number }> = {
   arcane: { mean: 2.6, over: 0.8 },
   infernal: { mean: 2.6, over: 0.8 },
   wizard: { mean: 2.4, over: 0.9 },
-  double: { mean: 0.7, over: 1.5 },
+  double: { mean: 1.6, over: 4 },
   oak: { mean: 0.35, over: 0.05 },
   cobblestone: { mean: 0.3, over: 0.05 },
   magma: { mean: 0.5, over: 0.25 },

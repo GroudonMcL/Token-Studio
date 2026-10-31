@@ -91,3 +91,12 @@ The photo textures are public domain ([CC0](https://creativecommons.org/publicdo
 - [Lichen rock](https://polyhaven.com/a/lichen_rock) (Poly Haven)
 - [Cracked mud](https://polyhaven.com/a/mud_cracked_dry_03) (Poly Haven)
 - [Tiger rock](https://polyhaven.com/a/tiger_rock) (Poly Haven)
+
+## Fictional-alphabet fonts (text layers)
+
+Bundled in `public/fonts/` (licences in `public/fonts/LICENSES.md`):
+
+- [BabelStone Runic](https://www.babelstone.co.uk/Fonts/Runic.html) by Andrew West, SIL Open Font License 1.1
+- [Outer Rim AF](https://aurekfonts.github.io/) by AurekFonts, CC0 1.0
+- [Sith AF](https://www.fontspace.com/sith-af-font-f49639) by Ender Smith (AurekFonts), CC BY 3.0 US
+- [Yugurian](https://www.fontspace.com/yugurian-font-f25953) by Dreaming Fantasies, public domain

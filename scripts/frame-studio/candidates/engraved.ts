@@ -1,7 +1,7 @@
 // Engraved: candidates for new versions of Token Maker's Engraved frame.
 import {
   adjust, bandFillLayer, bevel, BRONZE_STOPS, contact, DROP, knotworkLayer, lin, lineLayer, metalFx, photo,
-  projectFromFrame, recolour, rims, slot, STEEL_STOPS, textLayer, textureLayer, type Candidate,
+  projectFromFrame, recolour, rims, slot, STEEL_STOPS, inscription, textureLayer, type Candidate,
 } from './common';
 
 export const CURRENT = () => projectFromFrame('engraved');
@@ -24,13 +24,13 @@ export const CANDIDATES: Candidate[] = [
   {
     id: 'b-silver-inlay',
     name: 'B · Silver inlay',
-    pitch: 'Blackened gunmetal with an inscription inlaid in bright silver, like a sword’s fuller.',
+    pitch: 'Blackened gunmetal with an inscription in Sith AF inlaid in bright silver.',
     colours: [slot('metal', 'Metal colour', '#3a4048', ['Gunmetal']), slot('inlay', 'Inlay colour', '#e4e8f0', ['Inlaid inscription', 'Inlay lines'])],
     layers: () => [
       { ...bandFillLayer(), name: 'Gunmetal', paint: steel(2), effects: [...metalFx(['#050608', '#181c22', '#3a4048', '#7a828c', '#c8ced6'], 0.3, 0.7), DROP] },
       { ...lineLayer(), name: 'Inlay lines', at: 0.2, width: 0.035, paint: { kind: 'solid', color: '#e4e8f0' }, effects: [bevel({ size: 0.6, gloss: 0.9 })] },
       { ...lineLayer(), name: 'Inlay lines', at: 0.8, width: 0.035, paint: { kind: 'solid', color: '#e4e8f0' }, effects: [bevel({ size: 0.6, gloss: 0.9 })] },
-      { ...textLayer(), name: 'Inlaid inscription', font: 'grenze', text: 'FORTUNE FAVOURS THE BOLD · STEEL REMEMBERS · '.repeat(3), size: 0.4, spacing: 0.12, at: 0.5, fill: '#e4e8f0', effects: [bevel({ size: 0.5, gloss: 0.9 }), contact(0.4)] },
+      inscription('sith', '#e4e8f0', { name: 'Inlaid inscription', size: 0.42, spacing: 0.12, effects: [bevel({ size: 0.5, gloss: 0.9 }), contact(0.4)] }),
       ...rims(),
     ],
   },
@@ -58,12 +58,12 @@ export const CANDIDATES: Candidate[] = [
   {
     id: 'e-bronze-plaque',
     name: 'E · Engraved bronze',
-    pitch: 'Warm bronze with a deep-cut inscription and a pressed-in step, like a memorial plaque.',
+    pitch: 'Warm bronze with a deep-cut Yugurian inscription and a pressed-in step.',
     colours: [slot('metal', 'Metal colour', '#a87a3a', ['Bronze', 'Pressed-in bronze'])],
     layers: () => [
       { ...bandFillLayer(), name: 'Bronze', paint: steel(2), effects: [...metalFx(BRONZE_STOPS, 0.3, 0.7), DROP] },
       { ...bandFillLayer(), name: 'Pressed-in bronze', from: 0.68, to: 1, paint: lin(['#1e1206', '#e0c08a']), opacity: 0.5, blend: 'soft-light' },
-      { ...textLayer(), name: 'Engraving', font: 'grenze', text: 'HERE STANDS A HERO OF THE REALM · '.repeat(3), size: 0.42, spacing: 0.1, at: 0.36, fill: '#2a1a08', effects: [sunk] },
+      inscription('yugurian', '#2a1a08', { name: 'Engraving', at: 0.36, size: 0.44, spacing: 0.1, start: 3, effects: [sunk] }),
       { ...lineLayer(), name: 'Crease', at: 0.68, width: 0.03, opacity: 0.55, blend: 'overlay', paint: { kind: 'solid', color: '#190500' } },
       ...rims(),
     ],

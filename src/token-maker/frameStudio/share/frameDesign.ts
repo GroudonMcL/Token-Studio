@@ -8,17 +8,22 @@ import type { FrameGeometry } from '../../render/frameKit';
 import { parseProject, type ParseResult } from '../project/migrate';
 import type { FrameProject } from '../project/types';
 import type { Ctx } from '../render/canvas';
+import { loadPictures } from '../render/pictures';
 import { renderProject } from '../render/renderProject';
+import { loadTextFonts } from '../render/text';
 
 export { PROJECT_FORMAT, SCHEMA_VERSION } from '../project/types';
 export type { FrameProject } from '../project/types';
 export type { ParseResult } from '../project/migrate';
 export { PROJECT_EXTENSION } from '../project/transfer';
 /**
- * Loads the photo textures a design uses. Call it (and wait) before
- * drawFrameDesign; a picture not loaded yet is drawn as its average colour.
+ * Loads the photo textures and text fonts a design uses. Call it (and wait)
+ * before drawFrameDesign; a picture not loaded yet is drawn as its average
+ * colour, and text in a font not loaded yet in a stand-in.
  */
-export { loadPictures as loadFrameDesignPictures } from '../render/pictures';
+export async function loadFrameDesignPictures(design: unknown): Promise<void> {
+  await Promise.all([loadPictures(design), loadTextFonts(design)]);
+}
 
 /**
  * Reads a design from a file's text, or from the object a token document

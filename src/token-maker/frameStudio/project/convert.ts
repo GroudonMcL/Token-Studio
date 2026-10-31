@@ -13,7 +13,7 @@ import { frameAccent } from '../../render/frames';
 import { seededRandom } from '../../render/frameKit';
 import { bandFillLayer, createProject, gearsLayer, groupLayer, growthLayer, knotworkLayer, lineLayer, newId, repeatLayer, textureLayer } from './defaults';
 import { STAMPED_OUTER, STAMPED_STEP, stampedStops } from './stamped';
-import { shadow } from './styles';
+import { bevel, shadow } from './styles';
 import { cloneAllWithNewIds } from './tree';
 import type { BandFillLayer, FrameProject, GroupLayer, Layer, LegacyFrameLayer, LineLayer, RepeatLayer, TextureKind, TextureLayer } from './types';
 
@@ -188,7 +188,8 @@ const CONVERTERS: Partial<Record<FrameStyle, Converter>> = {
 
   double: ({ color }) =>
     stack({ ...DEFAULT_LIGHTING, base: color, step: 0 }, [groove(0.22, color, 0.08, 'Outer groove'), groove(0.78, color, 0.08, 'Inner groove')], [
-      repeat('Raised diamonds', { element: 'diamond', count: 12, snapToCorners: true, at: 0.5, size: 0.4, stretch: 1.3, fill: color, raised: true }),
+      repeat('Diamond seats', { element: 'diamond', count: 12, snapToCorners: true, at: 0.5, size: 0.58, stretch: 1.3, fill: shade(color, -0.4), shaded: false, effects: [bevel({ direction: 'sunken', size: 0.5, gloss: 0.3, highlightOpacity: 0.5 })] }),
+      repeat('Set diamonds', { element: 'diamond', count: 12, snapToCorners: true, at: 0.5, size: 0.37, stretch: 1.3, fill: color, shaded: true }),
     ]),
 
   wood: ({ color }) => stack({ base: color, light: 0.55, dark: 0.75, highlight: null, step: 0.3 }, [texture('wood', 'Wood grain', { color, seed: 0x0a4 })], []),
@@ -415,7 +416,7 @@ export const CONVERSION_NOTES: Partial<Record<FrameStyle, string>> = {
   engraved: 'The tick marks are flat bars with square ends.',
   arcane: 'The marbling falls in slightly different places.',
   wizard: 'The marbling falls in slightly different places.',
-  double: 'The diamonds are lit from the light you choose, with softer shading.',
+  double: 'The diamonds and their seats are lit from the light you choose, with softer shading.',
   magma: 'The bright flecks in the rock are a little stronger.',
   harlequin: 'The diamonds’ outlines are fainter on the light diamonds.',
   radiant: 'The rays are counted along a slightly different line, so there may be one or two more or fewer.',

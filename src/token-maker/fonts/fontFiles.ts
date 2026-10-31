@@ -31,6 +31,9 @@ import spectral700I from '@fontsource/spectral/files/spectral-latin-700-italic.w
 import germaniaOne400 from '@fontsource/germania-one/files/germania-one-latin-400-normal.woff2?url';
 import eagleLake400 from '@fontsource/eagle-lake/files/eagle-lake-latin-400-normal.woff2?url';
 
+/** A font file in public/fonts/ (the fictional alphabets, shared with Frame Studio's text layers). */
+const publicFont = (file: string) => `${import.meta.env.BASE_URL}fonts/${file}`;
+
 export interface FontFile {
   weight: 400 | 700;
   style: 'normal' | 'italic';
@@ -53,4 +56,7 @@ export const FONT_FILES: Record<string, FontFile[]> = {
   'spectral': [{ weight: 400, style: 'normal', url: spectral400 }, { weight: 700, style: 'normal', url: spectral700 }, { weight: 400, style: 'italic', url: spectral400I }, { weight: 700, style: 'italic', url: spectral700I }],
   'germania-one': [{ weight: 400, style: 'normal', url: germaniaOne400 }],
   'eagle-lake': [{ weight: 400, style: 'normal', url: eagleLake400 }],
+  'outer-rim': [{ weight: 400, style: 'normal', url: publicFont('outer-rim-af.otf') }],
+  'sith': [{ weight: 400, style: 'normal', url: publicFont('sith-af.otf') }],
+  'yugurian': [{ weight: 400, style: 'normal', url: publicFont('yugurian.ttf') }],
 };

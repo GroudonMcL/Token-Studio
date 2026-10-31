@@ -21,6 +21,10 @@ Every font, icon, image and other asset bundled with Token Maker, with its sourc
 | Spectral (label font) | Production Type, via [@fontsource/spectral](https://fontsource.org/fonts/spectral) | SIL Open Font License 1.1 |
 | Germania One (label font) | John Vargas Beltrán, via [@fontsource/germania-one](https://fontsource.org/fonts/germania-one) | SIL Open Font License 1.1 |
 | Eagle Lake (label font) | Astigmatic, via [@fontsource/eagle-lake](https://fontsource.org/fonts/eagle-lake) | SIL Open Font License 1.1 |
+| BabelStone Runic (text-layer font, `public/fonts/babelstone-runic.ttf`) | Andrew West, [babelstone.co.uk](https://www.babelstone.co.uk/Fonts/Runic.html) | SIL Open Font License 1.1 (text in `public/fonts/LICENSES.md`) |
+| Outer Rim AF (text-layer and label font, `public/fonts/outer-rim-af.otf`) | AurekFonts, [aurekfonts.github.io](https://aurekfonts.github.io/) | CC0 1.0 |
+| Sith AF (text-layer and label font, `public/fonts/sith-af.otf`) | Ender Smith, AurekFonts, [FontSpace](https://www.fontspace.com/sith-af-font-f49639) | CC BY 3.0 US |
+| Yugurian (text-layer and label font, `public/fonts/yugurian.ttf`) | Dreaming Fantasies, [FontSpace](https://www.fontspace.com/yugurian-font-f25953) | Public domain |
 | 12 picture-effect sprites (`public/pictures/fx-*.webp`) | Kenney, [Particle Pack](https://kenney.nl/assets/particle-pack) (cropped and resized) | CC0 1.0 |
 | 14 picture-decoration icons (`public/pictures/deco-*.webp`) | Kenney, [Board Game Icons](https://kenney.nl/assets/board-game-icons) (drawn from the SVGs with a dark outline added) | CC0 1.0 |
 | AI background-removal model (downloaded by the browser when used, not bundled) | [BiRefNet-lite](https://github.com/ZhengPeng7/BiRefNet) by Zheng Peng et al., 512 × 512 ONNX export [studioludens/birefnet-lite-512](https://huggingface.co/studioludens/birefnet-lite-512), run with [Transformers.js](https://github.com/huggingface/transformers.js) | MIT (model); Apache 2.0 (Transformers.js) |

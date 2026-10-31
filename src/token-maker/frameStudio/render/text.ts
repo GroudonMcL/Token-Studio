@@ -12,10 +12,78 @@ import { context2d, newCanvas, type Ctx } from './canvas';
 import { findNothing, pointAlong, trackLength, tracksFor, type FindLayer } from './track';
 
 /** The CSS font of each shipped font, for a letter `px` pixels tall (its capitals). */
-export const FONT_FAMILIES: Record<Exclude<TextFont, 'runes'>, { family: string; weight: number }> = {
+export const FONT_FAMILIES: Record<Exclude<TextFont, 'runes'>, { family: string; weight: number; file?: string }> = {
   grenze: { family: 'Grenze', weight: 600 },
   atkinson: { family: 'Atkinson Hyperlegible', weight: 700 },
+  babelstone: { family: 'fs-BabelStone Runic', weight: 400, file: 'babelstone-runic.ttf' },
+  outerRim: { family: 'fs-Outer Rim AF', weight: 400, file: 'outer-rim-af.otf' },
+  sith: { family: 'fs-Sith AF', weight: 400, file: 'sith-af.otf' },
+  yugurian: { family: 'fs-Yugurian', weight: 400, file: 'yugurian.ttf' },
 };
+
+/** Where the bundled font files are served (public/fonts/). */
+const fontBase = () => {
+  const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
+  return `${base.endsWith('/') ? base : `${base}/`}fonts/`;
+};
+
+let registered: Promise<void> | null = null;
+/** Adds the bundled font files to the page (once), so canvases can draw with them once loaded. */
+export function registerBundledFonts(): Promise<void> {
+  if (typeof document === 'undefined' || !document.fonts || typeof FontFace === 'undefined') return Promise.resolve();
+  registered ??= Promise.all(
+    Object.values(FONT_FAMILIES)
+      .filter((f) => f.file)
+      .map(async (f) => {
+        const face = new FontFace(f.family, `url("${fontBase()}${f.file}")`, { weight: String(f.weight) });
+        (document.fonts as unknown as { add(f: FontFace): void }).add(face);
+        await face.load().catch(() => {});
+      }),
+  ).then(() => {});
+  return registered;
+}
+
+/** The fonts a design's text layers use. */
+export function fontsIn(value: unknown, out = new Set<TextFont>()): Set<TextFont> {
+  if (Array.isArray(value)) for (const v of value) fontsIn(v, out);
+  else if (value && typeof value === 'object') {
+    const o = value as { type?: unknown; font?: unknown };
+    if (o.type === 'text' && typeof o.font === 'string') out.add(o.font as TextFont);
+    for (const v of Object.values(value)) if (v && typeof v === 'object') fontsIn(v, out);
+  }
+  return out;
+}
+
+/** Loads the fonts a design's text layers use (call before drawing it; a font not loaded yet is drawn in a stand-in). */
+export async function loadTextFonts(value: unknown): Promise<void> {
+  if (typeof document === 'undefined' || !document.fonts?.load) return;
+  const fonts = [...fontsIn(value)].filter((f): f is Exclude<TextFont, 'runes'> => f !== 'runes');
+  if (!fonts.length) return;
+  await registerBundledFonts();
+  await Promise.all(fonts.map((f) => document.fonts.load(`${FONT_FAMILIES[f].weight} 32px "${FONT_FAMILIES[f].family}"`).catch(() => [])));
+}
+
+/** Elder Futhark in Unicode, for BabelStone Runic. */
+const UNICODE_RUNES: Record<string, string> = {
+  a: 'ᚨ', b: 'ᛒ', c: 'ᚲ', d: 'ᛞ', e: 'ᛖ', f: 'ᚠ', g: 'ᚷ', h: 'ᚺ', i: 'ᛁ', j: 'ᛃ', k: 'ᚲ', l: 'ᛚ', m: 'ᛗ',
+  n: 'ᚾ', o: 'ᛟ', p: 'ᛈ', q: 'ᚲ', r: 'ᚱ', s: 'ᛊ', t: 'ᛏ', u: 'ᚢ', v: 'ᚹ', w: 'ᚹ', x: 'ᛉ', y: 'ᛃ', z: 'ᛉ', th: 'ᚦ', ng: 'ᛜ',
+};
+/** Latin letters as Unicode runes: th and ng get their own, spaces become the rune word dot, · the double dot. */
+export function unicodeRunesOf(text: string): string[] {
+  const out: string[] = [];
+  const t = text.toLowerCase();
+  for (let i = 0; i < t.length; i++) {
+    const two = t.slice(i, i + 2);
+    if (two === 'th' || two === 'ng') {
+      out.push(UNICODE_RUNES[two]);
+      i++;
+    } else if (UNICODE_RUNES[t[i]]) out.push(UNICODE_RUNES[t[i]]);
+    else if (t[i] === '·') out.push('᛬');
+    else if (/\s/.test(t[i])) out.push('᛫');
+    else if (/[0-9.,:;!?'-]/.test(t[i])) out.push(t[i]);
+  }
+  return out;
+}
 /** Capital height as a share of the font size. */
 const CAP = 0.7;
 export const fontCss = (font: Exclude<TextFont, 'runes'>, px: number) => `${FONT_FAMILIES[font].weight} ${px / CAP}px "${FONT_FAMILIES[font].family}"`;
@@ -92,7 +160,7 @@ export function textGlyphs(layer: TextLayer, g: FrameGeometry, find: FindLayer =
   const [track] = tracksFor(layer.follow, layer.at, g, find);
   if (!track || height <= 0 || !layer.text) return { glyphs: [], height };
   const gap = layer.spacing * height;
-  const chars = layer.font === 'runes' ? runesOf(layer.text) : [...layer.text];
+  const chars = layer.font === 'runes' ? runesOf(layer.text) : layer.font === 'babelstone' ? unicodeRunesOf(layer.text) : [...layer.text];
   let widths: number[];
   if (layer.font === 'runes') widths = chars.map((c) => (c === ' ' ? 0.36 : 0.62) * height);
   else {
@@ -100,8 +168,38 @@ export function textGlyphs(layer: TextLayer, g: FrameGeometry, find: FindLayer =
     m.font = fontCss(layer.font, height);
     widths = chars.map((c) => m.measureText(c).width);
   }
-  const total = widths.reduce((s, w) => s + w, 0) + gap * Math.max(0, chars.length - 1);
+  let total = widths.reduce((s, w) => s + w, 0) + gap * Math.max(0, chars.length - 1);
   const L = trackLength(track);
+  // Text longer than the way round a closed track ends after the last phrase
+  // (or failing that, word) that fits, with a word gap left for the join, and
+  // the spare room is shared out between the word gaps, so it meets its start
+  // again evenly.
+  if (layer.fit && track.closed && total > L) {
+    const isBreak = (c: string) => c === ' ' || c === '᛫';
+    const isDot = (c: string) => c === '·' || c === '᛬';
+    let used = 0;
+    let phrase = 0;
+    let phraseUsed = 0;
+    let word = 0;
+    for (let i = 0; i < chars.length; i++) {
+      used += widths[i] + gap;
+      if (used > L) break;
+      if (isBreak(chars[i])) {
+        word = i + 1;
+        if (i > 0 && isDot(chars[i - 1])) [phrase, phraseUsed] = [i + 1, used];
+      }
+    }
+    // A whole phrase unless that would leave a big gap to share out.
+    const cut = phrase && phraseUsed > L * 0.88 ? phrase : word;
+    if (cut > 0) {
+      chars.length = cut;
+      widths.length = cut;
+      const breaks = chars.reduce((n, c) => n + (isBreak(c) ? 1 : 0), 0);
+      const spare = L - widths.reduce((s, w) => s + w, 0) - gap * chars.length;
+      if (breaks > 0 && spare > 0) chars.forEach((c, i) => isBreak(c) && (widths[i] += spare / breaks));
+    }
+  }
+  total = widths.reduce((s, w) => s + w, 0) + gap * Math.max(0, chars.length - 1);
   const at = layer.along * L;
   const dir = layer.reverse ? -1 : 1;
   const start = layer.align === 'centre' ? at - (dir * total) / 2 : at;

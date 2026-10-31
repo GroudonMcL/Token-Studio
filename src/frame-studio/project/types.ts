@@ -729,7 +729,9 @@ export interface TextureLayer extends LayerBase {
   seed: number;
 }
 
-export const TEXT_FONTS = ['runes', 'grenze', 'atkinson'] as const;
+// Version 11 (owner's request): fictional alphabets with open licences,
+// bundled in public/fonts/ (see LICENSES.md there).
+export const TEXT_FONTS = ['runes', 'grenze', 'atkinson', 'babelstone', 'outerRim', 'sith', 'yugurian'] as const;
 export type TextFont = (typeof TEXT_FONTS)[number];
 
 /**
@@ -753,6 +755,12 @@ export interface TextLayer extends LayerBase {
   /** `along` is the middle of the text, or where it starts. */
   align: 'centre' | 'start';
   reverse: boolean;
+  /**
+   * Text longer than the way round a closed track ends at the last whole
+   * phrase or word that fits, spread out to meet its start (version 11; off
+   * in older files, which cut it off).
+   */
+  fit: boolean;
   /** A path or line layer to follow instead of the band. */
   follow: string | null;
   fill: string;

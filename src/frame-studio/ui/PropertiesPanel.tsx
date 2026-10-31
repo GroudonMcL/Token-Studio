@@ -184,6 +184,10 @@ const FONT_NAMES: Record<TextFont, string> = {
   runes: 'Runes (Elder Futhark)',
   grenze: 'Grenze (old style)',
   atkinson: 'Atkinson (plain, easy to read)',
+  babelstone: 'BabelStone Runic (real runes)',
+  outerRim: 'Outer Rim (alien script)',
+  sith: 'Sith (ancient script)',
+  yugurian: 'Yugurian (fantasy script)',
 };
 
 /** Metal styles a setting can take. */
@@ -1154,7 +1158,7 @@ function TextControls({ layer }: { layer: TextLayer }) {
   return (
     <>
       <TextField label="Text" hint="The words. Runes turn letters into Elder Futhark runes (th and ng have their own) and spaces into dots." value={layer.text} disabled={disabled} onChange={(text, t) => set({ text }, t)} />
-      <Select label="Font" hint="The letters' style: runes, an old-style face or a plain one." value={layer.font} disabled={disabled} options={TEXT_FONTS.map((f) => ({ value: f, label: FONT_NAMES[f] }))} onChange={(font) => set({ font })} />
+      <Select label="Font" hint="The letters' style: runes, an old-style face, a plain one, or a fictional alphabet." value={layer.font} disabled={disabled} options={TEXT_FONTS.map((f) => ({ value: f, label: FONT_NAMES[f] }))} onChange={(font) => set({ font })} />
       <ColorField label="Colour" value={layer.fill} disabled={disabled} defaultValue={defaultsFor(layer).fill as string} onChange={(fill, t) => set({ fill }, t)} />
       {num(layer, set, 'size', 'Letter height', 0.05, 1.5, { ...pct, hint: 'How tall the letters are, as a share of the band width.' })}
       {num(layer, set, 'spacing', 'Letter spacing', -0.3, 1.5, { ...pct, hint: 'Extra room between the letters.' })}
@@ -1172,6 +1176,7 @@ function TextControls({ layer }: { layer: TextLayer }) {
         ]}
         onChange={(align) => set({ align })}
       />
+      <Toggle label="Fit round the band" hint="Text too long to go all the way round ends at the last whole phrase that fits, spaced out to meet its start." checked={layer.fit} disabled={disabled} onChange={(fit) => set({ fit })} />
       <Toggle label="Read the other way" hint="Runs the other way with the letters' tops inwards, so text along the bottom of the token reads left to right." checked={layer.reverse} disabled={disabled} onChange={(reverse) => set({ reverse })} />
       <OptionalColor label="Outline" value={layer.outline} fallback="#1a1008" disabled={disabled} onChange={(outline, t) => set({ outline }, t)} />
       {layer.outline !== null && num(layer, set, 'outlineWidth', 'Outline width', 0.01, 0.3, pct)}

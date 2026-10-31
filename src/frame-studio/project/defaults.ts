@@ -244,6 +244,7 @@ export function textLayer(): TextLayer {
     along: 0,
     align: 'centre',
     reverse: false,
+    fit: true,
     follow: null,
     fill: '#2a1a0a',
     outline: null,
