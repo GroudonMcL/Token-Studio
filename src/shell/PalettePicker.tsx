@@ -1,9 +1,10 @@
-// The colour scheme button: a small menu of Token Studio's schemes, each shown
-// by its own colours. The choice applies to both apps at once.
+// The Themes button: a sun (light theme) or moon (dark theme) that opens a
+// small menu of Token Studio's themes, each shown by its own colours. The
+// choice applies to both apps at once. It replaced the separate light/dark switch.
 
 import { useEffect, useRef, useState } from 'react';
-import { Check, SwatchBook } from 'lucide-react';
-import { PALETTES, usePalette } from './palettes';
+import { Check, Moon, Sun } from 'lucide-react';
+import { PALETTES, paletteMode, usePalette } from './palettes';
 import './studio-ui.css';
 
 export function PalettePicker({ className = 'icon-btn' }: { className?: string }) {
@@ -22,6 +23,8 @@ export function PalettePicker({ className = 'icon-btn' }: { className?: string }
     return () => document.removeEventListener('pointerdown', onDown);
   }, [open]);
 
+  const current = PALETTES.find((p) => p.id === palette)!;
+  const Icon = paletteMode(palette) === 'light' ? Sun : Moon;
   const close = () => {
     setOpen(false);
     button.current?.focus();
@@ -29,15 +32,15 @@ export function PalettePicker({ className = 'icon-btn' }: { className?: string }
 
   return (
     <div className="palette-picker">
-      <button ref={button} type="button" className={className} aria-label="Colour scheme" title="Colour scheme" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <SwatchBook size={18} />
+      <button ref={button} type="button" className={className} aria-label="Themes" title={`Themes: ${current.name}`} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <Icon size={18} />
       </button>
       {open && (
         <div
           ref={menu}
           className="palette-menu"
           role="menu"
-          aria-label="Colour scheme"
+          aria-label="Themes"
           onKeyDown={(e) => {
             const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role="menuitemradio"]') ?? [])];
             const i = items.indexOf(document.activeElement as HTMLElement);
@@ -51,7 +54,7 @@ export function PalettePicker({ className = 'icon-btn' }: { className?: string }
             if (e.key !== 'Tab') e.preventDefault();
           }}
         >
-          <p className="palette-menu__title">Colour scheme</p>
+          <p className="palette-menu__title">Themes</p>
           {PALETTES.map((p) => (
             <button
               key={p.id}
@@ -76,7 +79,7 @@ export function PalettePicker({ className = 'icon-btn' }: { className?: string }
               {palette === p.id && <Check size={16} aria-hidden="true" className="palette-menu__check" />}
             </button>
           ))}
-          <p className="palette-menu__note">Applies to both apps. Token Maker's light theme keeps its own colours.</p>
+          <p className="palette-menu__note">Applies to both apps.</p>
         </div>
       )}
     </div>

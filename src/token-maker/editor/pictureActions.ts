@@ -4,7 +4,7 @@
 import { MAX_DECORATIONS, MAX_EFFECTS, newPictureDecoration, newPictureEffect } from '../document/defaults';
 import type { PictureSource } from '../document/types';
 import { tidyName } from '../import/importImage';
-import { decorationLook } from '../render/pictureLibrary';
+import { decorationLook, decorationPicture } from '../render/pictureLibrary';
 import { loadPicture, saveUploadedPicture } from '../state/pictureLibrary';
 import { updateDoc } from '../state/tokenStore';
 import { toast } from '../ui/toast';
@@ -52,7 +52,8 @@ export async function addPictureDecoration(image: PictureSource): Promise<void> 
     return;
   }
   const lib = image.type === 'library' ? decorationLook(image.id) : undefined;
-  const d = newPictureDecoration(image, aspect, lib?.color, undefined, lib ? lib.tint : false);
+  const start = image.type === 'library' ? decorationPicture(image.id)?.start : undefined;
+  const d = { ...newPictureDecoration(image, aspect, lib?.color, undefined, lib ? lib.tint : false), ...start };
   let added = false;
   updateDoc((doc) => {
     if (doc.decorations.length >= MAX_DECORATIONS) return doc;

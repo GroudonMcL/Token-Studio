@@ -32,9 +32,9 @@ const BACKDROP = '#2a251f';
 const source = (img: Image | Canvas): RenderSource => ({ image: img as unknown as CanvasImageSource, width: img.width, height: img.height });
 const assets = new Map<string, RenderSource>();
 
-/** The flat-background goblin, cut out, on a slate background: the starting token for most pictures. */
+/** True Goblin on flat white, cut out, on a slate background: the starting token for most pictures. */
 function base(): TokenDocument {
-  const doc = createDocument('Goblin');
+  const doc = createDocument('True Goblin');
   doc.art.assetId = 'asset:goblin';
   doc.art.removal = { ...DEFAULT_REMOVAL, enabled: true };
   doc.art.transform = { ...doc.art.transform, zoom: 0.95, offsetY: 0.08 };
@@ -175,7 +175,7 @@ const preset = (name: string): Change => (d) => {
   for (const k of LOOK_KEYS) (d as unknown as Record<string, unknown>)[k] = look[k];
   d.art.assetId = d.art.assetId ?? 'asset:goblin';
 };
-/** The other test picture: the goblin on a sky, no background removal. */
+/** True Goblin as drawn, on its own gradient, no background removal. */
 const boss: Change = (d) => {
   d.art.assetId = 'asset:boss';
   d.art.removal = { ...DEFAULT_REMOVAL };
@@ -296,16 +296,17 @@ const showMask = (strokes = EARS): Change => (d) => {
 
 export async function tokenPictures(save: Save): Promise<void> {
   registerUiFont();
-  const goblin = await loadImage('e2e/token-maker/fixtures/flat-goblin.png');
-  const bossImg = await loadImage('e2e/token-maker/fixtures/goblin-boss.png');
+  // The owner's True Goblin: cut out onto flat white, and as drawn on its own gradient (scripts/token-maker/true-goblin.ts).
+  const goblin = await loadImage('scripts/token-maker/fixtures/true-goblin-flat.png');
+  const bossImg = await loadImage('public/sample/true-goblin.png');
   assets.set('asset:goblin', source(goblin));
   assets.set('asset:boss', source(bossImg));
   goblinImage = goblin;
   for (const id of ['forest', 'night-sky', 'tavern', 'dungeon']) assets.set(`library:${id}`, source(await loadImage(readFileSync(`public/backgrounds/${id}.webp`))));
   for (const id of ['fx-smoke-puffs', 'fx-twinkles', 'deco-heart', 'deco-potion']) assets.set(pictureAssetId({ type: 'library', id }), source(await loadImage(readFileSync(`public/pictures/${id}.webp`))));
   assets.set(pictureAssetId({ type: 'upload', id: 'demo' }), source(await loadImage(readFileSync('public/backgrounds/night-sky.webp'))));
-  // The AI cut-out of the boss goblin, made once with the real model (BiRefNet-lite) and kept as a fixture.
-  const aiImg = await loadImage('e2e/token-maker/fixtures/goblin-boss-ai-mask.png');
+  // The cut-out of True Goblin (true-goblin.ts), standing in for the AI cut-out.
+  const aiImg = await loadImage('scripts/token-maker/fixtures/true-goblin-mask.png');
   const aiCanvas = createCanvas(aiImg.width, aiImg.height);
   aiCanvas.getContext('2d').drawImage(aiImg, 0, 0);
   const aiRgba = aiCanvas.getContext('2d').getImageData(0, 0, aiImg.width, aiImg.height).data;
@@ -335,6 +336,7 @@ export async function tokenPictures(save: Save): Promise<void> {
   // ---- Import ----
   p('import.upload', null, []);
   p('import.search', null, [boss]);
+  p('import.noAi', null, [boss]);
   p('import.web', null, [boss]);
   {
     const strip = createCanvas(T, T);
@@ -419,6 +421,7 @@ export async function tokenPictures(save: Save): Promise<void> {
   p('lighting.rimStrength', [rim({ strength: 15 })], [rim({ strength: 100 })]);
   p('lighting.rimWidth', [rim({ width: 10 })], [rim({ width: 90 })]);
   p('lighting.rimSoftness', [rim({ softness: 0 })], [rim({ softness: 100 })]);
+  p('lighting.frame', [light('torchlight', { enabled: false, frame: false })], [light('torchlight', { enabled: false, frame: true })]);
   p('lighting.background', [forest(), light('torchlight', { background: false })], [forest(), light('torchlight', { background: true })]);
 
   // ---- Shadows (on a light backdrop, so the drop shadow shows) ----
@@ -464,6 +467,7 @@ export async function tokenPictures(save: Save): Promise<void> {
   p('decorations.opacity', [deco('crown')], [deco('crown', { opacity: 0.35 })]);
   p('decorations.picture', [], [pictureDeco('deco-heart')]);
   p('decorations.tint', [pictureDeco('deco-potion', { tint: false })], [pictureDeco('deco-potion', { color: '#2fae5a' })]);
+  p('decorations.underFrame', [deco('wing', { size: 0.9 })], [deco('wing', { size: 0.9, underFrame: true })]);
   p('decorations.flip', [deco('sword', { place: 'topRight' })], [deco('sword', { place: 'topRight', flip: true })]);
 
   // ---- Label ----
@@ -495,17 +499,6 @@ export async function tokenPictures(save: Save): Promise<void> {
   p('label.outlineColor', [label({ outline: { width: 0.05, color: '#5a3d1e' } })], [label({ outline: { width: 0.05, color: '#d6a24e' } })]);
   const longName = 'Grimbold the Long-Winded';
   p('label.shrink', [label({ text: longName, shrinkToFit: false })], [label({ text: longName })]);
-  const fancy = { letterSpacing: 0.25, textOutline: { width: 0.025, color: '#f6e7c8' }, shadow: { enabled: true, color: '#000000', opacity: 0.8, blur: 0.04 } };
-  p('label.advanced', [label()], [label(fancy)]);
-  p('label.spacing', [label({ letterSpacing: 0 })], [label({ letterSpacing: 0.35 })]);
-  const plainRing = { textOutline: { width: 0, color: '#20140a' }, shadow: { enabled: false, color: '#000000', opacity: 0.7, blur: 0.03 } };
-  p('label.textOutline', [forest(), ring(plainRing)], [forest(), ring({ ...plainRing, textOutline: { width: 0.035, color: '#20140a' } })]);
-  p('label.textOutlineColor', [ring()], [ring({ textOutline: { width: 0.03, color: '#a01818' } })]);
-  const shadowed = (s: Partial<LabelSettings['shadow']>) => ring({ textOutline: { width: 0, color: '#000000' }, shadow: { enabled: true, color: '#000000', opacity: 0.8, blur: 0.03, ...s } });
-  p('label.shadow', [ring(plainRing)], [shadowed({})], L);
-  p('label.shadowColor', [shadowed({})], [shadowed({ color: '#ff6a00', opacity: 1 })], L);
-  p('label.shadowOpacity', [shadowed({ opacity: 0.2 })], [shadowed({ opacity: 1 })], L);
-  p('label.shadowBlur', [shadowed({ blur: 0.005 })], [shadowed({ blur: 0.09 })], L);
 
   // ---- Presets: the look moves from one goblin to another ----
   p('presets.builtIn', [], [preset('Undead')]);

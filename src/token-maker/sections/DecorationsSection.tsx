@@ -18,6 +18,9 @@ const fromPct = (p: number) => p / 50;
 const update = (id: string, patch: Partial<Decoration>, transient = false) =>
   updateDoc((d) => ({ ...d, decorations: d.decorations.map((x) => (x.id === id ? { ...x, ...patch } : x)) }), { transient });
 
+/** Groups whose tiles are pictures (src/render/pictureLibrary.ts); the code-drawn ones there stay only so older tokens still draw. */
+const PICTURE_GROUPS = new Set<string>(['Treasure', 'Creatures', 'Trims']);
+
 /** The snap grid, laid out like the token: top row, middle row (with Free in the middle), bottom row. */
 const GRID: { place: SnapPoint | 'free'; label: string }[] = [
   { place: 'topLeft', label: 'Top left' },
@@ -107,6 +110,11 @@ export function DecorationsSection() {
                         <PictureTile key={p.id} name={p.name} url={p.url} disabled={full} onAdd={() => void addPictureDecoration({ type: 'upload', id: p.id })} />
                       ))}
                     </>
+                  ) : PICTURE_GROUPS.has(group) ? (
+                    // Owner request: shaded clipart instead of the code-drawn treasure, creatures and trims.
+                    DECORATION_PICTURES.filter((p) => p.group === group).map((p) => (
+                      <PictureTile key={p.id} id={p.id} name={p.name} url={pictureUrl(p.id)} disabled={full} onAdd={() => void addPictureDecoration({ type: 'library', id: p.id })} />
+                    ))
                   ) : (
                     DECORATIONS.filter((x) => x.group === group).map((x) => (
                       <button key={x.kind} type="button" className="tile" data-decoration={x.kind} disabled={full} onClick={() => add(x.kind)}>
@@ -214,10 +222,11 @@ function DecorationCard({
         <button type="button" className="overlay-card__toggle" aria-expanded={open} aria-controls={bodyId} onClick={onToggle}>
           <ChevronDown size={16} aria-hidden="true" className="overlay-card__chevron" />
           <span className="overlay-card__swatch" style={{ background: d.color }} aria-hidden="true" />
-          {name}
+          <span className="overlay-card__name">{name}</span>
           <span className="overlay-card__note">
             {placeName(d.place)}
             {d.mirror ? ', mirrored' : ''}
+            {d.underFrame ? ', under frame' : ''}
           </span>
         </button>
         <button type="button" className="icon-btn" aria-label={d.visible ? `Hide ${name}` : `Show ${name}`} aria-pressed={!d.visible} onClick={() => update(d.id, { visible: !d.visible })}>
@@ -280,6 +289,7 @@ function DecorationCard({
           onCommit={commitDoc}
         />
         <Toggle label="Flip" helpId="decorations.flip" checked={d.flip} onChange={(flip) => update(d.id, { flip })} />
+        <Toggle label="Under the frame" helpId="decorations.underFrame" checked={d.underFrame} onChange={(underFrame) => update(d.id, { underFrame })} />
       </div>
     </li>
   );

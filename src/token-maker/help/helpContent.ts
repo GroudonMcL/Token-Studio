@@ -35,7 +35,7 @@ export const helpContent = {
     media: beforeAfter('section-import', 'an empty token gets a goblin picture'),
   },
   'section.image': {
-    title: 'Image',
+    title: 'Colour',
     text: 'Adjust brightness, contrast and colour, and fix the edges with the erase/restore brush.',
     media: beforeAfter('section-image', 'the picture gets punchier, warmer colours'),
   },
@@ -110,6 +110,11 @@ export const helpContent = {
     title: 'Find art online',
     text: 'Type what you want, like "goblin shaman", and pick a site to open its search results in a new tab. When you find a picture, copy it and press Ctrl+V here, drag it onto the page, or paste its link in the Web address box.',
     media: beforeAfter('import-search', 'an empty token gets a picture found online'),
+  },
+  'import.noAi': {
+    title: 'Leave out AI art',
+    text: 'Google, Bing and Reddit searches leave out pictures tagged as AI-made (Midjourney, Stable Diffusion and so on), which catches many but not all. Pinterest, ArtStation and DeviantArt can’t be told from here, but ArtStation’s Quick filters and DeviantArt’s browse settings can hide AI art.',
+    media: beforeAfter('import-noAi', 'an empty token gets a hand-drawn picture found online'),
   },
   'import.web': {
     title: 'Web address',
@@ -336,6 +341,7 @@ export const helpContent = {
   'lighting.rimStrength': { title: 'Rim strength', text: 'How bright the rim is.', media: beforeAfter('lighting-rimStrength', 'the bright edge gets brighter') },
   'lighting.rimWidth': { title: 'Rim width', text: 'How thick the rim is.', media: beforeAfter('lighting-rimWidth', 'the bright edge gets thicker') },
   'lighting.rimSoftness': { title: 'Rim softness', text: 'How gently the rim fades into the art. 0% is a crisp, bright edge; higher values blend it in like a soft back light.', media: beforeAfter('lighting-rimSoftness', 'a crisp bright edge fades softly into the art') },
+  'lighting.frame': { title: 'Light the frame', text: 'Lights the frame from the same side and in the same colour, so a lit token looks like one object. It works with the art lit or not.', media: beforeAfter('lighting-frame', 'the frame is lit by torchlight from below') },
   'lighting.background': { title: 'Light the background too', text: 'Lights the background picture the same way, so the art and the scene match.', media: beforeAfter('lighting-background', 'the forest is lit the same way as the goblin') },
 
   // ---- Shadows (Phase 5) ----
@@ -500,6 +506,11 @@ export const helpContent = {
   'decorations.rotation': { title: 'Rotation', text: 'Turns it. Snapped decorations turn from the way they face; you can also drag the round handle on the canvas.', media: beforeAfter('decorations-rotation', 'the sword turns') },
   'decorations.color': { title: 'Tint', text: 'The main colour of the decoration.', media: beforeAfter('decorations-color', 'a red gem turns green') },
   'decorations.opacity': { title: 'Opacity', text: 'Lower it to let the token show through.', media: beforeAfter('decorations-opacity', 'the crown fades') },
+  'decorations.underFrame': {
+    title: 'Under the frame',
+    text: 'Draws it behind the frame instead of on top, so the border covers part of it, like wings or horns tucked behind the rim. It still sits over the art.',
+    media: beforeAfter('decorations-underFrame', 'a wing on top of the frame moves behind it'),
+  },
   'decorations.flip': { title: 'Flip', text: 'Flips it left to right.', media: beforeAfter('decorations-flip', 'the sword flips left to right') },
 
   // ---- Label (DESIGN.md §6.10) ----
@@ -547,14 +558,6 @@ export const helpContent = {
     text: 'Long names get smaller so they never spill off the shape or past the ring. Switch it off to make the shape grow to fit the words instead.',
     media: beforeAfter('label-shrink', 'a long name that spilled off the banner shrinks to fit'),
   },
-  'label.advanced': { title: 'Advanced', text: 'Letter spacing, an outline round the letters and a text shadow.', media: beforeAfter('label-advanced', 'the letters get spacing, an outline and a shadow') },
-  'label.spacing': { title: 'Letter spacing', text: 'Extra room between letters, as a share of the text size. Below 0 pulls them closer.', media: beforeAfter('label-spacing', 'the letters spread apart') },
-  'label.textOutline': { title: 'Text outline', text: 'A line round every letter, which helps the words stand out on a busy token. Set it to 0 for none.', media: beforeAfter('label-textOutline', 'ring text over a busy forest gets a dark outline') },
-  'label.textOutlineColor': { title: 'Text outline colour', text: 'The colour of the line round the letters.', media: beforeAfter('label-textOutlineColor', 'the outline round the letters turns red') },
-  'label.shadow': { title: 'Text shadow', text: 'A soft shadow under the letters that falls away from the light, like the token’s own shadow.', media: beforeAfter('label-shadow', 'a shadow appears under the ring text') },
-  'label.shadowColor': { title: 'Shadow colour', text: 'The colour of the text shadow.', media: beforeAfter('label-shadowColor', 'the text shadow turns orange') },
-  'label.shadowOpacity': { title: 'Shadow opacity', text: 'How dark the text shadow is.', media: beforeAfter('label-shadowOpacity', 'a faint text shadow becomes dark') },
-  'label.shadowBlur': { title: 'Shadow blur', text: 'How soft the text shadow is, as a share of one grid square.', media: beforeAfter('label-shadowBlur', 'a sharp text shadow becomes soft') },
 
   // ---- Presets (DESIGN.md §6.9) ----
   'presets.builtIn': {
@@ -709,8 +712,8 @@ export const helpContent = {
     media: beforeAfter('panel-menuStyle', 'the Advanced drop-downs open up'),
   },
   'topbar.theme': {
-    title: 'Theme',
-    text: 'Switch between the dark look (the default) and the light look.',
+    title: 'Themes',
+    text: 'Pick how both apps look: Dark (the default), Light, Rustic, Night, Day, Sunset or Ocean. The button shows a moon for a dark theme and a sun for a light one.',
     media: beforeAfter('topbar-theme', 'the dark look becomes the light look'),
   },
 

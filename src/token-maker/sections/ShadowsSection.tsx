@@ -64,7 +64,7 @@ export function ShadowsSection() {
           helpId="shadows.popOut"
           shadow={shadows.popOut}
           lightFrom={lightFrom}
-          hint={hasPopOut ? undefined : 'Shows once you paint a pop-out (in Cut-out → Pop-out).'}
+          hint={hasPopOut ? undefined : 'Shows once you paint a pop-out (in the Pop-out tab).'}
         />
       )}
       {which === 'inner' && <InnerShadowControls shadow={shadows.inner} />}

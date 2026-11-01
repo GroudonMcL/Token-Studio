@@ -31,7 +31,7 @@ test.describe('app shell', () => {
     const sheet = page.locator('.bottom-sheet');
     await expect(sheet).toHaveAttribute('data-snap', 'peek');
     // The same tabs as the tool rail, in a row that scrolls sideways.
-    await expect(page.getByRole('tab')).toHaveCount(12);
+    await expect(page.getByRole('tab')).toHaveCount(14);
     await page.getByRole('tab', { name: 'Label' }).click();
     await expect(sheet).toHaveAttribute('data-snap', 'half');
     await expect(page.getByRole('tabpanel').getByRole('button', { name: 'Add a label' })).toBeVisible();
@@ -46,7 +46,7 @@ test.describe('app shell', () => {
     await expect(sheet).toHaveAttribute('data-snap', 'full');
 
     // touch targets are at least 44px
-    const tab = (await page.getByRole('tab', { name: 'Picture' }).boundingBox())!;
+    const tab = (await page.getByRole('tab', { name: 'Import' }).boundingBox())!;
     expect(tab.height).toBeGreaterThanOrEqual(44);
   });
 

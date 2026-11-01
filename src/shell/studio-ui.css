@@ -1,4 +1,4 @@
-/* The app switch and the colour scheme menu, shared by both apps' top bars. */
+/* The app switch and the Themes menu, shared by both apps' top bars. */
 
 .app-switch {
   display: inline-flex;
@@ -52,7 +52,7 @@
   font-size: var(--text-md);
 }
 
-/* ---- Colour scheme menu ---- */
+/* ---- Themes menu ---- */
 .palette-picker {
   position: relative;
   display: inline-flex;

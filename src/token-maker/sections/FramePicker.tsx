@@ -14,7 +14,20 @@ export interface FrameTile {
   group: string;
 }
 
-export function FramePicker({ tiles, thumbs, value, onChange }: { tiles: readonly FrameTile[]; thumbs: Map<string, string> | null; value: string; onChange: (id: string) => void }) {
+export function FramePicker({
+  tiles,
+  thumbs,
+  value,
+  onChange,
+  onOpen,
+}: {
+  tiles: readonly FrameTile[];
+  thumbs: Map<string, string> | null;
+  value: string;
+  onChange: (id: string) => void;
+  /** The gallery is opening: time to draw every tile's thumbnail. */
+  onOpen?: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   const current = tiles.find((t) => t.id === value);
@@ -31,7 +44,10 @@ export function FramePicker({ tiles, thumbs, value, onChange }: { tiles: readonl
           <strong>{current?.label ?? 'Frame'}</strong>
           <small>{current?.group}</small>
         </div>
-        <button ref={button} type="button" className="btn btn--primary frame-pick__change" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+        <button ref={button} type="button" className="btn btn--primary frame-pick__change" aria-haspopup="dialog" aria-expanded={open} onClick={() => {
+            onOpen?.();
+            setOpen(true);
+          }}>
           Change frame
         </button>
       </div>

@@ -28,15 +28,24 @@ test("the app titles in each app's top bar switch between Token Maker and Frame 
   await expect(page.locator('iframe[title="Frame Studio"]')).toBeHidden();
 });
 
-test('a colour scheme picked in one app colours both', async ({ page }) => {
+test('a theme picked in one app colours both, light ones included', async ({ page }) => {
   await page.goto('/');
   const maker = page.frameLocator('iframe[title="Token Maker"]');
-  await maker.getByRole('button', { name: 'Colour scheme' }).click();
-  await maker.getByRole('menuitemradio', { name: /Deep current/ }).click();
-  await expect(maker.locator('html')).toHaveAttribute('data-palette', 'teal');
+  await maker.getByRole('button', { name: 'Themes' }).click();
+  await expect(maker.getByRole('menuitemradio')).toHaveText([/^Dark/, /^Light/, /^Rustic/, /^Night/, /^Day/, /^Sunset/, /^Ocean/]);
+  await maker.getByRole('menuitemradio', { name: /^Ocean/ }).click();
+  await expect(maker.locator('html')).toHaveAttribute('data-palette', 'ocean');
   await maker.getByRole('button', { name: 'Frame Studio', exact: true }).click();
-  await expect(page.frameLocator('iframe[title="Frame Studio"]').locator('html')).toHaveAttribute('data-palette', 'teal');
-  await expect(page.locator('html')).toHaveAttribute('data-palette', 'teal');
+  const studio = page.frameLocator('iframe[title="Frame Studio"]');
+  await expect(studio.locator('html')).toHaveAttribute('data-palette', 'ocean');
+  await expect(page.locator('html')).toHaveAttribute('data-palette', 'ocean');
+  // A light theme makes every page light; there is no separate light/dark switch.
+  await studio.getByRole('button', { name: 'Themes' }).click();
+  await studio.getByRole('menuitemradio', { name: /^Day/ }).click();
+  for (const html of [studio.locator('html'), maker.locator('html'), page.locator('html')]) {
+    await expect(html).toHaveAttribute('data-palette', 'day');
+    await expect(html).toHaveAttribute('data-theme', 'light');
+  }
 });
 
 test('Send to Token Maker uses the Frame Studio design as the token frame', async ({ page }) => {

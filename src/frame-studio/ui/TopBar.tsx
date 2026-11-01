@@ -1,6 +1,6 @@
 // The top bar: the app switch (inside Token Studio; the title on its own
 // page), project name, New / Open / Save / Export, Undo / Redo, the Basic /
-// Advanced switch, the colour scheme and Help (the welcome card). On a narrow
+// Advanced switch, Themes and Help (the welcome card). On a narrow
 // screen the buttons show only their icons; their names are still read out.
 
 import { useEffect, useRef, useState } from 'react';

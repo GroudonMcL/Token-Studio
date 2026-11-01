@@ -1,4 +1,4 @@
-import { ART_SEARCH_SITES, artSearchTerm, artSearchUrl } from './artSearchSites';
+import { ART_SEARCH_SITES, artSearchTerm, artSearchUrl, siteSearchTerm } from './artSearchSites';
 
 describe('Find art online', () => {
   it('adds "fantasy art" unless it is off or already there', () => {
@@ -18,5 +18,14 @@ describe('Find art online', () => {
       'https://www.reddit.com/search/?q=goblin%20%26%20orc%20%231',
       'https://www.bing.com/images/search?q=goblin%20%26%20orc%20%231',
     ]);
+  });
+
+  it('leaves out AI art where the site can be told, and nowhere else', () => {
+    const site = (name: string) => ART_SEARCH_SITES.find((s) => s.name === name)!;
+    expect(siteSearchTerm(site('Google Images'), 'goblin', true)).toBe('goblin -ai -aiart -"ai art" -"ai generated" -midjourney -"stable diffusion" -dalle -nijijourney');
+    expect(siteSearchTerm(site('Reddit'), 'goblin', true)).toBe('goblin NOT ai NOT midjourney NOT "stable diffusion"');
+    expect(siteSearchTerm(site('Pinterest'), 'goblin', true)).toBe('goblin');
+    expect(siteSearchTerm(site('Google Images'), 'goblin', false)).toBe('goblin');
+    expect(artSearchUrl(site('Bing Images'), 'orc', true)).toContain(encodeURIComponent('orc -ai'));
   });
 });

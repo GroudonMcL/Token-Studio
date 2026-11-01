@@ -52,7 +52,7 @@ test('done when: a design is randomised into three variations, each recoloured f
     expect(JSON.stringify(varied.layers)).not.toBe(JSON.stringify(original.layers));
 
     // Recoloured from a theme colour.
-    await page.getByRole('button', { name: 'Theme' }).click();
+    await page.getByRole('button', { name: 'Theme', exact: true }).click();
     const theme = page.getByRole('dialog', { name: 'Theme colour' });
     await theme.getByLabel('Theme colour hex code').fill(colour);
     await theme.getByRole('button', { name: 'Recolour the design' }).click();

@@ -66,18 +66,21 @@ async function fresh(page: Page) {
 // The purple ring's band (left of the middle, between two studs), the horns
 // (beyond the ring at the top corners) and the art in the middle.
 const BAND: [number, number] = [0.5 + Math.cos((195 * Math.PI) / 180) * 0.42, 0.5 + Math.sin((195 * Math.PI) / 180) * 0.42];
-const HORN_RIGHT: [number, number] = [0.86, 0.13];
-const HORN_LEFT: [number, number] = [0.14, 0.13];
 const MIDDLE: [number, number] = [0.5, 0.5];
-const POINTS = [BAND, HORN_RIGHT, HORN_LEFT, MIDDLE];
+// The horn is a thin clipart picture now, so look for it over a patch of points round the top corners.
+const HORN_PATCH: [number, number][] = [];
+for (let x = 0.7; x <= 0.97; x += 0.03) for (let y = 0.02; y <= 0.3; y += 0.03) HORN_PATCH.push([x, y]);
+const POINTS = [BAND, MIDDLE, ...HORN_PATCH, ...HORN_PATCH.map(([x, y]) => [1 - x, y] as [number, number])];
 const isPurple = ([r, g, b]: Rgba) => b! > 140 && r! > 80 && g! < 110;
 
 /** Checks a token has the purple ring and both horns. */
 async function expectRingAndHorns(page: Page, isMobile: boolean) {
-  const [band, right, left, middle] = await exportPixels(page, isMobile, POINTS);
+  const [band, middle, ...horns] = await exportPixels(page, isMobile, POINTS);
   expect(isPurple(band!), `band ${band}`).toBe(true);
-  expect(right![3], `right horn ${right}`).toBeGreaterThan(200);
-  expect(left![3], `left horn ${left}`).toBeGreaterThan(200);
+  const n = HORN_PATCH.length;
+  const solid = (px: Rgba[]) => px.filter((p) => p[3]! > 200).length;
+  expect(solid(horns.slice(0, n)), 'right horn').toBeGreaterThan(2);
+  expect(solid(horns.slice(n)), 'left horn').toBeGreaterThan(2);
   expect(middle![3]).toBe(255);
 }
 
@@ -122,7 +125,8 @@ test('upload a ring PNG, add mirrored horns, save a preset, export it and load i
   expect(file.suggestedFilename()).toBe('purple-horns.tokenpreset.json');
   const presetPath = await file.path();
   const saved = JSON.parse(readFileSync(presetPath, 'utf8'));
-  expect(saved.look.decorations[0].kind).toBe('horn');
+  // Horns are a picture now (owner request: clipart instead of the code-drawn one).
+  expect(saved.look.decorations[0]).toMatchObject({ kind: 'picture', image: { type: 'library', id: 'deco-art-horn' }, mirror: true });
   expect(JSON.stringify(saved)).not.toContain('asset:'); // never the art
   // …and as a text code.
   await yours.getByRole('button', { name: 'Copy the code for Purple horns' }).click();

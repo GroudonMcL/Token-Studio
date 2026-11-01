@@ -1,18 +1,14 @@
-import { FilePlus2, Moon, Redo2, Sun, Undo2 } from 'lucide-react';
+import { FilePlus2, Redo2, Undo2 } from 'lucide-react';
 import { droppedByTurningOff, setBatchMode, useBatch } from '../batch/batch';
 import { startNewToken } from '../editor/newToken';
 import { redo, undo, useCanRedo, useCanUndo } from '../state/tokenStore';
 import { Toggle } from '../components';
 import { Link } from '../components/Link';
-import { useTheme, type ThemeChoice } from '../hooks/useTheme';
 import { AppSwitch } from '../../shell/AppSwitch';
 import { inTokenStudio } from '../../shell/studioApps';
 import { PalettePicker } from '../../shell/PalettePicker';
 import { BrandMark } from './BrandMark';
 import { PanelSettings } from './PanelSettings';
-
-const NEXT_THEME: Record<ThemeChoice, ThemeChoice> = { dark: 'light', light: 'dark' };
-const THEME_ICON = { dark: Moon, light: Sun };
 
 /** Logo, Batch toggle, Undo/Redo, New (DESIGN.md §8). Inside Token Studio the title is the switch between the apps. */
 export function TopBar({ compact }: { compact: boolean }) {
@@ -22,8 +18,6 @@ export function TopBar({ compact }: { compact: boolean }) {
     if (!on && dropped && !window.confirm(`Leave batch mode? Only the token on screen is kept; the other ${dropped} picture${dropped === 1 ? '' : 's'} will be removed.`)) return;
     setBatchMode(on);
   };
-  const [theme, setTheme] = useTheme();
-  const ThemeIcon = THEME_ICON[theme];
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
   return (
@@ -57,15 +51,6 @@ export function TopBar({ compact }: { compact: boolean }) {
       <div className="topbar__group" data-control="theme" data-help-id="topbar.theme">
         <PanelSettings />
         <PalettePicker />
-        <button
-          type="button"
-          className="icon-btn"
-          aria-label={`Theme: ${theme}. Switch to ${NEXT_THEME[theme]}`}
-          title={`Theme: ${theme}`}
-          onClick={() => setTheme(NEXT_THEME[theme])}
-        >
-          <ThemeIcon size={18} />
-        </button>
       </div>
     </header>
   );

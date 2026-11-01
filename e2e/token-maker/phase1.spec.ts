@@ -143,18 +143,15 @@ test('the token survives a page reload (autosave)', async ({ page }) => {
   await expect(panel2.getByRole('radio', { name: 'Hexagon' })).toHaveAttribute('aria-checked', 'true');
 });
 
-test('the panel shows one tab at a time, and one section of a tab at a time', async ({ page, isMobile }) => {
+test('the panel shows one tab at a time', async ({ page, isMobile }) => {
   test.skip(!!isMobile, 'side panel');
   const panel = page.getByRole('complementary', { name: 'Token settings' });
-  const importBtn = panel.getByRole('button', { name: 'Import', exact: true });
-  const imageBtn = panel.getByRole('button', { name: 'Image', exact: true });
-  await expect(importBtn).toHaveAttribute('aria-expanded', 'true');
-  await imageBtn.click();
-  await expect(imageBtn).toHaveAttribute('aria-expanded', 'true');
-  await expect(importBtn).toHaveAttribute('aria-expanded', 'false');
+  await expect(panel.getByRole('heading', { name: 'Import' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Colour' }).click();
+  await expect(panel.getByRole('heading', { name: 'Colour' })).toBeVisible();
+  await expect(panel.getByRole('heading', { name: 'Import' })).toHaveCount(0);
   await page.getByRole('tab', { name: 'Frame' }).click();
   await expect(panel.getByRole('heading', { name: 'Frame & shape' })).toBeVisible();
-  await expect(importBtn).toHaveCount(0);
 });
 
 test('the wheel zooms the view over the token and scrolls the panel elsewhere', async ({ page, isMobile }) => {

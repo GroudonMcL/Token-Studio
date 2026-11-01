@@ -4,7 +4,7 @@
 // (src/state/pictureLibrary.ts). Either way the picture is held in the asset
 // store under pictureAssetId(), so the renderer only ever reads the assets.
 
-import type { BlendMode, EffectPlacement, PictureSource } from '../document/types';
+import type { BlendMode, EffectPlacement, PictureSource, SnapPoint } from '../document/types';
 
 /** How scattered copies of a picture effect turn. */
 export type PictureOrient = 'random' | 'outward' | 'upright';
@@ -25,7 +25,9 @@ export interface LibraryDecorationPicture {
   swatches: string[];
   /** Coloured by the decoration's colour (single-colour pictures); false keeps the picture's own colours. */
   tint: boolean;
-  group: 'Ornaments' | 'Pictures';
+  group: 'Ornaments' | 'Treasure' | 'Creatures' | 'Trims' | 'Pictures';
+  /** Where it starts (else the picture decoration's own defaults). */
+  start?: { place: SnapPoint; size: number; mirror: boolean };
 }
 
 const fx = (
@@ -77,7 +79,21 @@ const orn = (id: string, name: string, colourful: boolean): LibraryDecorationPic
   group: 'Ornaments',
 });
 
-/** Picture decorations: ornaments, then flat icons with a dark outline (coloured by the decoration's colour). */
+/**
+ * Treasure, creatures and trims (owner request: these replace the code-drawn
+ * ones): shaded Openclipart CC0 clipart, kept in its own colours to start.
+ * "Colour it in" tints them with the decoration's colour instead.
+ */
+const art = (
+  id: string,
+  name: string,
+  group: 'Treasure' | 'Creatures' | 'Trims',
+  color: string,
+  start: LibraryDecorationPicture['start'],
+  tint = false,
+): LibraryDecorationPicture => ({ id: `deco-art-${id}`, name, color, swatches: [color, ...METAL.filter((c) => c !== color)], tint, group, start });
+
+/** Picture decorations: ornaments, treasure, creatures and trims, then flat icons with a dark outline (coloured by the decoration's colour). */
 export const DECORATION_PICTURES: readonly LibraryDecorationPicture[] = [
   orn('celtic-vine-corner', 'Celtic vine corner', false),
   orn('leaf-ornament', 'Leaf ornament', false),
@@ -103,6 +119,17 @@ export const DECORATION_PICTURES: readonly LibraryDecorationPicture[] = [
   orn('knotwork-divider', 'Knotwork divider', false),
   orn('antique-corner', 'Antique corner', false),
   orn('dragon-head', 'Dragon head', false),
+  art('gem', 'Gem', 'Treasure', '#d0202a', { place: 'top', size: 0.34, mirror: false }),
+  art('round-gem', 'Round gem', 'Treasure', '#2e8b57', { place: 'bottom', size: 0.3, mirror: false }),
+  art('crown', 'Crown', 'Treasure', '#e0b84a', { place: 'top', size: 0.4, mirror: false }),
+  art('star', 'Star', 'Treasure', '#e8c35a', { place: 'topRight', size: 0.3, mirror: true }),
+  art('skull', 'Skull', 'Creatures', '#e8e2cc', { place: 'bottom', size: 0.42, mirror: false }),
+  art('horn', 'Horn', 'Creatures', '#b89a86', { place: 'topRight', size: 0.3, mirror: true }),
+  art('wing', 'Wing', 'Creatures', '#f2f2f2', { place: 'right', size: 0.4, mirror: true }),
+  art('ribbon', 'Ribbon', 'Trims', '#b3202c', { place: 'bottom', size: 0.24, mirror: false }),
+  art('laurel', 'Laurel', 'Trims', '#d9a520', { place: 'bottomLeft', size: 0.6, mirror: true }),
+  art('chain', 'Chain', 'Trims', '#b8bcc4', { place: 'bottom', size: 0.2, mirror: false }),
+  art('leaf', 'Leaf', 'Trims', '#3f9a3a', { place: 'topLeft', size: 0.3, mirror: false }),
   deco('skull-icon', 'Skull icon', '#e9e1cc', ['#e9e1cc', '#3a3a3a', '#76ff4a', '#c0263a']),
   deco('heart', 'Heart', '#c0263a', ['#c0263a', '#ff6fb5', '#ffffff']),
   deco('broken-heart', 'Broken heart', '#c0263a', ['#c0263a', '#5a0606', '#8a8a8a']),

@@ -150,7 +150,29 @@ function drawPicture(ctx: Ctx, bg: BackgroundLayer, doc: TokenDocument, assets: 
  * tinted and brightened towards it, like the art (src/image/lighting.ts).
  */
 function lightBackground(ctx: Ctx, l: LightingSettings, box: { minX: number; maxX: number; minY: number; maxY: number }): void {
-  if (!l.enabled || !l.background || l.strength <= 0) return;
+  if (!l.enabled || !l.background) return;
+  paintLight(ctx, l, box);
+}
+
+/**
+ * Lights what is already on a square `size` layer (the frame, when "Light the
+ * frame" is on), keeping its see-through parts see-through.
+ */
+export function lightLayer(ctx: Ctx, l: LightingSettings, size: number): void {
+  if (l.strength <= 0) return;
+  const before = newCanvas(size, size);
+  (before.getContext('2d') as Ctx).drawImage(ctx.canvas as CanvasImageSource, 0, 0);
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  paintLight(ctx, l, { minX: 0, maxX: size, minY: 0, maxY: size });
+  ctx.globalCompositeOperation = 'destination-in';
+  ctx.drawImage(before as CanvasImageSource, 0, 0);
+  ctx.restore();
+}
+
+/** The light's tint, darkening and glow over `box`, whatever is under it. */
+function paintLight(ctx: Ctx, l: LightingSettings, box: { minX: number; maxX: number; minY: number; maxY: number }): void {
+  if (l.strength <= 0) return;
   const s = l.strength / 100;
   const f = l.falloff / 100;
   const w = box.maxX - box.minX;

@@ -90,14 +90,19 @@ describe('Label section', () => {
     expect(getDoc().label!.y).toBeLessThan(-0.5);
   });
 
-  it('shrink to fit and the advanced text styles', () => {
+  it('shrink to fit, and no advanced text styles (owner request)', () => {
     updateDoc((d) => ({ ...d, label: newLabel() }));
     render(<LabelSection />);
     fireEvent.click(screen.getByRole('switch', { name: 'Shrink long names to fit' }));
     expect(getDoc().label?.shrinkToFit).toBe(false);
-    fireEvent.click(screen.getByRole('button', { name: 'Advanced' }));
-    fireEvent.click(screen.getByRole('switch', { name: 'Text shadow' }));
-    expect(getDoc().label?.shadow.enabled).toBe(true);
-    expect(screen.getByText('Shadow blur')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Advanced' })).toBeNull();
+    expect(screen.queryByText('Letter spacing')).toBeNull();
+    expect(screen.queryByText('Text outline')).toBeNull();
+    expect(screen.queryByRole('switch', { name: 'Text shadow' })).toBeNull();
+  });
+
+  it('starts at 7 % of a square, black, bold, with no outline round the letters', () => {
+    const l = newLabel();
+    expect([Math.round(l.size * 50 * 10) / 10, l.color, l.bold, l.textOutline.width]).toEqual([7, '#000000', true, 0]);
   });
 });

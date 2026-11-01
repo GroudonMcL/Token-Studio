@@ -1,7 +1,7 @@
 import { ExternalLink } from 'lucide-react';
 import { useId, useState } from 'react';
 import { ControlLabel, Toggle } from '../components';
-import { ART_SEARCH_EXTRA, ART_SEARCH_SITES, artSearchTerm, artSearchUrl } from '../config/artSearchSites';
+import { AI_FILTER_HINT, ART_SEARCH_EXTRA, ART_SEARCH_SITES, artSearchTerm, artSearchUrl } from '../config/artSearchSites';
 
 /**
  * "Find art online": opens each site's own search results in a new tab.
@@ -12,6 +12,8 @@ export function ArtSearch() {
   const id = useId();
   const [text, setText] = useState('');
   const [addExtra, setAddExtra] = useState(true);
+  // On unless switched off (owner request): leave out AI-made pictures where the site allows it.
+  const [noAi, setNoAi] = useState(true);
   const term = artSearchTerm(text, addExtra);
   return (
     <div className="control" data-control="art-search" data-help-id="import.search">
@@ -28,14 +30,15 @@ export function ArtSearch() {
         onKeyDown={(e) => {
           if (e.key !== 'Enter' || !term) return;
           e.preventDefault();
-          window.open(artSearchUrl(ART_SEARCH_SITES[0]!, term), '_blank', 'noopener,noreferrer');
+          window.open(artSearchUrl(ART_SEARCH_SITES[0]!, term, noAi), '_blank', 'noopener,noreferrer');
         }}
       />
       <Toggle label={`Add “${ART_SEARCH_EXTRA}”`} helpId="import.search" checked={addExtra} onChange={setAddExtra} />
+      <Toggle label="Leave out AI art" helpId="import.noAi" checked={noAi} onChange={setNoAi} />
       <div className="art-search__sites" role="group" aria-label="Search on">
         {ART_SEARCH_SITES.map((site) =>
           term ? (
-            <a key={site.name} className="btn btn--small" href={artSearchUrl(site, term)} target="_blank" rel="noopener noreferrer">
+            <a key={site.name} className="btn btn--small" href={artSearchUrl(site, term, noAi)} target="_blank" rel="noopener noreferrer">
               {site.name}
               <ExternalLink size={14} aria-hidden="true" />
             </a>
@@ -47,6 +50,7 @@ export function ArtSearch() {
           ),
         )}
       </div>
+      {noAi && <p className="control__hint">{AI_FILTER_HINT}</p>}
       <p className="control__hint">Found something? Copy the image and paste it here, drag it in, or paste its link.</p>
     </div>
   );

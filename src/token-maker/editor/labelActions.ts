@@ -52,11 +52,11 @@ export function setLabelAnchor(anchor: LabelAnchor): void {
 /** Labels with no shape behind the words: their text needs the light, outlined style. */
 const shapeless = (shape: LabelShape) => shape === 'ring' || shape === 'plain';
 
-const SHAPE_TEXT = { color: newLabel().color, textOutline: newLabel().textOutline, shadow: newLabel().shadow };
+const SHAPE_TEXT = { color: newLabel().color };
 
 /**
  * A new shape. Ring and plain text have no shape behind them, so dark text
- * meant for a banner switches to the light, outlined ring style (and back),
+ * meant for a banner switches to the light ring colour (and back),
  * unless its colour was changed by hand.
  */
 export function setLabelShape(shape: LabelShape): void {

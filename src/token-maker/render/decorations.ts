@@ -218,10 +218,18 @@ function pictureBitmap(pic: RenderSource, color: string, tint: boolean): { image
  * origin is the token centre and `R` its half-size in pixels. Picture
  * decorations (v8) come from `assets`; one still loading is skipped.
  */
-export function drawDecorations(ctx: Ctx, doc: Pick<TokenDocument, 'decorations' | 'shape' | 'frame' | 'size'>, R: number, assets: AssetMap = new Map()): void {
+export function drawDecorations(
+  ctx: Ctx,
+  doc: Pick<TokenDocument, 'decorations' | 'shape' | 'frame' | 'size'>,
+  R: number,
+  assets: AssetMap = new Map(),
+  /** Only the decorations under the frame (true), only those over it (false), or all of them. */
+  underFrame?: boolean,
+): void {
   const geo = decorationGeometry(doc);
   for (const d of doc.decorations) {
     if (!d.visible || d.opacity <= 0) continue;
+    if (underFrame !== undefined && !!d.underFrame !== underFrame) continue;
     const info = decorationInfo(d.kind);
     const { h } = decorationSize(d, geo.squares);
     const hPx = h * R;

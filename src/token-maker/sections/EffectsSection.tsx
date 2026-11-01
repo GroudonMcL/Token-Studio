@@ -228,7 +228,7 @@ function EffectCard({
         <button type="button" className="overlay-card__toggle" aria-expanded={open} aria-controls={bodyId} onClick={onToggle}>
           <ChevronDown size={16} aria-hidden="true" className="overlay-card__chevron" />
           <span className="overlay-card__swatch" style={{ background: e.color }} aria-hidden="true" />
-          {name}
+          <span className="overlay-card__name">{name}</span>
           <span className="overlay-card__note">{where}</span>
         </button>
         <button type="button" className="icon-btn" aria-label={e.visible ? `Hide ${name}` : `Show ${name}`} aria-pressed={!e.visible} onClick={() => update(e.id, { visible: !e.visible })}>
