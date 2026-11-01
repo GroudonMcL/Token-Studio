@@ -83,9 +83,10 @@ export const TAB_GROUPS: readonly TabGroup[] = ['Art', 'Look', 'Finish'];
 
 export const PANEL_TABS: readonly PanelTab[] = [
   { id: 'picture', label: 'Picture', group: 'Art', icon: icon(ImagePlus), sections: ['import', 'image'] },
-  { id: 'cutout', label: 'Cut-out', group: 'Art', icon: icon(Scissors), sections: ['cutout', 'popout'] },
+  { id: 'cutout', label: 'Cut-out', group: 'Art', icon: icon(Scissors), sections: ['cutout'] },
+  { id: 'background', label: 'Background', group: 'Art', icon: icon(Mountain), sections: ['background'] },
+  { id: 'popout', label: 'Pop-out', group: 'Art', icon: icon(Maximize2), sections: ['popout'] },
   { id: 'frame', label: 'Frame', group: 'Look', icon: icon(Frame), sections: ['frame'] },
-  { id: 'background', label: 'Background', group: 'Look', icon: icon(Mountain), sections: ['background'] },
   { id: 'lighting', label: 'Light', group: 'Look', icon: icon(Sun), sections: ['lighting'] },
   { id: 'shadows', label: 'Shadow', group: 'Look', icon: icon(Contrast), sections: ['shadows'] },
   { id: 'effects', label: 'Effects', group: 'Look', icon: icon(WandSparkles), sections: ['effects'] },

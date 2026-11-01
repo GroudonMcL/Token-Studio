@@ -11,8 +11,9 @@ describe('AppShell (desktop)', () => {
     expect(within(rail).getAllByRole('tab').map((t) => t.textContent)).toEqual([
       'Picture',
       'Cut-out',
-      'Frame',
       'Background',
+      'Pop-out',
+      'Frame',
       'Light',
       'Shadow',
       'Effects',

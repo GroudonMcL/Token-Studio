@@ -1,6 +1,6 @@
 import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, Trash2, Upload } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
-import { Advanced, ColorSwatches, ControlLabel, SegmentedButtons, Slider, TileGrid, Toggle } from '../components';
+import { ColorSwatches, ControlLabel, SegmentedButtons, Slider, TileGrid, Toggle } from '../components';
 import { LABEL_SHAPES, newLabel } from '../document/defaults';
 import type { LabelAnchor, LabelSettings, LabelShape } from '../document/types';
 import { setLabelAnchor, setLabelOn, setLabelPlace, setLabelShape, updateLabel } from '../editor/labelActions';
@@ -17,7 +17,7 @@ const fromPct = (p: number) => p / 50;
 
 const D = newLabel();
 const FILL_SWATCHES = ['#e9d9b4', '#f4efe4', '#8e2a22', '#1c2433', '#2f4a2a', '#4a2f5c', '#c9a24a', '#20140a'];
-const TEXT_SWATCHES = ['#3a2412', '#fff4dc', '#000000', '#ffffff', '#f0c850', '#8e2a22', '#c9d2de', '#76ff4a'];
+const TEXT_SWATCHES = ['#000000', '#3a2412', '#fff4dc', '#ffffff', '#f0c850', '#8e2a22', '#c9d2de', '#76ff4a'];
 const LINE_SWATCHES = ['#5a3d1e', '#20140a', '#000000', '#ffffff', '#c9a24a', '#8e2a22'];
 
 /** Small pictures of each shape for the picker. */
@@ -272,77 +272,6 @@ export function LabelSection() {
         </>
       )}
       <Toggle label="Shrink long names to fit" helpId="label.shrink" checked={l.shrinkToFit} onChange={(shrinkToFit) => set({ shrinkToFit })} />
-      <Advanced helpId="label.advanced">
-        <Slider
-          label="Letter spacing"
-          helpId="label.spacing"
-          unit="%"
-          min={-10}
-          max={50}
-          value={Math.round(l.letterSpacing * 100)}
-          defaultValue={Math.round(D.letterSpacing * 100)}
-          onChange={(v) => set({ letterSpacing: v / 100 }, true)}
-          onCommit={commitDoc}
-        />
-        <Slider
-          label="Text outline"
-          helpId="label.textOutline"
-          unit="% of a square"
-          min={0}
-          max={6}
-          step={0.1}
-          value={toPct(l.textOutline.width)}
-          defaultValue={0}
-          onChange={(v) => set({ textOutline: { ...l.textOutline, width: fromPct(v) } }, true)}
-          onCommit={commitDoc}
-        />
-        {l.textOutline.width > 0 && (
-          <ColorSwatches
-            label="Text outline colour"
-            helpId="label.textOutlineColor"
-            value={l.textOutline.color}
-            swatches={LINE_SWATCHES}
-            onChange={(color) => set({ textOutline: { ...l.textOutline, color } }, true)}
-            onCommit={commitDoc}
-          />
-        )}
-        <Toggle label="Text shadow" helpId="label.shadow" checked={l.shadow.enabled} onChange={(enabled) => set({ shadow: { ...l.shadow, enabled } })} />
-        {l.shadow.enabled && (
-          <>
-            <ColorSwatches
-              label="Shadow colour"
-              helpId="label.shadowColor"
-              value={l.shadow.color}
-              swatches={['#000000', '#20140a', '#1c2433', '#8e2a22', '#ffffff']}
-              onChange={(color) => set({ shadow: { ...l.shadow, color } }, true)}
-              onCommit={commitDoc}
-            />
-            <Slider
-              label="Shadow opacity"
-              helpId="label.shadowOpacity"
-              unit="%"
-              min={0}
-              max={100}
-              value={Math.round(l.shadow.opacity * 100)}
-              defaultValue={Math.round(D.shadow.opacity * 100)}
-              onChange={(v) => set({ shadow: { ...l.shadow, opacity: v / 100 } }, true)}
-              onCommit={commitDoc}
-            />
-            <Slider
-              label="Shadow blur"
-              helpId="label.shadowBlur"
-              unit="% of a square"
-              min={0}
-              max={10}
-              step={0.1}
-              value={toPct(l.shadow.blur)}
-              defaultValue={toPct(D.shadow.blur)}
-              onChange={(v) => set({ shadow: { ...l.shadow, blur: fromPct(v) } }, true)}
-              onCommit={commitDoc}
-            />
-          </>
-        )}
-      </Advanced>
     </>
   );
 }

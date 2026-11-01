@@ -274,6 +274,7 @@ function lighting(raw: Json, d: LightingSettings): LightingSettings {
       softness: num(rim.softness, d.rim.softness, 0, 100),
     },
     background: bool(raw.background, d.background),
+    frame: bool(raw.frame, d.frame),
   };
 }
 
@@ -299,6 +300,7 @@ function decoration(raw: Json, index: number): Decoration | null {
     flip: bool(raw.flip, d.flip),
     color: hex(raw.color, d.color),
     opacity: num(raw.opacity, d.opacity, 0, 1),
+    underFrame: bool(raw.underFrame, d.underFrame),
   };
 }
 

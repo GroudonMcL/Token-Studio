@@ -302,6 +302,8 @@ export interface LightingSettings {
   rim: { enabled: boolean; strength: number; width: number; softness: number };
   /** Light the background the same way, so it matches the art. */
   background: boolean;
+  /** Light the frame from the same direction (and colour), so it matches the art. Works with the art unlit too. */
+  frame: boolean;
 }
 
 // ---- Phase 6: styles and effects (DESIGN.md §6.8) ----
@@ -440,6 +442,8 @@ export interface Decoration {
   aspect: number;
   /** A picture decoration: coloured with `color` instead of its own colours (v8). */
   tint: boolean;
+  /** Drawn under the frame (after the art), so the frame covers it: wings or horns tucked behind the border. */
+  underFrame: boolean;
 }
 
 // ---- Phase 8: the label (DESIGN.md §6.10) ----

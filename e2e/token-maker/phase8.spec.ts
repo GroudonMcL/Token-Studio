@@ -122,6 +122,10 @@ test('drag the label on the canvas: it snaps to the top or bottom', async ({ pag
   // Start at the top: on phones the bottom sheet covers the lower part of the token.
   await place.getByRole('radio', { name: 'Top' }).click();
   await expect(place.getByRole('radio', { name: 'Top' })).toHaveAttribute('aria-checked', 'true');
+  // The banner this test grabs was made with the old 10 % text (labels now start at 7 %).
+  const textSize = panel.getByRole('textbox', { name: 'Text size value' });
+  await textSize.fill('10');
+  await textSize.press('Enter');
 
   // Grab the middle of the banner and drop it near the bottom of the frame.
   const box = (await page.getByTestId('token-canvas').boundingBox())!;

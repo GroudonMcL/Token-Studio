@@ -12,7 +12,7 @@ import { BUILT_IN_DESIGNS, builtInDesignById, builtInDesignFrame, isBuiltInDesig
 import { refreshUploadedFrames, removeUploadedFrame, useUploadedFrames } from '../state/frameLibrary';
 import { FRAME_PRESETS, framePresetById, SHAPES, type ShapeId } from '../render/catalog';
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
-import { clearDesignThumbnails, designThumbnail, frameThumbnails } from './frameThumbs';
+import { clearDesignThumbnails, designThumbnail, frameThumbnail } from './frameThumbs';
 import { createDocument } from '../document/defaults';
 import { FramePicker, type FrameTile } from './FramePicker';
 import { frameAccent } from '../render/frames';
@@ -394,6 +394,88 @@ function BuiltInColours({ id }: { id: string }) {
 
 /** The built-in designs, made once each (their thumbnails and photo textures are cached by id). */
 const builtInFrames = new Map(BUILT_IN_DESIGNS.map((b) => [b.id, builtInDesignFrame(b.id)!]));
+const TILES = frameTiles();
+
+/** One frame's thumbnail (a drawn frame or a built-in design). */
+const thumbOf = (id: string, shape: ShapeId) => {
+  const design = builtInFrames.get(id);
+  return design ? designThumbnail(id, design.project, shape) : frameThumbnail(id, shape);
+};
+
+/** Each thumbnail takes a few ms; the gallery draws them in slices this long, so the page never freezes. */
+const SLICE_MS = 12;
+
+/**
+ * Thumbnails for the frame picker. Opening the tab used to draw every frame
+ * and built-in design at once (well over a hundred renders, then all again
+ * once the photo textures arrived), which froze the page for a moment.
+ * Now the panel draws only the frame it shows; the rest are drawn a slice at
+ * a time once the gallery is first opened, the open group first.
+ */
+function useFrameThumbs(shape: ShapeId, value: string) {
+  const [state, setState] = useState<{ key: string; map: Map<string, string> }>({ key: '', map: new Map() });
+  const [gallery, setGallery] = useState(false);
+  // Bumped when photo textures arrive, so the designs using them are drawn again.
+  const [epoch, setEpoch] = useState(0);
+  const key = `${shape}|${epoch}`;
+  const map = state.key === key ? state.map : new Map<string, string>();
+  const add = (entries: [string, string][]) =>
+    setState((s) => {
+      const next = new Map(s.key === key ? s.map : []);
+      for (const [id, url] of entries) next.set(id, url);
+      return { key, map: next };
+    });
+
+  // Photo textures for the designs that are about to be drawn.
+  useEffect(() => {
+    let live = true;
+    const designs = gallery ? [...builtInFrames.entries()] : builtInFrames.has(value) ? [[value, builtInFrames.get(value)!] as const] : [];
+    if (!designs.length) return;
+    void Promise.all(designs.map(([, d]) => loadFrameDesignPictures(d.project).then((loaded) => loaded, () => false))).then((loaded) => {
+      if (!live || !loaded.some(Boolean)) return;
+      clearDesignThumbnails(designs.map(([id]) => id));
+      setEpoch((e) => e + 1);
+    });
+    return () => {
+      live = false;
+    };
+  }, [gallery, value]);
+
+  // The frame the panel shows, on the next frame so the tab opens at once.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      const url = thumbOf(value, shape);
+      if (url) add([[value, url]]);
+    });
+    return () => cancelAnimationFrame(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, key]);
+
+  // Every tile, a slice at a time, once the gallery has been opened.
+  useEffect(() => {
+    if (!gallery) return;
+    const group = TILES.find((t) => t.id === value)?.group;
+    const ids = [...TILES.filter((t) => t.group === group), ...TILES.filter((t) => t.group !== group)].map((t) => t.id);
+    let i = 0;
+    let timer = 0;
+    const step = () => {
+      const start = performance.now();
+      const done: [string, string][] = [];
+      while (i < ids.length && performance.now() - start < SLICE_MS) {
+        const id = ids[i++]!;
+        const url = thumbOf(id, shape);
+        if (url) done.push([id, url]);
+      }
+      if (done.length) add(done);
+      if (i < ids.length) timer = window.setTimeout(step, 0);
+    };
+    timer = window.setTimeout(step, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gallery, key]);
+
+  return { map, fillGallery: () => setGallery(true) };
+}
 
 /**
  * The drawn frames: shape, the frames drawn by code (colour, thickness and
@@ -404,30 +486,8 @@ function DrawnFrame() {
   const frame = useDoc((d) => d.frame);
   const builtIn = frame.kind === 'design' && isBuiltInDesign(frame.design?.id) ? frame.design!.id : null;
   const accent = builtIn ? null : frameAccent(frame.style);
-  const [thumbs, setThumbs] = useState<Map<string, string> | null>(null);
-
-  useEffect(() => {
-    let live = true;
-    // Drawn after the panel appears, so opening it stays snappy; the Crafted ones again once their photos arrive.
-    const draw = () => {
-      if (!live) return;
-      const next = new Map(frameThumbnails(shape));
-      for (const [id, d] of builtInFrames) {
-        const url = designThumbnail(id, d.project, shape);
-        if (url) next.set(id, url);
-      }
-      setThumbs(next);
-    };
-    const id = requestAnimationFrame(draw);
-    void Promise.all([...builtInFrames.values()].map((d) => loadFrameDesignPictures(d.project).catch(() => {}))).then(() => {
-      clearDesignThumbnails([...builtInFrames.keys()]);
-      draw();
-    });
-    return () => {
-      live = false;
-      cancelAnimationFrame(id);
-    };
-  }, [shape]);
+  const value = builtIn ?? frame.presetId;
+  const thumbs = useFrameThumbs(shape, value);
 
   const setFrame = (patch: Partial<FrameSettings>, transient = false) =>
     updateFrameAndArt((d) => ({ ...d, frame: { ...d.frame, ...patch } }), { transient });
@@ -436,9 +496,10 @@ function DrawnFrame() {
     <>
       <ShapeControl />
       <FramePicker
-        tiles={frameTiles()}
-        thumbs={thumbs}
-        value={builtIn ?? frame.presetId}
+        tiles={TILES}
+        thumbs={thumbs.map}
+        value={value}
+        onOpen={thumbs.fillGallery}
         onChange={(id) => {
           const p = framePresetById(id);
           if (p) setFrame({ kind: 'code', presetId: p.id, style: p.style, color: p.color, highlightColor: null });

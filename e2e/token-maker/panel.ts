@@ -5,7 +5,7 @@ export const TAB_OF: Record<string, string> = {
   Import: 'Picture',
   Image: 'Picture',
   'Cut-out': 'Cut-out',
-  'Pop-out': 'Cut-out',
+  'Pop-out': 'Pop-out',
   'Frame & shape': 'Frame',
   Background: 'Background',
   Lighting: 'Light',

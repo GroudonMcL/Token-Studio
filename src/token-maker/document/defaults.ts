@@ -122,10 +122,11 @@ export const DEFAULT_LIGHTING: LightingSettings = {
   falloff: 40,
   rim: { enabled: false, strength: 60, width: 30, softness: 35 },
   background: true,
+  frame: false,
 };
 
 /** Lighting presets (DESIGN.md §6.5): they set the light, which then stays editable. */
-export const LIGHT_PRESETS: { id: LightPresetId; name: string; settings: Omit<LightingSettings, 'preset' | 'enabled' | 'background'> }[] = [
+export const LIGHT_PRESETS: { id: LightPresetId; name: string; settings: Omit<LightingSettings, 'preset' | 'enabled' | 'background' | 'frame'> }[] = [
   { id: 'torchlight', name: 'Torchlight', settings: { direction: 90, color: '#ffa04a', strength: 75, falloff: 60, rim: { enabled: true, strength: 70, width: 30, softness: 40 } } },
   { id: 'moonlight', name: 'Moonlight', settings: { direction: 270, color: '#9db8ff', strength: 60, falloff: 55, rim: { enabled: true, strength: 50, width: 25, softness: 50 } } },
   { id: 'holy', name: 'Holy glow', settings: { direction: 270, color: '#fff1b8', strength: 70, falloff: 25, rim: { enabled: true, strength: 80, width: 40, softness: 60 } } },
@@ -327,7 +328,7 @@ export const MAX_DECORATIONS = 16;
 
 export function newDecoration(kind: DecorationKind, id = Math.random().toString(36).slice(2, 10)): Decoration {
   const d = decorationInfo(kind).defaults;
-  return { id, kind, visible: true, place: d.place, x: 0, y: -0.8, size: d.size, rotation: d.rotation ?? 0, mirror: d.mirror, flip: false, color: d.color, opacity: 1, image: null, tint: true, aspect: decorationInfo(kind).aspect };
+  return { id, kind, visible: true, place: d.place, x: 0, y: -0.8, size: d.size, rotation: d.rotation ?? 0, mirror: d.mirror, flip: false, color: d.color, opacity: 1, image: null, tint: true, aspect: decorationInfo(kind).aspect, underFrame: false };
 }
 
 /** A picture decoration: a built-in icon (coloured) or one of the user's own pictures (its own colours). */
@@ -366,8 +367,9 @@ export function newLabel(): LabelSettings {
     opacity: 1,
     outline: { width: 0.02, color: '#5a3d1e' },
     font: DEFAULT_FONT,
-    size: 0.2,
-    color: '#3a2412',
+    // Owner's defaults: 7 % of a square, black, bold, no outline round the letters.
+    size: 0.14,
+    color: '#000000',
     bold: true,
     italic: false,
     letterSpacing: 0.04,
@@ -378,11 +380,12 @@ export function newLabel(): LabelSettings {
   };
 }
 
-/** Ring text reads best light on a dark frame, with an outline and a shadow. */
+/**
+ * Ring text reads best light on a dark frame. (It used to add an outline and a
+ * shadow too; the label has no controls for those any more, so it doesn't.)
+ */
 export const RING_TEXT_STYLE: Partial<LabelSettings> = {
   color: '#fff4dc',
-  textOutline: { width: 0.02, color: '#20140a' },
-  shadow: { enabled: true, color: '#000000', opacity: 0.7, blur: 0.03 },
 };
 
 export function createDocument(name = 'Untitled token'): TokenDocument {

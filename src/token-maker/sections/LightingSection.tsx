@@ -43,7 +43,10 @@ export function LightingSection() {
           ))}
         </div>
       </div>
-      <Toggle label="Light the art" helpId="lighting.enabled" checked={l.enabled} onChange={(enabled) => updateDoc((d) => ({ ...d, lighting: { ...d.lighting, enabled } }))} />
+      <div className="toggle-pair">
+        <Toggle label="Light the art" helpId="lighting.enabled" checked={l.enabled} onChange={(enabled) => updateDoc((d) => ({ ...d, lighting: { ...d.lighting, enabled } }))} />
+        <Toggle label="Light the frame" helpId="lighting.frame" checked={l.frame} onChange={(frame) => updateDoc((d) => ({ ...d, lighting: { ...d.lighting, frame } }))} />
+      </div>
       <DirectionDial
         label="Light comes from"
         helpId="lighting.direction"
@@ -51,7 +54,7 @@ export function LightingSection() {
         onChange={(direction) => setLight({ direction }, true)}
         onCommit={commitDoc}
       />
-      {l.enabled && (
+      {(l.enabled || l.frame) && (
         <>
           <ColorSwatches label="Light colour" helpId="lighting.color" value={l.color} swatches={SWATCHES} onChange={(color) => setLight({ color }, true)} onCommit={commitDoc} />
           <Slider
@@ -76,6 +79,10 @@ export function LightingSection() {
             onChange={(falloff) => setLight({ falloff }, true)}
             onCommit={commitDoc}
           />
+        </>
+      )}
+      {l.enabled && (
+        <>
           <Toggle label="Rim light" helpId="lighting.rim" checked={l.rim.enabled} onChange={(enabled) => setLight({ rim: { ...l.rim, enabled } })} />
           {l.rim.enabled && (
             <>

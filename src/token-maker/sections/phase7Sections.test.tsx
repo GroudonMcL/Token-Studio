@@ -36,32 +36,47 @@ beforeEach(() => {
 });
 
 describe('Decorations section', () => {
-  it('adds decorations snapped to the frame; horns start mirrored', () => {
+  it('adds decorations snapped to the frame', () => {
     render(<DecorationsSection />);
-    fireEvent.click(screen.getByRole('button', { name: /^Horn$/ }));
-    fireEvent.click(screen.getByRole('button', { name: /^Gem$/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Sword$/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Shield$/ }));
     expect(getDoc().decorations.map((d) => [d.kind, d.place, d.mirror])).toEqual([
-      ['horn', 'topRight', true],
-      ['gem', 'top', false],
+      ['sword', 'bottomRight', false],
+      ['shield', 'bottom', false],
     ]);
     const cards = within(screen.getByRole('list', { name: 'Decorations, top first' })).getAllByRole('listitem');
-    expect(cards.map((c) => c.getAttribute('data-decoration'))).toEqual(['gem', 'horn']);
+    expect(cards.map((c) => c.getAttribute('data-decoration'))).toEqual(['shield', 'sword']);
+  });
+
+  it('offers clipart pictures for treasure, creatures and trims (owner request)', () => {
+    render(<DecorationsSection />);
+    for (const [group, names] of [
+      ['Treasure', ['Gem', 'Round gem', 'Crown', 'Star']],
+      ['Creatures', ['Skull', 'Horn', 'Wing']],
+      ['Trims', ['Ribbon', 'Laurel', 'Chain', 'Leaf']],
+    ] as const) {
+      const tiles = within(screen.getByRole('group', { name: group })).getAllByRole('button');
+      expect(tiles.map((t) => t.textContent)).toEqual(names);
+      for (const t of tiles) expect(t.getAttribute('data-decoration-picture')).toMatch(/^deco-art-/);
+    }
   });
 
   it('moves it to another snap point or frees it, mirrors, removes, and undoes', () => {
     render(<DecorationsSection />);
-    fireEvent.click(screen.getByRole('button', { name: /^Wing$/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Shield$/ }));
     const card = screen.getByRole('list', { name: 'Decorations, top first' });
     fireEvent.click(within(card).getByRole('radio', { name: 'Bottom left' }));
     expect(getDoc().decorations[0]!.place).toBe('bottomLeft');
     fireEvent.click(within(card).getByRole('switch', { name: 'Mirror on the other side' }));
-    expect(getDoc().decorations[0]!.mirror).toBe(false);
+    expect(getDoc().decorations[0]!.mirror).toBe(true);
+    fireEvent.click(within(card).getByRole('switch', { name: 'Under the frame' }));
+    expect(getDoc().decorations[0]!.underFrame).toBe(true);
     fireEvent.click(within(card).getByRole('radio', { name: 'Free' }));
     const d = getDoc().decorations[0]!;
     expect(d.place).toBe('free');
     expect(d.x).toBeLessThan(0); // stays where it was, on the bottom left
     expect(d.y).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole('button', { name: 'Remove Wing' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Shield' }));
     expect(getDoc().decorations).toEqual([]);
     undo();
     expect(getDoc().decorations).toHaveLength(1);
@@ -69,7 +84,7 @@ describe('Decorations section', () => {
 
   it('every control has a help entry', () => {
     const { container } = render(<DecorationsSection />);
-    fireEvent.click(screen.getByRole('button', { name: /^Skull$/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Shield$/ }));
     helpIds(container);
   });
 });

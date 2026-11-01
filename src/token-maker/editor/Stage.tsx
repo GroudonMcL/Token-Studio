@@ -1,4 +1,4 @@
-import { Check, Eraser, ImagePlus, Paintbrush, ScanSearch, Undo2 } from 'lucide-react';
+import { Check, Eraser, ImagePlus, Paintbrush, ScanSearch, TriangleAlert, Undo2 } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import { useStore } from 'zustand';
 import type { ArtTransform, Decoration, LabelSettings, MaskStroke, PopOutStroke, TokenDocument } from '../document/types';
@@ -24,6 +24,8 @@ import { draggedLabel } from './labelActions';
 import { extendStroke, pickColour, pointerPressure, startStroke, type StrokeContext } from './brush';
 import { selectDecoration, setBrush, setTool, toolStore, useTool } from './tools';
 import { SampleButton } from './SampleButton';
+import { useOverflow, useOverflowCheck } from './overflowCheck';
+import { OVERFLOW_ADVICE } from '../render/overflow';
 import { UploadButton } from './UploadButton';
 
 const PADDING = 40;
@@ -100,6 +102,9 @@ export function Stage({ reserveTop = 64, reserveBottom = 0 }: { reserveTop?: num
     // Ask the worker for the full-size art once a drag has finished.
     if (art && needsFull && !settling) void requestFullArt(art, edits);
   }, [art, edits, needsFull, settling, version]);
+  // What would be cut off at the square's edge, checked once the token stops changing.
+  useOverflowCheck(doc, assets, display?.source, settling || dragging);
+  const overflow = useOverflow();
   const [viewState, setViewState] = useState({ key: '', view: HOME });
   const [spaceHeld, setSpaceHeld] = useState(false);
 
@@ -630,6 +635,12 @@ export function Stage({ reserveTop = 64, reserveBottom = 0 }: { reserveTop?: num
         style={{ width: R * 2, height: R * 2, left: cx - R, top: cy - R }}
       />
       <canvas ref={maskRef} className="stage__mask" aria-hidden="true" />
+      {art && (
+        // The exported picture's edge: anything outside it is cut off.
+        <svg className="stage__overlay" width={box.width} height={box.height} aria-hidden="true">
+          <rect className="stage__bounds" data-testid="export-bounds" x={cx - R} y={cy - R} width={R * 2} height={R * 2} />
+        </svg>
+      )}
       {art && corners.length === 4 && (
         <svg className="stage__overlay" width={box.width} height={box.height} aria-hidden="true">
           <polygon className="stage__outline" points={corners.map((p) => `${p.x},${p.y}`).join(' ')} />
@@ -706,6 +717,22 @@ export function Stage({ reserveTop = 64, reserveBottom = 0 }: { reserveTop?: num
       {tool !== 'move' && <ToolBar bottom={reserveBottom + 12} />}
       {painting && cursor && (
         <span className="stage__brush-cursor" aria-hidden="true" style={{ left: cursor.x, top: cursor.y, width: brushSize, height: brushSize }} />
+      )}
+      {/* Not while a brush or tool is on, so it never gets in the way of painting near the bottom. */}
+      {art && overflow.length > 0 && tool === 'move' && (
+        <button
+          type="button"
+          className="stage__overflow"
+          role="status"
+          data-testid="overflow-warning"
+          // Above the view's reset button when that is showing.
+          style={{ bottom: reserveBottom + 12 + (view.scale > 1 ? 44 : 0) }}
+          onClick={() => revealSection('export')}
+          title="See what reaches past the edge and how to fix it"
+        >
+          <TriangleAlert size={14} aria-hidden="true" />
+          {OVERFLOW_ADVICE[overflow[0]!].what} {overflow.length > 1 ? 'and more get' : 'gets'} cut off at the edge
+        </button>
       )}
       {art && view.scale > 1 && (
         <button

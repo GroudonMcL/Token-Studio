@@ -17,7 +17,8 @@ async function loadGoblin(page: Page) {
 /** Opens every closed "Advanced" or similar drop-down inside a container. */
 async function openAll(scope: Locator) {
   for (let round = 0; round < 3; round++) {
-    const closed = scope.locator('button[aria-expanded="false"]:not([role="tab"]):not(.section__toggle)');
+    // Not buttons that open a dialog (the frame gallery): its backdrop would cover everything else.
+    const closed = scope.locator('button[aria-expanded="false"]:not([role="tab"]):not(.section__toggle):not([aria-haspopup="dialog"])');
     const n = await closed.count();
     if (!n) return;
     for (let i = n - 1; i >= 0; i--) {
@@ -126,6 +127,15 @@ for (const theme of ['dark', 'light'] as const) {
           }
           await openAll(panel);
           await scan(`tab ${t} section ${s}`);
+          // The frame gallery is a dialog of its own: open it, check it, close it.
+          const gallery = panel.getByRole('button', { name: 'Change frame' });
+          if ((await gallery.count()) && (await gallery.isVisible())) {
+            await gallery.click();
+            await expect(page.getByRole('dialog', { name: 'Choose a frame' })).toBeVisible();
+            await scan(`tab ${t} frame gallery`);
+            await page.keyboard.press('Escape');
+            await expect(page.getByRole('dialog', { name: 'Choose a frame' })).toHaveCount(0);
+          }
         }
       }
       expect([...problems].map(([k, v]) => `${k} (${v})`)).toEqual([]);
@@ -175,8 +185,8 @@ test.describe('keyboard', () => {
     const panel = page.getByRole('complementary', { name: 'Token settings' });
     // The tool rail: arrow keys move between tabs.
     await page.getByRole('tab', { name: 'Picture' }).focus();
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('ArrowDown');
+    // Picture → Cut-out → Background → Pop-out → Frame.
+    for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
     await expect(page.getByRole('tab', { name: 'Frame' })).toBeFocused();
     await expect(page.getByRole('tab', { name: 'Frame' })).toHaveAttribute('aria-selected', 'true');
     const circle = panel.getByRole('radio', { name: 'Circle' });

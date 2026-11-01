@@ -419,6 +419,7 @@ export async function tokenPictures(save: Save): Promise<void> {
   p('lighting.rimStrength', [rim({ strength: 15 })], [rim({ strength: 100 })]);
   p('lighting.rimWidth', [rim({ width: 10 })], [rim({ width: 90 })]);
   p('lighting.rimSoftness', [rim({ softness: 0 })], [rim({ softness: 100 })]);
+  p('lighting.frame', [light('torchlight', { enabled: false, frame: false })], [light('torchlight', { enabled: false, frame: true })]);
   p('lighting.background', [forest(), light('torchlight', { background: false })], [forest(), light('torchlight', { background: true })]);
 
   // ---- Shadows (on a light backdrop, so the drop shadow shows) ----
@@ -464,6 +465,7 @@ export async function tokenPictures(save: Save): Promise<void> {
   p('decorations.opacity', [deco('crown')], [deco('crown', { opacity: 0.35 })]);
   p('decorations.picture', [], [pictureDeco('deco-heart')]);
   p('decorations.tint', [pictureDeco('deco-potion', { tint: false })], [pictureDeco('deco-potion', { color: '#2fae5a' })]);
+  p('decorations.underFrame', [deco('wing', { size: 0.9 })], [deco('wing', { size: 0.9, underFrame: true })]);
   p('decorations.flip', [deco('sword', { place: 'topRight' })], [deco('sword', { place: 'topRight', flip: true })]);
 
   // ---- Label ----
@@ -495,17 +497,6 @@ export async function tokenPictures(save: Save): Promise<void> {
   p('label.outlineColor', [label({ outline: { width: 0.05, color: '#5a3d1e' } })], [label({ outline: { width: 0.05, color: '#d6a24e' } })]);
   const longName = 'Grimbold the Long-Winded';
   p('label.shrink', [label({ text: longName, shrinkToFit: false })], [label({ text: longName })]);
-  const fancy = { letterSpacing: 0.25, textOutline: { width: 0.025, color: '#f6e7c8' }, shadow: { enabled: true, color: '#000000', opacity: 0.8, blur: 0.04 } };
-  p('label.advanced', [label()], [label(fancy)]);
-  p('label.spacing', [label({ letterSpacing: 0 })], [label({ letterSpacing: 0.35 })]);
-  const plainRing = { textOutline: { width: 0, color: '#20140a' }, shadow: { enabled: false, color: '#000000', opacity: 0.7, blur: 0.03 } };
-  p('label.textOutline', [forest(), ring(plainRing)], [forest(), ring({ ...plainRing, textOutline: { width: 0.035, color: '#20140a' } })]);
-  p('label.textOutlineColor', [ring()], [ring({ textOutline: { width: 0.03, color: '#a01818' } })]);
-  const shadowed = (s: Partial<LabelSettings['shadow']>) => ring({ textOutline: { width: 0, color: '#000000' }, shadow: { enabled: true, color: '#000000', opacity: 0.8, blur: 0.03, ...s } });
-  p('label.shadow', [ring(plainRing)], [shadowed({})], L);
-  p('label.shadowColor', [shadowed({})], [shadowed({ color: '#ff6a00', opacity: 1 })], L);
-  p('label.shadowOpacity', [shadowed({ opacity: 0.2 })], [shadowed({ opacity: 1 })], L);
-  p('label.shadowBlur', [shadowed({ blur: 0.005 })], [shadowed({ blur: 0.09 })], L);
 
   // ---- Presets: the look moves from one goblin to another ----
   p('presets.builtIn', [], [preset('Undead')]);

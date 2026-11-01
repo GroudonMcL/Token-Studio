@@ -1,4 +1,4 @@
-import { ClipboardCopy, Download, FolderArchive } from 'lucide-react';
+import { ClipboardCopy, Download, FolderArchive, TriangleAlert } from 'lucide-react';
 import { useId, useState } from 'react';
 import { Advanced, ControlLabel, SegmentedButtons, Slider } from '../components';
 import { useBatch } from '../batch/batch';
@@ -7,6 +7,8 @@ import { copyCurrentToken, exportAllTokens, exportCurrentToken, useExportProgres
 import { canCopyImages } from '../export/exportToken';
 import { baseNameFor, clampPx, DEFAULT_EXPORT, safeBaseName, setExportSettings, useExportSettings } from '../export/exportSettings';
 import { FORMAT_IDS, FORMATS, MAX_CUSTOM_PX, MIN_CUSTOM_PX, PX_PRESETS, finalSize, type ExportFormat } from '../export/formats';
+import { useOverflow } from '../editor/overflowCheck';
+import { OVERFLOW_ADVICE } from '../render/overflow';
 import { useDoc } from '../state/tokenStore';
 
 type PxChoice = `${(typeof PX_PRESETS)[number]}` | 'custom';
@@ -91,6 +93,8 @@ export function ExportSection() {
         </div>
       </div>
 
+      {hasArt && <OverflowWarning />}
+
       <div className="export-actions">
         <button type="button" className="btn btn--primary btn--wide" onClick={exportCurrentToken} disabled={!hasArt || busy}>
           <Download size={18} aria-hidden="true" />
@@ -128,5 +132,27 @@ export function ExportSection() {
         </Advanced>
       )}
     </>
+  );
+}
+
+/** Parts of the token that reach past the edge of the picture, and how to bring them in. */
+function OverflowWarning() {
+  const overflow = useOverflow();
+  if (!overflow.length) return null;
+  return (
+    <div className="export-warning" role="alert" data-testid="export-overflow">
+      <p className="export-warning__title">
+        <TriangleAlert size={16} aria-hidden="true" />
+        Some of the token will be cut off at the edge
+      </p>
+      <p className="export-warning__text">Everything outside the red dashed square on the canvas is left out of the picture, leaving a hard straight edge.</p>
+      <ul className="export-warning__list">
+        {overflow.map((source) => (
+          <li key={source}>
+            <strong>{OVERFLOW_ADVICE[source].what}</strong> reaches past the edge. {OVERFLOW_ADVICE[source].fix}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

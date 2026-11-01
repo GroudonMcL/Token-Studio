@@ -223,7 +223,7 @@ describe('shrink to fit', () => {
   });
 
   it('switched off, the shape grows to fit the words instead (never wider than the token)', () => {
-    const medium = tokenWith({ shape: 'pill', text: 'Grimbold the', shrinkToFit: false });
+    const medium = tokenWith({ shape: 'pill', text: 'Grimbold the', size: 0.2, shrinkToFit: false });
     const fixed = labelPlacement({ ...medium, label: { ...medium.label!, shrinkToFit: true } })!.outline;
     const grown = labelPlacement(medium)!.outline;
     const width = (pts: { x: number }[]) => Math.max(...pts.map((p) => p.x)) - Math.min(...pts.map((p) => p.x));

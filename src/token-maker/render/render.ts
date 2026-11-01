@@ -10,7 +10,7 @@ import type { OuterShadow, TokenDocument } from '../document/types';
 import { parseHex, rgba } from './color';
 import { tracePolygon, type Ctx, type FrameGeometry } from './frameKit';
 import type { FrameStyle } from './catalog';
-import { drawBackground } from './background';
+import { drawBackground, lightLayer } from './background';
 import { drawFrame } from './frames';
 import { drawEffects, needsSubject, type EffectArea, type Subject } from './effects';
 import { baseScale, imageClipPolygon } from './geometry';
@@ -43,6 +43,12 @@ export interface RenderOptions {
    * the brush is on, so the art under it can be seen. Editor only.
    */
   frameAlpha?: number;
+  /**
+   * Pixels of extra room round the square that may be drawn into (the canvas
+   * must reach that far): nothing is clipped to the square, so what would be
+   * cut off at its edge can be found (src/render/overflow.ts). Never in exports.
+   */
+  bleed?: number;
 }
 
 // Drawn frames, kept so that changing anything else (a slider, the art)
@@ -107,13 +113,21 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
   // The token's outline: the frame's outer edge, or the art's edge without a frame.
   const silhouette = imageFrame ? clip : shapePolygon(doc.shape, R, (hasFrame ? insets.frameOuter : insets.image) * R);
 
+  // Layers that can reach past the square (pop-out, decorations) are this much bigger on each side when bleeding.
+  const B = Math.max(0, Math.round(options.bleed ?? 0));
+  const L = size + 2 * B;
+  /** Draws one of those layers centred on the token, `dx` to the side. */
+  const putLayer = (c: Ctx, layer: ReturnType<typeof newCanvas>, dx = 0) => c.drawImage(layer as CanvasImageSource, -R - B + dx, -R - B);
+
   ctx.save();
   ctx.clearRect(0, 0, size, size);
   // Nothing is ever drawn outside the square (DESIGN.md §5), so the token
   // lines up 1:1 with the grid, even when drawn into a bigger canvas.
-  ctx.beginPath();
-  ctx.rect(0, 0, size, size);
-  ctx.clip();
+  if (!B) {
+    ctx.beginPath();
+    ctx.rect(0, 0, size, size);
+    ctx.clip();
+  }
   ctx.translate(R, R);
 
   // The processed art (step 5), and the pop-out parts of it (step 13) on a
@@ -132,9 +146,9 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
   let pop: ReturnType<typeof newCanvas> | null = null;
   if (art && shown && clip.length && hasPopOut(doc.art.popOut)) {
     const parts = popOutArt(art, shown, doc.art.popOut.strokes);
-    pop = newCanvas(size, size);
+    pop = newCanvas(L, L);
     const pctx = pop.getContext('2d') as Ctx;
-    pctx.translate(R, R);
+    pctx.translate(R + B, R + B);
     placeArt(pctx);
     pctx.drawImage(parts.image, -art.width / 2, -art.height / 2, art.width, art.height);
   }
@@ -172,14 +186,18 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
     subject = { image: c as CanvasImageSource, key: `${objectId(shown.image)}|${doc.art.assetId}|${JSON.stringify(doc.art.transform)}` };
   }
 
-  // The decorations (layer 11) on a layer of their own: they are part of the outer shadow's silhouette too.
-  let decor: ReturnType<typeof newCanvas> | null = null;
-  if (doc.decorations.some((d) => d.visible)) {
-    decor = newCanvas(size, size);
-    const dctx = decor.getContext('2d') as Ctx;
-    dctx.translate(R, R);
-    drawDecorations(dctx, doc, R, assets);
-  }
+  // The decorations (layer 11) on layers of their own: they are part of the outer shadow's silhouette too.
+  // Those set to go under the frame (layer 7½) get a layer of their own.
+  const decorLayer = (under: boolean) => {
+    if (!doc.decorations.some((d) => d.visible && !!d.underFrame === under)) return null;
+    const c = newCanvas(L, L);
+    const dctx = c.getContext('2d') as Ctx;
+    dctx.translate(R + B, R + B);
+    drawDecorations(dctx, doc, R, assets, under);
+    return c;
+  };
+  const decor = decorLayer(false);
+  const decorUnder = decorLayer(true);
 
   /** Fills the token's whole outline: the shape (or the picture frame), plus pop-out parts and decorations. */
   const paintSilhouette = (c: Ctx, dx = 0) => {
@@ -192,8 +210,9 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
       drawImageFrame(c, frameImage, R);
       c.restore();
     }
-    if (pop) c.drawImage(pop as CanvasImageSource, -R + dx, -R);
-    if (decor) c.drawImage(decor as CanvasImageSource, -R + dx, -R);
+    if (pop) putLayer(c, pop, dx);
+    if (decorUnder) putLayer(c, decorUnder, dx);
+    if (decor) putLayer(c, decor, dx);
   };
 
   // 1. Outer drop shadow of the whole silhouette.
@@ -229,6 +248,9 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
 
   // 6–7. Effects over the art, including the overlays that were once the Foreground section (v8).
   if (doc.effects.length) drawEffects(ctx, doc.effects, 'over', area, size, subject, 0, assets);
+
+  // 7½. Decorations set to go under the frame: over the art, covered by the frame.
+  if (decorUnder) putLayer(ctx, decorUnder);
 
   // 8–9 go on their own layer when the frame is to be see-through, so its
   // overlapping strokes fade evenly (editor only, never in exports).
@@ -274,11 +296,23 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
     fctx.restore();
   }
 
-  // 9. Frame: a picture frame, one drawn by code, or a Frame Studio design.
+  // 9. Frame: a picture frame, one drawn by code, or a Frame Studio design,
+  // lit like the art when "Light the frame" is on.
+  const drawFrameLayer = (paint: (c: Ctx) => void) => {
+    if (!doc.lighting.frame) return paint(fctx);
+    const lit = newCanvas(size, size);
+    const lctx = lit.getContext('2d') as Ctx;
+    lctx.translate(R, R);
+    paint(lctx);
+    lightLayer(lctx, doc.lighting, size);
+    fctx.drawImage(lit as CanvasImageSource, -R, -R);
+  };
   if (frameImage) {
-    fctx.save();
-    drawImageFrame(fctx, frameImage, R);
-    fctx.restore();
+    drawFrameLayer((c) => {
+      c.save();
+      drawImageFrame(c, frameImage, R);
+      c.restore();
+    });
   } else if (hasFrame && !imageFrame) {
     const geometry: FrameGeometry = {
       shape: doc.shape,
@@ -288,7 +322,8 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
       color: doc.frame.color,
       accent: doc.frame.highlightColor ?? undefined,
     };
-    fctx.drawImage(frameLayer(design ?? doc.frame.style, geometry, size), -R, -R);
+    const drawn = frameLayer(design ?? doc.frame.style, geometry, size);
+    drawFrameLayer((c) => c.drawImage(drawn, -R, -R));
   }
 
   if (layer) {
@@ -301,7 +336,7 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
   // 10. Effects on the border.
   if (doc.effects.length) drawEffects(ctx, doc.effects, 'border', area, size, null, 0, assets);
   // 11. Decorations (src/render/decorations.ts).
-  if (decor) ctx.drawImage(decor as CanvasImageSource, -R, -R);
+  if (decor) putLayer(ctx, decor);
 
   if (pop) {
     // 12. Pop-out shadow: cast by the pop-out parts onto the frame band only
@@ -311,7 +346,7 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
       const shadow = newCanvas(size, size);
       const sctx = shadow.getContext('2d') as Ctx;
       sctx.translate(R, R);
-      castShadow(sctx, (c, dx) => c.drawImage(pop as CanvasImageSource, -R + dx, -R), doc.shadows.popOut, doc.lighting.direction, px, size);
+      castShadow(sctx, (c, dx) => putLayer(c, pop!, dx), doc.shadows.popOut, doc.lighting.direction, px, size);
       sctx.globalCompositeOperation = 'destination-in';
       drawImageFrame(sctx, frameImage, R);
       ctx.drawImage(shadow as CanvasImageSource, -R, -R);
@@ -321,12 +356,12 @@ export function renderToken(ctx: Ctx, doc: TokenDocument, assets: AssetMap, size
       traceInto(ctx, shapePolygon(doc.shape, R, insets.frameOuter * R));
       traceInto(ctx, shapePolygon(doc.shape, R, insets.frameInner * R));
       ctx.clip('evenodd');
-      castShadow(ctx, (c, dx) => c.drawImage(pop as CanvasImageSource, -R + dx, -R), doc.shadows.popOut, doc.lighting.direction, px, size);
+      castShadow(ctx, (c, dx) => putLayer(c, pop!, dx), doc.shadows.popOut, doc.lighting.direction, px, size);
       ctx.restore();
     }
     // 13. Pop-out art: the same processed bitmap as step 5, drawn through the
     // pop-out mask and clipped only to the square.
-    ctx.drawImage(pop as CanvasImageSource, -R, -R);
+    putLayer(ctx, pop);
   }
 
   // 14. Label (src/render/label.ts).

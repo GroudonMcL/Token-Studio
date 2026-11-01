@@ -107,7 +107,11 @@ function half(p: PixelBuffer, tint?: Uint8Array | null): Canvas {
   return c;
 }
 
+/** `ONLY=label-,lighting-frame npm run tm:help-images` redraws only the pictures whose names start with one of these. */
+const ONLY = process.env.ONLY?.split(',').filter(Boolean) ?? [];
+
 function save(name: string, before: Canvas, after: Canvas) {
+  if (ONLY.length && !ONLY.some((o) => name.startsWith(o))) return;
   const gap = 8;
   const c = createCanvas(T * 2 + gap, T);
   const ctx = c.getContext('2d');
