@@ -81,7 +81,7 @@ export const BUILT_IN_FRAMES: readonly BuiltInFrame[] = [...ESSENTIALS, ...FRAME
 export type { BuiltInFrame, BuiltInGroup } from './houseStyle';
 export const builtInFrameById = (id: string) => BUILT_IN_FRAMES.find((f) => f.id === id);
 
-/** The built-in frames by category, in order, each stack together: its first frame, then the versions made from it. */
+/** The built-in frames by category, in order. Each is filed on its own; within a category, frames made from the same one stay next to each other. */
 export function builtInFramesByCategory(): { category: FrameCategory; frames: BuiltInFrame[] }[] {
   const stack = (f: BuiltInFrame) => f.after ?? f.id;
   const first = new Map<string, number>();

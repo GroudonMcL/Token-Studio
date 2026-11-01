@@ -347,24 +347,22 @@ function BandSliders() {
 
 /**
  * Every frame in the picker, by category (frameCategories.ts): the drawn
- * frames and built-in designs, each followed by the versions made from it.
- * Versions whose frame was removed in the frame review are stacked behind the
- * first of them.
+ * frames and built-in designs, each a frame of its own in its own category
+ * (no versions stacked behind another frame). Within a category, frames made
+ * from the same one stay next to each other.
  */
 function frameTiles(): FrameTile[] {
-  const tile = (b: (typeof BUILT_IN_DESIGNS)[number]): FrameTile => ({ id: b.id, label: b.name, group: b.group });
-  const versionsOf = (key: string) => BUILT_IN_DESIGNS.filter((v) => v.after === key);
-  const stacks: { key: string; group: string; tiles: FrameTile[] }[] = [];
-  const add = (key: string, head: FrameTile, versions: (typeof BUILT_IN_DESIGNS)[number][]) =>
-    stacks.push({ key, group: head.group, tiles: [head, ...versions.map((v) => ({ ...tile(v), group: head.group, parent: head.id }))] });
-  for (const b of BUILT_IN_DESIGNS.filter((b) => !b.after)) if (b.group === 'Essentials') add(b.id, tile(b), []);
-  for (const p of FRAME_PRESETS) add(p.id, { id: p.id, label: p.name, group: categoryOf(p.id) }, versionsOf(p.id));
-  for (const b of BUILT_IN_DESIGNS.filter((b) => !b.after && b.group !== 'Essentials')) add(b.id.replace(/^builtin:/, ''), tile(b), versionsOf(b.id.replace(/^builtin:/, '')));
-  const placed = new Set(stacks.map((st) => st.key));
-  const orphans = new Map<string, (typeof BUILT_IN_DESIGNS)[number][]>();
-  for (const v of BUILT_IN_DESIGNS) if (v.after && !placed.has(v.after)) orphans.set(v.after, [...(orphans.get(v.after) ?? []), v]);
-  for (const [key, [head, ...rest]] of orphans) add(key, tile(head), rest);
-  return stacks.sort((x, y) => categoryRank(x.group) - categoryRank(y.group)).flatMap((st) => st.tiles);
+  const tiles: (FrameTile & { from: string })[] = [
+    ...FRAME_PRESETS.map((p) => ({ id: p.id, label: p.name, group: categoryOf(p.id), from: p.id })),
+    ...BUILT_IN_DESIGNS.map((b) => ({ id: b.id, label: b.name, group: b.group, from: b.after ?? b.id.replace(/^builtin:/, '') })),
+  ];
+  const essentials = (t: FrameTile) => Number(t.group !== 'Essentials' || !t.id.startsWith('builtin:'));
+  const first = new Map<string, number>();
+  tiles.forEach((t, i) => first.has(t.from) || first.set(t.from, i));
+  return tiles
+    .map((t, i) => ({ t, i }))
+    .sort((a, b) => categoryRank(a.t.group) - categoryRank(b.t.group) || essentials(a.t) - essentials(b.t) || first.get(a.t.from)! - first.get(b.t.from)! || a.i - b.i)
+    .map(({ t }) => ({ id: t.id, label: t.label, group: t.group }));
 }
 
 /** A colour picker for each of a built-in design's colour slots (its band, its highlights…). */

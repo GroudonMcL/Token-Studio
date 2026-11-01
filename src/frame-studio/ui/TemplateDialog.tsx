@@ -14,7 +14,7 @@ import { categoryOf, categoryRank } from '../project/frameCategories';
 import { addLayer, loadProject } from '../state/projectStore';
 import { THUMB, Tile } from './Thumbnail';
 
-/** Token Studio's frames by category, each frame followed by its versions. */
+/** Token Studio's frames, each filed under its own category. */
 const byCategory = builtInFramesByCategory();
 
 const frameMakers = new Map(FRAME_PRESETS.map((p) => [p.id, () => projectFromFrame(p.id)]));
@@ -70,7 +70,7 @@ export function TemplateDialog({ mode, onClose }: { mode: 'new' | 'addFrame'; on
               </button>
             </div>
             <h3>Token Studio's frames</h3>
-            <p className="note">Every frame Token Maker lists, by category, each followed by its versions. Open one to change it, save it, and open the file in Token Maker.</p>
+            <p className="note">Every frame Token Maker lists, by category. Open one to change it, save it, and open the file in Token Maker.</p>
             {byCategory.map(({ category, frames }) => (
               <section key={category} aria-label={`Token Studio's frames: ${category}`}>
                 <h4>{category}</h4>

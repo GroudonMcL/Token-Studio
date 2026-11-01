@@ -2682,6 +2682,7 @@ input[type='range']::-moz-range-thumb {
   inset: 0;
   z-index: 1000;
   display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   place-items: center;
   padding: var(--space-4);
   background: rgb(0 0 0 / 0.55);
@@ -2741,6 +2742,7 @@ input[type='range']::-moz-range-thumb {
 .frame-pick__body {
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -2787,11 +2789,6 @@ input[type='range']::-moz-range-thumb {
   overflow-y: auto;
 }
 
-.frame-pick__cell {
-  position: relative;
-  display: grid;
-}
-
 .frame-pick__tile {
   display: grid;
   justify-items: center;
@@ -2815,25 +2812,6 @@ input[type='range']::-moz-range-thumb {
   border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--text);
-}
-
-.frame-pick__tile--version {
-  border-color: var(--border);
-  background: var(--surface-sunken);
-}
-
-.frame-pick__stack {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  padding: 0 6px;
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: var(--accent);
-  color: var(--on-accent);
-  font: inherit;
-  font-size: var(--text-xs);
-  font-weight: 700;
 }
 
 .frame-pick__none {
