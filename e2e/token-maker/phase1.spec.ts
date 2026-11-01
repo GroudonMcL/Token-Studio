@@ -60,7 +60,7 @@ test('pick a frame and undo it', async ({ page }) => {
   await expect(gallery).toBeHidden();
   await expect(panel.getByTestId('current-frame')).toContainText('Oak');
   await page.getByRole('button', { name: 'Undo' }).first().click();
-  await expect(panel.getByTestId('current-frame')).toContainText('Stamped');
+  await expect(panel.getByTestId('current-frame')).toContainText('Simple');
 });
 
 test('drag the art, then use the scale and rotate handles', async ({ page }) => {
