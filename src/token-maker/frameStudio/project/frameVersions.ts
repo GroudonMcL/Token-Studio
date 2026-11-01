@@ -1,7 +1,7 @@
 // The new versions of Token Maker's frames chosen in the frame review
 // (docs/FRAME-REVIEW.md), in the owner's house style (houseStyle.ts). Each
-// is listed in Token Maker straight after the frame it is a version of,
-// with a colour picker per colour slot.
+// is listed in Token Maker as a frame of its own, in its own category
+// (frameCategories.ts), with a colour picker per colour slot.
 
 import {
   across,
@@ -3739,8 +3739,8 @@ const VERSIONS: Version[] = [
   // ── next ──
 ];
 
-/** Every version, filed under its frame's category (frameCategories.ts). */
+/** Every version, each filed under its own category (frameCategories.ts). */
 export const FRAME_VERSIONS: BuiltInFrame[] = [
   ...WIZARD,
   ...VERSIONS.map(({ layers, stage, shading, ...v }) => ({ ...v, project: fromLayers(v.name, shading ? () => bandShading(layers(), shading) : layers, stage) })),
-].map((v) => ({ ...v, group: categoryOf(v.id, v.after) }));
+].map((v) => ({ ...v, group: categoryOf(v.id) }));

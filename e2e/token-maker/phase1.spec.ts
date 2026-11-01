@@ -56,7 +56,7 @@ test('pick a frame and undo it', async ({ page }) => {
   await panel.getByRole('button', { name: 'Change frame' }).click();
   const gallery = page.getByRole('dialog', { name: 'Choose a frame' });
   await gallery.getByRole('tab', { name: /Wood & Nature/ }).click();
-  await gallery.getByRole('radio', { name: 'Oak' }).click();
+  await gallery.getByRole('radio', { name: 'Oak', exact: true }).click();
   await expect(gallery).toBeHidden();
   await expect(panel.getByTestId('current-frame')).toContainText('Oak');
   await page.getByRole('button', { name: 'Undo' }).first().click();

@@ -1,10 +1,10 @@
 // The frame picker (owner's choice in the frame review, "P1"): the panel
 // shows only the chosen frame and a Change button; Change pops out a gallery
-// with a tab per group, search, large thumbnails, and new versions of a
-// frame stacked behind it ("+4 versions") until opened.
+// with a tab per group, search and large thumbnails. Every frame is a tile of
+// its own (owner's request: no versions stacked behind another frame).
 
 import { Search, X } from 'lucide-react';
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ControlLabel } from '../components';
 
@@ -12,17 +12,12 @@ export interface FrameTile {
   id: string;
   label: string;
   group: string;
-  /** The frame it is a version of (its tile id), for the stacks. */
-  parent?: string;
-  /** More words search finds it by (a retired frame's name, for its versions). */
-  aka?: string;
 }
 
 export function FramePicker({ tiles, thumbs, value, onChange }: { tiles: readonly FrameTile[]; thumbs: Map<string, string> | null; value: string; onChange: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   const current = tiles.find((t) => t.id === value);
-  const parent = current?.parent ? tiles.find((t) => t.id === current.parent) : undefined;
   const close = () => {
     setOpen(false);
     button.current?.focus();
@@ -34,7 +29,7 @@ export function FramePicker({ tiles, thumbs, value, onChange }: { tiles: readonl
         <Thumb src={thumbs?.get(value)} size={56} />
         <div className="frame-pick__current-text">
           <strong>{current?.label ?? 'Frame'}</strong>
-          <small>{parent ? `${current!.group} · version of ${parent.label}` : current?.group}</small>
+          <small>{current?.group}</small>
         </div>
         <button ref={button} type="button" className="btn btn--primary frame-pick__change" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
           Change frame
@@ -69,12 +64,6 @@ function Gallery({ tiles, thumbs, value, onPick, onClose }: { tiles: readonly Fr
   const chosen = tiles.find((t) => t.id === value);
   const [tab, setTab] = useState(chosen?.group ?? groups[0]);
   const [query, setQuery] = useState('');
-  const [stacks, setStacks] = useState<Set<string>>(() => new Set(chosen?.parent ? [chosen.parent] : []));
-  const versions = useMemo(() => {
-    const m = new Map<string, FrameTile[]>();
-    for (const t of tiles) if (t.parent) m.set(t.parent, [...(m.get(t.parent) ?? []), t]);
-    return m;
-  }, [tiles]);
 
   useEffect(() => {
     const start = box.current?.querySelector<HTMLElement>('[aria-checked="true"]') ?? box.current?.querySelector<HTMLElement>('input');
@@ -82,46 +71,20 @@ function Gallery({ tiles, thumbs, value, onPick, onClose }: { tiles: readonly Fr
   }, []);
 
   const q = query.trim().toLowerCase();
-  const labelOf = (id: string | undefined) => tiles.find((t) => t.id === id)?.label ?? '';
-  const shown: ReactNode[] = [];
-  const tileButton = (t: FrameTile, version = false) => (
+  const tileButton = (t: FrameTile) => (
     <button
       key={t.id}
       type="button"
       role="radio"
       aria-checked={t.id === value}
-      className={`frame-pick__tile${version ? ' frame-pick__tile--version' : ''}`}
+      className="frame-pick__tile"
       onClick={() => onPick(t.id)}
     >
       <Thumb src={thumbs?.get(t.id)} size={72} />
       <span>{t.label}</span>
     </button>
   );
-  if (q) {
-    for (const t of tiles) if (`${t.label} ${labelOf(t.parent)} ${t.aka ?? ''} ${t.group}`.toLowerCase().includes(q)) shown.push(tileButton(t, !!t.parent));
-  } else {
-    for (const t of tiles.filter((x) => x.group === tab && !x.parent)) {
-      const vs = versions.get(t.id) ?? [];
-      const openStack = stacks.has(t.id);
-      shown.push(
-        <div key={t.id} className="frame-pick__cell">
-          {tileButton(t)}
-          {vs.length > 0 && (
-            <button
-              type="button"
-              className="frame-pick__stack"
-              aria-expanded={openStack}
-              aria-label={`${openStack ? 'Hide' : 'Show'} ${vs.length} versions of ${t.label}`}
-              onClick={() => setStacks((s) => new Set(openStack ? [...s].filter((x) => x !== t.id) : [...s, t.id]))}
-            >
-              {openStack ? 'Hide' : `+${vs.length}`}
-            </button>
-          )}
-        </div>,
-      );
-      if (openStack) shown.push(...vs.map((v) => tileButton(v, true)));
-    }
-  }
+  const shown = (q ? tiles.filter((t) => `${t.label} ${t.group}`.toLowerCase().includes(q)) : tiles.filter((t) => t.group === tab)).map(tileButton);
 
   return (
     <div className="frame-pick__backdrop" onPointerDown={(e) => e.target === e.currentTarget && onClose()}>

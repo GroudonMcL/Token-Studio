@@ -129,22 +129,22 @@ describe('Frame section: built-in Frame Studio designs (v11)', () => {
     expect(getDoc().frame.design).toBeNull();
   });
 
-  it("shows a frame's versions stacked behind it, opens on the chosen frame's group, and closes with Escape", () => {
+  it("lists every frame on its own, with no versions stacked behind another, opens on the chosen frame's group, and closes with Escape", () => {
     render(<FrameSection />);
     fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
     expect(screen.getByRole('tab', { name: /Metal & Gems/ })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('radio', { name: /^Stamped$/ })).toBeChecked();
-    expect(screen.queryByRole('radio', { name: /^Ember stamp$/ })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /Show \d+ versions of Stamped/ }));
+    expect(screen.queryByRole('button', { name: /versions of/ })).toBeNull();
     fireEvent.click(screen.getByRole('radio', { name: /^Ember stamp$/ }));
     expect(getDoc().frame.design?.id).toBe('builtin:stamped-ember');
-    expect(screen.getByTestId('current-frame')).toHaveTextContent('version of Stamped');
+    expect(screen.getByTestId('current-frame')).toHaveTextContent('Metal & Gems');
+    expect(screen.getByTestId('current-frame')).not.toHaveTextContent('version of');
     fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
     fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('files frames under broad categories, with no class tabs, and stacks a removed frame’s versions behind the first of them', () => {
+  it('files every frame under its own broad category, with no class tabs', () => {
     render(<FrameSection />);
     fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
     const tabs = screen.getAllByRole('tab').map((t) => t.textContent ?? '');
@@ -153,7 +153,11 @@ describe('Frame section: built-in Frame Studio designs (v11)', () => {
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search frames' }), { target: { value: 'cleric' } });
     expect(screen.queryByRole('radio', { name: /^Cleric$/ })).toBeNull();
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search frames' }), { target: { value: '' } });
-    expect(screen.getByRole('button', { name: /Show \d+ versions of Holy light/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: /Sky & Stars/ }));
+    expect(screen.getByRole('radio', { name: /^Starweave$/ })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /^Dawn$/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: /Metal & Gems/ }));
+    expect(screen.getByRole('radio', { name: /^Holy light$/ })).toBeInTheDocument();
   });
 
   it('gives a built-in design a colour picker per colour slot and keeps the choice', () => {
