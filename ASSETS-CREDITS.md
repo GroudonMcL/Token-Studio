@@ -62,7 +62,7 @@ Every font, icon, image and other asset bundled with Token Studio (Token Maker a
 | Photo texture “Cracked mud” (Frame Studio, `cracked-mud` in `src/frame-studio/project/pictures.ts`) | Poly Haven ([source](https://polyhaven.com/a/mud_cracked_dry_03)): its 1K colour map, resized to 512 px | CC0 1.0 |
 | Photo texture “Tiger rock” (Frame Studio, `tiger-rock` in `src/frame-studio/project/pictures.ts`) | Poly Haven ([source](https://polyhaven.com/a/tiger_rock)): its 1K colour map, resized to 512 px | CC0 1.0 |
 | Lucide icons | [lucide.dev](https://lucide.dev) (`lucide-react`) | ISC |
-| Logo and favicon (`public/favicon.svg`, `src/token-maker/layout/BrandMark.tsx`) | Designed by the owner, GroudonMcL (letters as outlines) | Owner's own |
+| Logo, favicon and home-screen icon (`public/favicon.svg`, `public/apple-touch-icon.png`, `src/token-maker/layout/BrandMark.tsx`) | Designed by the owner, GroudonMcL (letters as outlines) | Owner's own |
 | 25 code-drawn frames and 5 shapes (`src/token-maker/render/catalog.ts`) | Ported from the owner's own [LK-to-Owlbear-Combined](https://github.com/GroudonMcL/LK-to-Owlbear-Combined) extension | Owner's own code |
 | Background “Forest” (`public/backgrounds/forest.webp`) | Forest Stream with Vista, Asher B. Durand, 1872 ([source](https://clevelandart.org/art/1960.162)), cropped and resized | CC0 1.0 |
 | Background “Swamp” (`public/backgrounds/swamp.webp`) | The Devil and Tom Walker, John Quidor, 1856 ([source](https://clevelandart.org/art/1967.18)), cropped and resized | CC0 1.0 |

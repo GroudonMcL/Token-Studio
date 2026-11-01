@@ -53,7 +53,8 @@ What to do before Token Studio goes public, from a review on 27 October 2026. Wh
   - `/`, `/token-maker/`, `/token-maker/about`, `/token-maker/privacy` and `/frame-studio/` all open
   - a web import works on the live site
 - [x] The PROGRESS.md files and other build-time documents were removed.
-- [ ] Add social-share tags (`og:title`, `og:description`, `og:image`), an `apple-touch-icon` PNG and maybe a web manifest. At the moment the favicon is the only icon.
+- [x] `apple-touch-icon` PNG added (`public/apple-touch-icon.png`, 180 × 180, linked from all three pages).
+- [ ] Add social-share tags (`og:title`, `og:description`, `og:image`) and maybe a web manifest. At the moment the favicon is the only icon.
 - [ ] Decide how you'll hear about errors. Cloudflare's Workers logs cover the proxy. Browser errors are invisible unless you add something, and that something must go on the Privacy page.
 
 ## 6. Testing on real devices

@@ -271,6 +271,28 @@ export function LabelSection() {
           )}
         </>
       )}
+      <Slider
+        label="Text outline"
+        helpId="label.textOutline"
+        unit="% of a square"
+        min={0}
+        max={6}
+        step={0.1}
+        value={toPct(l.textOutline.width)}
+        defaultValue={toPct(D.textOutline.width)}
+        onChange={(v) => set({ textOutline: { ...l.textOutline, width: fromPct(v) } }, true)}
+        onCommit={commitDoc}
+      />
+      {l.textOutline.width > 0 && (
+        <ColorSwatches
+          label="Text outline colour"
+          helpId="label.textOutlineColor"
+          value={l.textOutline.color}
+          swatches={LINE_SWATCHES}
+          onChange={(color) => set({ textOutline: { ...l.textOutline, color } }, true)}
+          onCommit={commitDoc}
+        />
+      )}
       <Toggle label="Shrink long names to fit" helpId="label.shrink" checked={l.shrinkToFit} onChange={(shrinkToFit) => set({ shrinkToFit })} />
     </>
   );

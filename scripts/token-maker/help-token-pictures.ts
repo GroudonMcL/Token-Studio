@@ -497,6 +497,8 @@ export async function tokenPictures(save: Save): Promise<void> {
   p('label.opacity', [label()], [label({ opacity: 0.35 })]);
   p('label.outline', [label({ outline: { width: 0, color: '#5a3d1e' } })], [label({ outline: { width: 0.06, color: '#5a3d1e' } })]);
   p('label.outlineColor', [label({ outline: { width: 0.05, color: '#5a3d1e' } })], [label({ outline: { width: 0.05, color: '#d6a24e' } })]);
+  p('label.textOutline', [forest(), ring()], [forest(), ring({ textOutline: { width: 0.06, color: '#20140a' } })]);
+  p('label.textOutlineColor', [ring({ textOutline: { width: 0.03, color: '#20140a' } })], [ring({ textOutline: { width: 0.03, color: '#a01818' } })]);
   const longName = 'Grimbold the Long-Winded';
   p('label.shrink', [label({ text: longName, shrinkToFit: false })], [label({ text: longName })]);
 

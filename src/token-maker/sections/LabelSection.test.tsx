@@ -90,15 +90,19 @@ describe('Label section', () => {
     expect(getDoc().label!.y).toBeLessThan(-0.5);
   });
 
-  it('shrink to fit, and no advanced text styles (owner request)', () => {
+  it('shrink to fit, a text outline, and no other advanced text styles (owner request)', () => {
     updateDoc((d) => ({ ...d, label: newLabel() }));
     render(<LabelSection />);
     fireEvent.click(screen.getByRole('switch', { name: 'Shrink long names to fit' }));
     expect(getDoc().label?.shrinkToFit).toBe(false);
     expect(screen.queryByRole('button', { name: 'Advanced' })).toBeNull();
     expect(screen.queryByText('Letter spacing')).toBeNull();
-    expect(screen.queryByText('Text outline')).toBeNull();
     expect(screen.queryByRole('switch', { name: 'Text shadow' })).toBeNull();
+    // The text outline is back in the main settings; its colour shows once it has a width.
+    expect(screen.queryByText('Text outline colour')).toBeNull();
+    fireEvent.change(screen.getByRole('slider', { name: /^Text outline/ }), { target: { value: '2' } });
+    expect(getDoc().label?.textOutline.width).toBeCloseTo(0.04);
+    expect(screen.getByText('Text outline colour')).toBeInTheDocument();
   });
 
   it('starts at 7 % of a square, black, bold, with no outline round the letters', () => {

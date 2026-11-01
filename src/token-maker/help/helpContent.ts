@@ -553,6 +553,8 @@ export const helpContent = {
   'label.opacity': { title: 'Shape opacity', text: 'Lower it to let the token show through the shape. The text stays solid.', media: beforeAfter('label-opacity', 'the banner fades so the token shows through') },
   'label.outline': { title: 'Shape outline', text: 'A line round the shape, as a share of one grid square. Set it to 0 for none.', media: beforeAfter('label-outline', 'a thick line is drawn round the banner') },
   'label.outlineColor': { title: 'Outline colour', text: 'The colour of the line round the shape.', media: beforeAfter('label-outlineColor', 'the line round the banner turns gold') },
+  'label.textOutline': { title: 'Text outline', text: 'A line round every letter, which helps the words stand out on a busy token, as a share of one grid square. Set it to 0 for none.', media: beforeAfter('label-textOutline', 'ring text over a busy forest gets a dark outline') },
+  'label.textOutlineColor': { title: 'Text outline colour', text: 'The colour of the line round the letters.', media: beforeAfter('label-textOutlineColor', 'the outline round the letters turns red') },
   'label.shrink': {
     title: 'Shrink long names to fit',
     text: 'Long names get smaller so they never spill off the shape or past the ring. Switch it off to make the shape grow to fit the words instead.',
