@@ -60,6 +60,11 @@ test('the search buttons open each site with the words filled in', async ({ page
   const box = panel.getByRole('searchbox', { name: 'Find art online' });
   await box.fill('goblin shaman');
   const google = sites.getByRole('link', { name: 'Google Images' });
+  // AI art is left out unless switched off: Google gets the AI words with a minus, Pinterest can't be told.
+  await expect(google).toHaveAttribute('href', /^https:\/\/www\.google\.com\/search\?udm=2&q=goblin%20shaman%20fantasy%20art%20-ai%20-aiart/);
+  await expect(sites.getByRole('link', { name: 'Pinterest' })).toHaveAttribute('href', 'https://www.pinterest.com/search/pins/?q=goblin%20shaman%20fantasy%20art');
+  await expect(panel.getByRole('switch', { name: 'Leave out AI art' })).toHaveAttribute('aria-checked', 'true');
+  await panel.getByRole('switch', { name: 'Leave out AI art' }).click();
   await expect(google).toHaveAttribute('href', 'https://www.google.com/search?udm=2&q=goblin%20shaman%20fantasy%20art');
   await expect(google).toHaveAttribute('target', '_blank');
   await expect(google).toHaveAttribute('rel', 'noopener noreferrer');

@@ -18,7 +18,7 @@ async function upload(page: Page) {
 }
 
 /** The Image section. */
-const imagePanel = (page: Page) => openSection(page, 'Image');
+const imagePanel = (page: Page) => openSection(page, 'Colour');
 
 /** Background removal, in the Cut-out section since the tool rail. */
 async function removeBackground(page: Page) {

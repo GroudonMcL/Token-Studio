@@ -398,7 +398,7 @@ Desktop and phone are **equally important**.
 
 ## 9. Visual design
 
-**Direction: "Lamplit Workbench" with a moonlit sky** (chosen in Phase 0). A tinkerer's bench at night: warm charcoal surfaces, one brass/gold accent, and a deep navy tint that fades down from the top of the screen. The token is always the brightest, most saturated thing on screen. Dark is the default theme. Light theme follows the system setting, or the user can pick it with the theme button in the top bar.
+**Direction: "Lamplit Workbench" with a moonlit sky** (chosen in Phase 0). A tinkerer's bench at night: warm charcoal surfaces, one brass/gold accent, and a deep navy tint that fades down from the top of the screen. The token is always the brightest, most saturated thing on screen. Dark is the default theme. *(Owner feedback: one **Themes** button in the top bar — a moon, or a sun on a light theme — picks Dark, Light, Rustic, Night, Day, Sunset or Ocean for both apps (`src/shell/palettes.ts`); Light and Day are the light themes. It replaced the separate light/dark switch.)*
 
 The single source for every value below is `src/styles/tokens.css`. Change values there, not in components. `src/styles/contrast.test.ts` fails if a theme drops below WCAG AA contrast.
 

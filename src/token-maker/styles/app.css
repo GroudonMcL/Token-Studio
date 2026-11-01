@@ -282,7 +282,8 @@ button:disabled {
   min-width: 0;
   min-height: 0;
   /* lets the navy-to-charcoal page gradient show through, darkened towards the edges */
-  background: radial-gradient(ellipse at 50% 45%, transparent 0%, color-mix(in srgb, var(--surface-sunken) 70%, transparent) 85%);
+  /* --vignette (palettes.css): lighter on the Sunset and Ocean themes, so their gradients show. */
+  background: radial-gradient(ellipse at 50% 45%, transparent 0%, color-mix(in srgb, var(--surface-sunken) var(--vignette, 70%), transparent) 85%);
 }
 
 .canvas-area__hint {

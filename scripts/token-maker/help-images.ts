@@ -19,9 +19,10 @@ const T = 240; // each half
 const OUT = 'public/help';
 
 type Crop = { file: string; x: number; y: number; size: number };
-const HEAD: Crop = { file: 'e2e/token-maker/fixtures/goblin-boss.png', x: 60, y: 120, size: 480 };
-const FLAT: Crop = { file: 'e2e/token-maker/fixtures/flat-goblin.png', x: 0, y: 100, size: 600 };
-const EAR: Crop = { file: 'e2e/token-maker/fixtures/flat-goblin.png', x: 380, y: 170, size: 140 };
+// The owner's True Goblin (public/sample/), and the copy cut out onto flat white (true-goblin.ts).
+const HEAD: Crop = { file: 'public/sample/true-goblin.png', x: 60, y: 120, size: 480 };
+const FLAT: Crop = { file: 'scripts/token-maker/fixtures/true-goblin-flat.png', x: 0, y: 100, size: 600 };
+const EAR: Crop = { file: 'scripts/token-maker/fixtures/true-goblin-flat.png', x: 380, y: 170, size: 140 };
 
 async function crop(c: Crop, noise = 0): Promise<PixelBuffer> {
   const img = await loadImage(c.file);
@@ -130,7 +131,7 @@ function save(name: string, before: Canvas, after: Canvas) {
   writeFileSync(`${OUT}/${name}.webp`, c.toBuffer('image/webp', 82));
 }
 
-/** A whole token: the flat-background goblin, cut out, on a slate background. */
+/** A whole token: True Goblin on flat white, cut out, on a slate background. */
 function tokenWith(art: RenderSource, effects: Partial<EffectLayer>[], patch: Partial<TokenDocument> = {}): Canvas {
   const doc = createDocument();
   doc.art.assetId = 'asset:goblin';
@@ -165,7 +166,7 @@ function effectPictures(art: RenderSource) {
 async function main() {
   mkdirSync(OUT, { recursive: true });
   setCanvasFactory((w, h) => createCanvas(w, h) as unknown as HTMLCanvasElement);
-  const goblin = await loadImage('e2e/token-maker/fixtures/flat-goblin.png');
+  const goblin = await loadImage('scripts/token-maker/fixtures/true-goblin-flat.png');
   effectPictures({ image: goblin as unknown as CanvasImageSource, width: goblin.width, height: goblin.height });
   const head = await crop(HEAD);
   const flat = await crop(FLAT);

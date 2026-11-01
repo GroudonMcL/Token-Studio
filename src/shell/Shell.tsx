@@ -15,7 +15,6 @@ const FRAME_MESSAGE = 'token-studio:frame';
 const READY_MESSAGE = 'token-studio:token-maker-ready';
 
 const APP_KEY = 'token-studio:app';
-const THEME_KEY = 'tm.theme';
 
 function savedApp(): AppId {
   try {
@@ -66,9 +65,8 @@ export function Shell() {
         deliver();
       }
     };
-    // Token Maker's theme and the colour scheme also colour this page (seen while an app loads).
+    // The theme also colours this page (seen while an app loads).
     const onStorage = (e: StorageEvent) => {
-      if (e.key === THEME_KEY) document.documentElement.setAttribute('data-theme', e.newValue === 'light' ? 'light' : 'dark');
       if (e.key === PALETTE_KEY) applyPalette(readPalette());
     };
     window.addEventListener('message', onMessage);

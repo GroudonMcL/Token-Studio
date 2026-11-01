@@ -9,7 +9,8 @@ describe('AppShell (desktop)', () => {
     const rail = screen.getByRole('tablist', { name: 'Settings' });
     expect(rail).toHaveAttribute('aria-orientation', 'vertical');
     expect(within(rail).getAllByRole('tab').map((t) => t.textContent)).toEqual([
-      'Picture',
+      'Import',
+      'Colour',
       'Cut-out',
       'Background',
       'Pop-out',
@@ -29,11 +30,10 @@ describe('AppShell (desktop)', () => {
   it('shows only the chosen tab in the panel', () => {
     render(<AppShell />);
     const panel = screen.getByRole('complementary', { name: 'Token settings' });
-    // Picture holds two sections, one open at a time.
-    expect(within(panel).getByRole('button', { name: 'Import' })).toHaveAttribute('aria-expanded', 'true');
-    expect(within(panel).getByRole('button', { name: 'Image' })).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.click(within(panel).getByRole('button', { name: 'Image' }));
-    expect(within(panel).getByRole('button', { name: 'Import' })).toHaveAttribute('aria-expanded', 'false');
+    expect(within(panel).getByRole('heading', { name: 'Import' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'Colour' }));
+    expect(within(panel).getByRole('heading', { name: 'Colour' })).toBeInTheDocument();
+    expect(within(panel).queryByRole('heading', { name: 'Import' })).toBeNull();
 
     // A tab with one section shows it under a plain heading.
     fireEvent.click(screen.getByRole('tab', { name: 'Shadow' }));
@@ -44,9 +44,9 @@ describe('AppShell (desktop)', () => {
 
   it('moves between tabs with the arrow keys', () => {
     render(<AppShell />);
-    const first = screen.getByRole('tab', { name: 'Picture' });
+    const first = screen.getByRole('tab', { name: 'Import' });
     fireEvent.keyDown(first, { key: 'ArrowDown' });
-    expect(screen.getByRole('tab', { name: 'Cut-out' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Colour' })).toHaveAttribute('aria-selected', 'true');
     fireEvent.keyDown(first, { key: 'End' });
     expect(screen.getByRole('tab', { name: 'Export' })).toHaveAttribute('aria-selected', 'true');
   });

@@ -172,7 +172,7 @@ describe('Toggle', () => {
 describe('HelpTip', () => {
   it('opens on click, describes the button for screen readers, and closes with Escape', async () => {
     render(<HelpTip id="section.image" />);
-    const btn = screen.getByRole('button', { name: 'Help: Image' });
+    const btn = screen.getByRole('button', { name: 'Help: Colour' });
     expect(btn).toHaveAccessibleDescription(/Adjust brightness/);
     expect(screen.getByRole('tooltip', { hidden: true })).not.toBeVisible();
     await userEvent.click(btn);

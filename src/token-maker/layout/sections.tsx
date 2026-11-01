@@ -49,7 +49,7 @@ const icon = (C: typeof Download) => <C size={18} strokeWidth={1.75} />;
 /** Every section, in the order the tabs show them. */
 export const SECTIONS: readonly SectionDef[] = [
   { id: 'import', title: 'Import', helpId: 'section.import', icon: icon(ImagePlus), placeholder: 'Upload, drop, paste or link an image.' },
-  { id: 'image', title: 'Image', helpId: 'section.image', icon: icon(SlidersHorizontal), placeholder: 'Adjustments.' },
+  { id: 'image', title: 'Colour', helpId: 'section.image', icon: icon(SlidersHorizontal), placeholder: 'Brightness, contrast and colour.' },
   { id: 'cutout', title: 'Cut-out', helpId: 'section.cutout', icon: icon(Scissors), placeholder: 'Remove the picture’s own background and tidy its edges.' },
   { id: 'popout', title: 'Pop-out', helpId: 'section.popout', icon: icon(Maximize2), placeholder: 'Paint parts of the art over the border.' },
   { id: 'frame', title: 'Frame & shape', helpId: 'section.frame', icon: icon(Frame), placeholder: 'Shape, border style, colour and thickness.' },
@@ -82,7 +82,8 @@ export interface PanelTab {
 export const TAB_GROUPS: readonly TabGroup[] = ['Art', 'Look', 'Finish'];
 
 export const PANEL_TABS: readonly PanelTab[] = [
-  { id: 'picture', label: 'Picture', group: 'Art', icon: icon(ImagePlus), sections: ['import', 'image'] },
+  { id: 'import', label: 'Import', group: 'Art', icon: icon(ImagePlus), sections: ['import'] },
+  { id: 'colour', label: 'Colour', group: 'Art', icon: icon(SlidersHorizontal), sections: ['image'] },
   { id: 'cutout', label: 'Cut-out', group: 'Art', icon: icon(Scissors), sections: ['cutout'] },
   { id: 'background', label: 'Background', group: 'Art', icon: icon(Mountain), sections: ['background'] },
   { id: 'popout', label: 'Pop-out', group: 'Art', icon: icon(Maximize2), sections: ['popout'] },

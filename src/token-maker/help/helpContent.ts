@@ -35,7 +35,7 @@ export const helpContent = {
     media: beforeAfter('section-import', 'an empty token gets a goblin picture'),
   },
   'section.image': {
-    title: 'Image',
+    title: 'Colour',
     text: 'Adjust brightness, contrast and colour, and fix the edges with the erase/restore brush.',
     media: beforeAfter('section-image', 'the picture gets punchier, warmer colours'),
   },
@@ -110,6 +110,11 @@ export const helpContent = {
     title: 'Find art online',
     text: 'Type what you want, like "goblin shaman", and pick a site to open its search results in a new tab. When you find a picture, copy it and press Ctrl+V here, drag it onto the page, or paste its link in the Web address box.',
     media: beforeAfter('import-search', 'an empty token gets a picture found online'),
+  },
+  'import.noAi': {
+    title: 'Leave out AI art',
+    text: 'Google, Bing and Reddit searches leave out pictures tagged as AI-made (Midjourney, Stable Diffusion and so on), which catches many but not all. Pinterest, ArtStation and DeviantArt can’t be told from here, but ArtStation’s Quick filters and DeviantArt’s browse settings can hide AI art.',
+    media: beforeAfter('import-noAi', 'an empty token gets a hand-drawn picture found online'),
   },
   'import.web': {
     title: 'Web address',
@@ -707,8 +712,8 @@ export const helpContent = {
     media: beforeAfter('panel-menuStyle', 'the Advanced drop-downs open up'),
   },
   'topbar.theme': {
-    title: 'Theme',
-    text: 'Switch between the dark look (the default) and the light look.',
+    title: 'Themes',
+    text: 'Pick how both apps look: Dark (the default), Light, Rustic, Night, Day, Sunset or Ocean. The button shows a moon for a dark theme and a sun for a light one.',
     media: beforeAfter('topbar-theme', 'the dark look becomes the light look'),
   },
 

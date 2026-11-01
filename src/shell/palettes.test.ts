@@ -1,9 +1,10 @@
 // @vitest-environment node
 /// <reference types="node" />
 import { readFileSync } from 'node:fs';
-import { PALETTES } from './palettes';
+import { PALETTES, THEME_SCRIPT } from './palettes';
 
-// Every colour scheme in palettes.css meets WCAG AA contrast, like the themes in tokens.css.
+// Every theme in palettes.css meets WCAG AA contrast, like the themes in tokens.css,
+// and every page applies it before painting.
 
 const css = readFileSync(new URL('./palettes.css', import.meta.url), 'utf8');
 
@@ -28,7 +29,7 @@ function ratio(a: string, b: string): number {
   return (hi! + 0.05) / (lo! + 0.05);
 }
 
-describe.each(PALETTES.map((p) => [p.id]))('the %s colour scheme', (id) => {
+describe.each(PALETTES.map((p) => [p.id]))('the %s theme', (id) => {
   const t = block(id);
   it('sets every colour', () => {
     for (const k of ['bg-top', 'bg', 'surface', 'surface-raised', 'surface-sunken', 'border', 'border-strong', 'text', 'text-muted', 'text-faint', 'accent', 'accent-hover', 'on-accent', 'focus']) expect(t[k], k).toMatch(/^#/);
@@ -45,5 +46,11 @@ describe.each(PALETTES.map((p) => [p.id]))('the %s colour scheme', (id) => {
   it('faint text and the focus ring are visible (3:1)', () => {
     expect(ratio(t['text-faint']!, t.surface!)).toBeGreaterThanOrEqual(3);
     expect(ratio(t.focus!, t.surface!)).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe('applying the theme', () => {
+  it.each(['index.html', 'token-maker/index.html', 'frame-studio/index.html'])('%s applies it before painting, with the current list', (page) => {
+    expect(readFileSync(new URL(`../../${page}`, import.meta.url), 'utf8')).toContain(THEME_SCRIPT);
   });
 });

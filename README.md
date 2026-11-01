@@ -1,6 +1,6 @@
 # Token Studio
 
-**Token Maker** and **Frame Studio** in one web app. Token Maker makes tokens for D&D and other tabletop RPGs; Frame Studio designs the frames that go round them. The app titles at the left of each app's top bar switch between the apps. Both stay open while you switch, so you lose nothing. The swatch-book button in either app's top bar picks the colour scheme for both apps: Graphite on navy unless another is picked (`src/shell/palettes.css`).
+**Token Maker** and **Frame Studio** in one web app. Token Maker makes tokens for D&D and other tabletop RPGs; Frame Studio designs the frames that go round them. The app titles at the left of each app's top bar switch between the apps. Both stay open while you switch, so you lose nothing. The Themes button (a moon, or a sun for a light theme) in either app's top bar picks the theme for both apps: Dark unless another is picked; Light and Day are the light ones (`src/shell/palettes.css`).
 
 **Sending a frame from Frame Studio to Token Maker:** in Frame Studio, click **Export**. Inside Token Studio the menu starts on **Frame for Token Maker**. Click **Send to Token Maker**. Token Studio switches to Token Maker, which uses the design as the token's frame and keeps it in its list of Frame Studio designs (**Frame & shape → Frame type → Frame Studio**). Nothing is downloaded.
 
@@ -54,7 +54,7 @@ A Cloudflare **Pages** project still works: build command `npm run build`, outpu
 ## How it fits together
 
 ```
-index.html, src/shell/        Token Studio's page: each app in its own frame, the app switch and colour schemes both apps use.
+index.html, src/shell/        Token Studio's page: each app in its own frame, the app switch and the themes both apps use.
                               Frames keep the apps' styles and keyboard shortcuts (Ctrl+Z…) apart.
 token-maker/index.html        Token Maker's page   → src/token-maker/  (was token-maker/src)
 frame-studio/index.html       Frame Studio's page  → src/frame-studio/ (was Frame-Studio/src)

@@ -16,21 +16,21 @@ test('menu style hides, folds or shows the Advanced settings, and is remembered'
   await sample(page);
   const style = (name: 'Simple' | 'Expert') => setMenuStyle(page, name);
   await style('Simple');
-  let panel = await openSection(page, 'Image');
+  let panel = await openSection(page, 'Colour');
   await expect(panel.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
   await expect(panel.getByRole('textbox', { name: 'Hue value' })).toHaveCount(0);
   await style('Expert');
-  panel = await openSection(page, 'Image');
+  panel = await openSection(page, 'Colour');
   await expect(panel.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
   await expect(panel.getByRole('textbox', { name: 'Hue value' })).toBeVisible();
   await page.reload();
-  panel = await openSection(page, 'Image');
+  panel = await openSection(page, 'Colour');
   await expect(panel.getByRole('textbox', { name: 'Hue value' })).toBeVisible();
 });
 
 test('a slider reset button puts its default back as one undo step', async ({ page }) => {
   await sample(page);
-  const panel = await openSection(page, 'Image');
+  const panel = await openSection(page, 'Colour');
   const box = panel.getByRole('textbox', { name: 'Brightness value' });
   await box.fill('40');
   await box.press('Enter');
@@ -43,7 +43,7 @@ test('a slider reset button puts its default back as one undo step', async ({ pa
   await expect(box).toHaveValue('40');
 });
 
-test('the side panel can be dragged wider, and the theme switches between dark and light only', async ({ page, isMobile }) => {
+test('the side panel can be dragged wider, and Themes picks a light or dark theme', async ({ page, isMobile }) => {
   test.skip(!!isMobile, 'phones use the bottom sheet');
   await page.goto('/token-maker/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
@@ -62,10 +62,16 @@ test('the side panel can be dragged wider, and the theme switches between dark a
   await handle.dblclick();
   expect(Math.abs((await panel.boundingBox())!.width - before)).toBeLessThan(4);
 
-  await page.getByRole('button', { name: /Theme: dark/ }).click();
+  // One Themes menu instead of a light/dark switch; Light and Day are light, the rest dark.
+  await page.getByRole('button', { name: 'Themes' }).click();
+  await page.getByRole('menuitemradio', { name: /^Light/ }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.getByRole('button', { name: /Theme: light/ }).click();
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-palette', 'light');
+  await page.getByRole('button', { name: 'Themes' }).click();
+  await page.getByRole('menuitemradio', { name: /^Sunset/ }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('html')).toHaveAttribute('data-palette', 'sunset');
 });
 
 test('picture effects and decorations, and a plain label turned round its anchor', async ({ page }) => {

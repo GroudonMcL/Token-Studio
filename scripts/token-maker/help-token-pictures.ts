@@ -32,9 +32,9 @@ const BACKDROP = '#2a251f';
 const source = (img: Image | Canvas): RenderSource => ({ image: img as unknown as CanvasImageSource, width: img.width, height: img.height });
 const assets = new Map<string, RenderSource>();
 
-/** The flat-background goblin, cut out, on a slate background: the starting token for most pictures. */
+/** True Goblin on flat white, cut out, on a slate background: the starting token for most pictures. */
 function base(): TokenDocument {
-  const doc = createDocument('Goblin');
+  const doc = createDocument('True Goblin');
   doc.art.assetId = 'asset:goblin';
   doc.art.removal = { ...DEFAULT_REMOVAL, enabled: true };
   doc.art.transform = { ...doc.art.transform, zoom: 0.95, offsetY: 0.08 };
@@ -175,7 +175,7 @@ const preset = (name: string): Change => (d) => {
   for (const k of LOOK_KEYS) (d as unknown as Record<string, unknown>)[k] = look[k];
   d.art.assetId = d.art.assetId ?? 'asset:goblin';
 };
-/** The other test picture: the goblin on a sky, no background removal. */
+/** True Goblin as drawn, on its own gradient, no background removal. */
 const boss: Change = (d) => {
   d.art.assetId = 'asset:boss';
   d.art.removal = { ...DEFAULT_REMOVAL };
@@ -296,16 +296,17 @@ const showMask = (strokes = EARS): Change => (d) => {
 
 export async function tokenPictures(save: Save): Promise<void> {
   registerUiFont();
-  const goblin = await loadImage('e2e/token-maker/fixtures/flat-goblin.png');
-  const bossImg = await loadImage('e2e/token-maker/fixtures/goblin-boss.png');
+  // The owner's True Goblin: cut out onto flat white, and as drawn on its own gradient (scripts/token-maker/true-goblin.ts).
+  const goblin = await loadImage('scripts/token-maker/fixtures/true-goblin-flat.png');
+  const bossImg = await loadImage('public/sample/true-goblin.png');
   assets.set('asset:goblin', source(goblin));
   assets.set('asset:boss', source(bossImg));
   goblinImage = goblin;
   for (const id of ['forest', 'night-sky', 'tavern', 'dungeon']) assets.set(`library:${id}`, source(await loadImage(readFileSync(`public/backgrounds/${id}.webp`))));
   for (const id of ['fx-smoke-puffs', 'fx-twinkles', 'deco-heart', 'deco-potion']) assets.set(pictureAssetId({ type: 'library', id }), source(await loadImage(readFileSync(`public/pictures/${id}.webp`))));
   assets.set(pictureAssetId({ type: 'upload', id: 'demo' }), source(await loadImage(readFileSync('public/backgrounds/night-sky.webp'))));
-  // The AI cut-out of the boss goblin, made once with the real model (BiRefNet-lite) and kept as a fixture.
-  const aiImg = await loadImage('e2e/token-maker/fixtures/goblin-boss-ai-mask.png');
+  // The cut-out of True Goblin (true-goblin.ts), standing in for the AI cut-out.
+  const aiImg = await loadImage('scripts/token-maker/fixtures/true-goblin-mask.png');
   const aiCanvas = createCanvas(aiImg.width, aiImg.height);
   aiCanvas.getContext('2d').drawImage(aiImg, 0, 0);
   const aiRgba = aiCanvas.getContext('2d').getImageData(0, 0, aiImg.width, aiImg.height).data;
@@ -335,6 +336,7 @@ export async function tokenPictures(save: Save): Promise<void> {
   // ---- Import ----
   p('import.upload', null, []);
   p('import.search', null, [boss]);
+  p('import.noAi', null, [boss]);
   p('import.web', null, [boss]);
   {
     const strip = createCanvas(T, T);

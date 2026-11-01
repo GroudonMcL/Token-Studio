@@ -100,7 +100,7 @@ for (const theme of ['dark', 'light'] as const) {
     test.use({ colorScheme: theme });
     // Dark is the default whatever the device says; light is the theme button's choice.
     test.beforeEach(async ({ page }) => {
-      await page.addInitScript((t) => (t === 'light' ? localStorage.setItem('tm.theme', 'light') : localStorage.removeItem('tm.theme')), theme);
+      await page.addInitScript((t) => (t === 'light' ? localStorage.setItem('ts.palette', 'light') : localStorage.removeItem('ts.palette')), theme);
     });
 
     test('no axe problems in the editor, with every section open', async ({ page }) => {
@@ -184,9 +184,9 @@ test.describe('keyboard', () => {
     await loadGoblin(page);
     const panel = page.getByRole('complementary', { name: 'Token settings' });
     // The tool rail: arrow keys move between tabs.
-    await page.getByRole('tab', { name: 'Picture' }).focus();
-    // Picture → Cut-out → Background → Pop-out → Frame.
-    for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowDown');
+    await page.getByRole('tab', { name: 'Import' }).focus();
+    // Import → Colour → Cut-out → Background → Pop-out → Frame.
+    for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowDown');
     await expect(page.getByRole('tab', { name: 'Frame' })).toBeFocused();
     await expect(page.getByRole('tab', { name: 'Frame' })).toHaveAttribute('aria-selected', 'true');
     const circle = panel.getByRole('radio', { name: 'Circle' });
@@ -209,7 +209,7 @@ test.describe('performance', () => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
     const results: string[] = [];
-    for (const [section, name] of [['Image', 'Brightness'], ['Frame & shape', 'Thickness']] as const) {
+    for (const [section, name] of [['Colour', 'Brightness'], ['Frame & shape', 'Thickness']] as const) {
       const slider = (await openSection(page, section)).getByRole('slider', { name, exact: true });
       await slider.scrollIntoViewIfNeeded();
       await page.waitForTimeout(800);
