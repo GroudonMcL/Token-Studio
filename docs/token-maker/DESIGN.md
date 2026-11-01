@@ -15,7 +15,7 @@ A free website where anyone can quickly make a great-looking token for D&D and o
 - **Deep for enthusiasts:** every look can be fine-tuned. Advanced controls live in collapsible "Advanced" sections so the simple view stays simple.
 - **Desktop and phone equally:** every feature must work with mouse, touch and pen. Not desktop-first.
 - **Runs in the browser:** images are processed on the visitor's device. The only server code is a small, safe image-fetching proxy. No accounts, no database (for now).
-- **Free to host:** Cloudflare Pages + Pages Functions (free tier).
+- **Free to host:** Cloudflare Workers with static assets (free tier).
 
 **Non-goals for version 1** (see §15 Future features): AI features, animation, accounts, adverts switched on, Pinterest board browsing, direct sending to VTTs.
 
@@ -51,8 +51,8 @@ Reuse its proven parts, but **do not** copy anything about LegendKeeper, Owlbear
 | State | A single versioned `TokenDocument` (JSON) + a small store (e.g. Zustand) | Makes undo/redo, presets, autosave and batch mode simple. |
 | Storage | IndexedDB (via `idb-keyval` or similar) for presets, uploaded fonts/frames, autosave; `localStorage` only for small UI preferences | No accounts yet. |
 | ZIP | fflate (in a Web Worker) | Batch export. |
-| Server | Cloudflare Pages Functions (`/functions/api/...`) | Image proxy for web addresses and Pinterest links only. |
-| Hosting | Cloudflare Pages, deployed from GitHub | Free; owner already uses Cloudflare. |
+| Server | A Cloudflare Worker (`worker/index.ts`; Pages Functions in `/functions/api/...` also work) | Image proxy for web addresses only. |
+| Hosting | Cloudflare Workers (static assets), deployed from GitHub | Free; owner already uses Cloudflare. |
 | Tests | Vitest (unit + renderer pixel checks), Playwright (end-to-end, desktop and phone viewports) | |
 
 The owner is **new to coding and uses Windows.** Every build step should come with plain-English instructions and Windows-friendly commands (PowerShell), and `README.md` must explain how to run, test and deploy.
@@ -166,7 +166,7 @@ Ways in (all lead to the same "image loaded" state):
    - A **normal web page** link: the server fetches the page and returns the images found on it (`<img>`, `srcset` largest, `og:image`, `twitter:image`, CSS backgrounds where easy). The user picks one from an image strip (like the extension's Image section). Tiny images (icons, under ~64 px) are hidden.
    - Each picture is first fetched straight from its site in the browser (works when the site allows it, CORS), then through the server. Either way it arrives as a Blob, so the canvas is never tainted and exporting always works.
    - If a site blocks fetching, show a friendly message: "That site blocks direct loading. Right-click the image, choose “Copy image”, then press Ctrl+V here."
-5. **Pinterest pin link** — paste a pin URL (including `pin.it` short links). The server follows redirects, reads the pin page's main image (`og:image`, preferring the `/originals/` size) and loads it. (Browsing Pinterest boards with login is a future feature — §15.)
+5. *(Removed before the public release: Pinterest pin links had their own handling. Pinterest's terms forbid scraping, so a Pinterest link is now treated like any other web address.)*
 
 **Find art online** — a search box with a button per site (Google Images, Pinterest, ArtStation, DeviantArt, Reddit, Bing Images; listed in `src/config/artSearchSites.ts`). Each opens that site's own search results in a new tab; nothing is fetched by the app. "Add “fantasy art”" (on by default) adds those words so results lean towards illustrations. Enter searches the first site. The user brings a picture back with any of the ways in above.
 
@@ -350,12 +350,12 @@ Tiny, Small, Medium, Large, Huge, Gargantuan, Custom (any number of squares). Ch
 
 ---
 
-## 7. Server: the image proxy (Cloudflare Pages Functions)
+## 7. Server: the image proxy (Cloudflare Worker)
 
 Only two endpoints. No storage, no logging of image content.
 
 - `GET /api/fetch-image?url=…` → returns the image bytes (with correct content type).
-- `GET /api/page-images?url=…` → returns JSON: a list of image URLs found on the page (with width/height hints), or a Pinterest pin's main image.
+- `GET /api/page-images?url=…` → returns JSON: a list of image URLs found on the page (with width/height hints).
 
 Security rules (port from the extension's `server/`):
 
@@ -496,7 +496,7 @@ Type scale: 12 / 13 / 15 (body) / 18 (section titles) / 22 / 28 px.
 - Test on desktop and phone viewports (Playwright) for every phase.
 - Keep components small; one stylesheet / design-token file for the look.
 - Explain what you did in plain English at the end of each phase, with Windows (PowerShell) commands to run and see it.
-- Update `README.md`, this file, and `docs/PROGRESS.md` (a checklist of phases) at the end of each phase.
+- Update `README.md` and this file when something changes.
 
 ---
 

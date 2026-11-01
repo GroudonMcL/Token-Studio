@@ -4,11 +4,11 @@
 // drag is one undo step.
 
 import { useStore } from 'zustand';
-import { createDocument } from '../document/defaults';
+import { newTokenDocument } from '../render/builtInDesigns';
 import type { TokenDocument } from '../document/types';
 import { createHistoryStore } from './history';
 
-export const docHistory = createHistoryStore<TokenDocument>(createDocument());
+export const docHistory = createHistoryStore<TokenDocument>(newTokenDocument());
 
 /** The current document; re-renders when it changes. */
 export function useDoc(): TokenDocument;
@@ -41,7 +41,7 @@ export const commitDoc = () => docHistory.getState().commit();
 export const undo = () => docHistory.getState().undo();
 export const redo = () => docHistory.getState().redo();
 
-/** Replaces the document and forgets history (new token, or loading autosave). */
-export function resetDoc(doc: TokenDocument = createDocument()): void {
+/** Replaces the document and forgets history (new token, or loading autosave). A new token starts with the Simple frame. */
+export function resetDoc(doc: TokenDocument = newTokenDocument()): void {
   docHistory.getState().reset(doc);
 }

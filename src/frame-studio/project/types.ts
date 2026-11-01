@@ -12,7 +12,6 @@
 // half-size from its centre (DESIGN.md §4.4).
 
 import type { FrameStyle, ShapeId } from '../engine/legacy/catalog';
-import { ICON_GLYPHS, type IconKind } from './iconGlyphs';
 import type { PictureId } from './pictures';
 
 export const PROJECT_FORMAT = 'frame-studio-project';
@@ -438,9 +437,9 @@ export const DRAWN_ELEMENT_KINDS = [
   'skull',
   'arrow',
 ] as const;
-/** Every ornament: Frame Studio's own, then the icons from game-icons.net (version 10). */
-export const ELEMENT_KINDS = [...DRAWN_ELEMENT_KINDS, ...ICON_GLYPHS.map((g) => g.id)] as readonly ElementKind[];
-export type ElementKind = (typeof DRAWN_ELEMENT_KINDS)[number] | IconKind;
+/** Every ornament. All are drawn by Frame Studio's own code; the icon ornaments of versions 10 and 11 were taken out (see LEGACY_ICON_ELEMENTS in migrate.ts). */
+export const ELEMENT_KINDS: readonly ElementKind[] = DRAWN_ELEMENT_KINDS;
+export type ElementKind = (typeof DRAWN_ELEMENT_KINDS)[number];
 
 /** One shape repeated evenly round the band: beads, studs, runes, gems… */
 export interface RepeatLayer extends LayerBase {
@@ -540,6 +539,7 @@ export const EMBLEM_ELEMENTS: ReadonlySet<string> = new Set([
   'star', 'cross', 'eye', 'note', 'claw', 'bardNote', 'watchEye', 'heart', 'crescent', 'flame', 'fleur', 'shield', 'sun',
   'snowflake', 'crown', 'jewel', 'drop', 'shell', 'paw', 'feather', 'skull',
 ]);
+/** Old files' icon ornaments (`icon-…`, taken out since) count too, so files read as they drew. */
 export const pointsOutward = (element: string) => element.startsWith('icon-') || EMBLEM_ELEMENTS.has(element);
 export type RepeatOrient = (typeof REPEAT_ORIENTS)[number];
 export const GEM_CUTS = ['brilliant', 'rose', 'emerald', 'cabochon', 'rough'] as const;

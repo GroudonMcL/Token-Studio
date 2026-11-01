@@ -1,7 +1,6 @@
 // Sheets of the ornaments, textures, templates and last conversions added
 // in version 10, for checking by eye (npm run showcase -- <what> out.png):
 //   ornaments   every repeat shape drawn by Frame Studio, round a band
-//   icons       the ornaments from game-icons.net
 //   textures    the texture library
 //   photos      the photo textures, bent round the band
 //   fills       ornaments and shapes filled with paints and photos
@@ -15,7 +14,6 @@ import { writeFileSync } from 'node:fs';
 import { FRAME_PRESETS, type ShapeId } from '../../src/frame-studio/engine/legacy/catalog';
 import { convertPreset } from '../../src/frame-studio/project/convert';
 import { bandFillLayer, createProject, LAYERED_TEMPLATES, legacyFrameLayer, photoBand, repeatLayer, shapeLayer, textureBand, textureFromPreset, TEXTURES } from '../../src/frame-studio/project/defaults';
-import { ICON_GLYPHS } from '../../src/frame-studio/project/iconGlyphs';
 import { PICTURES } from '../../src/frame-studio/project/pictures';
 import { loadPictures } from '../../src/frame-studio/render/pictures';
 import { DRAWN_ELEMENT_KINDS, SHAPE_KINDS, type Layer, type Paint, type ShapeKind } from '../../src/frame-studio/project/types';
@@ -45,18 +43,16 @@ const photo = (picture: (typeof PICTURES)[number]['id'], patch: Partial<Extract<
 const gradient: Paint = { kind: 'linear', angle: 90, followLight: false, stops: [{ at: 0, color: '#fff2a8', opacity: 1 }, { at: 0.5, color: '#e05a2a', opacity: 1 }, { at: 1, color: '#5a1040', opacity: 1 }] };
 const rainbow: Paint = { kind: 'ring', followLight: false, stops: [0, 60, 120, 180, 240, 300].map((angle, i) => ({ angle, color: ['#e04040', '#e0b040', '#60c040', '#40b0e0', '#5060e0', '#c050d0'][i] })) };
 const fills: Item[] = [
-  { name: 'Fleurs-de-lis: gold photo, each', thickness: 0.3, layers: [band, { ...repeatLayer(), element: 'icon-fleur-de-lys', count: 8, size: 0.8, fillPaint: photo('gold', { scale: 0.6 }), paintEach: true }] },
-  { name: 'Dragons: lava photo across', thickness: 0.3, layers: [band, { ...repeatLayer(), element: 'icon-dragon-head', count: 6, size: 0.85, fillPaint: photo('lava', { scale: 2 }) }] },
+  { name: 'Fleurs-de-lis: gold photo, each', thickness: 0.3, layers: [band, { ...repeatLayer(), element: 'fleur', count: 8, size: 0.8, fillPaint: photo('gold', { scale: 0.6 }), paintEach: true }] },
+  { name: 'Claws: lava photo across', thickness: 0.3, layers: [band, { ...repeatLayer(), element: 'claw', count: 6, size: 0.85, fillPaint: photo('lava', { scale: 2 }) }] },
   { name: 'Hearts: gradient, each', thickness: 0.3, layers: [band, { ...repeatLayer(), element: 'heart', count: 10, size: 0.6, fillPaint: gradient, paintEach: true }] },
   { name: 'Gems: colours round the ring', thickness: 0.3, layers: [band, { ...repeatLayer(), element: 'jewel', count: 12, size: 0.6, stretch: 0.8, fillPaint: rainbow }] },
   { name: 'Shields: wood photo, each', thickness: 0.3, layers: [band, { ...repeatLayer(), element: 'shield', count: 8, size: 0.75, fillPaint: photo('medieval-wood', { scale: 0.8 }), paintEach: true, outline: '#2a1a0a', outlineWidth: 0.05 }] },
-  { name: 'Crown shape: rough gold', thickness: 0.2, layers: [photoBand('marble'), { ...shapeLayer(), shape: 'ornament', element: 'icon-crown', across: 0.2, size: 1.4, stretch: 1.3, fill: '#e2b85a', fillPaint: photo('gold', { scale: 1 }), paintEach: true, outline: null }] },
+  { name: 'Crown shape: rough gold', thickness: 0.2, layers: [photoBand('marble'), { ...shapeLayer(), shape: 'ornament', element: 'crown', across: 0.2, size: 1.4, stretch: 1.3, fill: '#e2b85a', fillPaint: photo('gold', { scale: 1 }), paintEach: true, outline: null }] },
 ];
 const items: Item[] =
   what === 'ornaments'
     ? DRAWN_ELEMENT_KINDS.map((element) => ({ name: ELEMENT_NAMES[element], thickness: 0.3, layers: [band, { ...repeatLayer(), element, count: 8, size: 0.7, fill: '#e0b850' }] }))
-    : what === 'icons'
-      ? ICON_GLYPHS.map((g) => ({ name: g.name, thickness: 0.3, layers: [band, { ...repeatLayer(), element: g.id, count: 8, size: 0.75, fill: '#e0b850' }] }))
     : what === 'photos'
       ? PICTURES.map((p) => ({ name: p.name, thickness: 0.3, layers: [photoBand(p.id)] }))
     : what === 'fills'

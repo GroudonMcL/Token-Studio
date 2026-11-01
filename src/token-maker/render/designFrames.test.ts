@@ -101,7 +101,7 @@ describe('Frame Studio designs as frames', () => {
     const made = createProject([
       photoBand('castle-brick'),
       { ...textureLayer('veins'), where: 'everywhere' as const },
-      { ...repeatLayer(), element: 'icon-dragon-head' as never, count: 8, size: 0.7, fillPaint: gold, paintEach: true },
+      { ...repeatLayer(), element: 'claw' as never, count: 8, size: 0.7, fillPaint: gold, paintEach: true },
       { ...shapeLayer(), shape: 'ornament' as const, element: 'fleur' as const, detail: '#5a3a10' },
       { ...bandFillLayer(), from: 0.9, to: 1, paint: { ...gold, bend: true } },
     ]);

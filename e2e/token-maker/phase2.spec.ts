@@ -84,27 +84,6 @@ test('a page link shows its pictures and loads the one picked', async ({ page, i
   await expect(strip).toHaveCount(0);
 });
 
-test('a pasted Pinterest short link loads the pin, falling back from the original', async ({ page, isMobile }) => {
-  test.skip(!!isMobile, 'desktop paste');
-  await fakeApi(page, {
-    pages: {
-      'https://pin.it/4x2Yj8Yd': {
-        kind: 'pinterest',
-        url: 'https://www.pinterest.com/pin/571112796472578260/',
-        title: 'Goblin Token',
-        images: [{ url: 'https://i.pinimg.com/originals/bb/2b/70/bb.png' }, { url: 'https://i.pinimg.com/736x/bb/2b/70/bb.jpg' }],
-      },
-    },
-    images: { 'https://i.pinimg.com/736x/bb/2b/70/bb.jpg': 200 },
-  });
-  await page.evaluate(() => {
-    const dt = new DataTransfer();
-    dt.setData('text/plain', 'https://pin.it/4x2Yj8Yd');
-    document.body.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
-  });
-  await expect(tokenName(page)).toHaveText('Goblin Token');
-});
-
 test('an image dragged from another tab goes through the same path', async ({ page, isMobile }) => {
   test.skip(!!isMobile, 'desktop drag');
   await fakeApi(page, { images: { 'https://cdn.example/owlbear.png': 200 } });

@@ -1,12 +1,11 @@
 // @vitest-environment node
-// The ornaments from game-icons.net, photo textures, paint fills for
+// Photo textures, paint fills for
 // ornaments, shapes and paths (schema version 6).
 import { createCanvas } from '@napi-rs/canvas';
 import { bandFillLayer, createProject, pathLayer, photoBand, repeatLayer, shapeLayer, GEM_POINTS } from '../project/defaults';
-import { ICON_GLYPHS } from '../project/iconGlyphs';
 import { pictureById, PICTURES } from '../project/pictures';
-import { parseProject, serializeProject } from '../project/migrate';
-import type { FrameProject, Layer, Paint } from '../project/types';
+import { LEGACY_ICON_ELEMENTS, parseProject, serializeProject } from '../project/migrate';
+import { ELEMENT_KINDS, type FrameProject, type Layer, type Paint } from '../project/types';
 import { bandGeometry } from './band';
 import { setCanvasFactory, type Ctx } from './canvas';
 import { ELEMENT_NAMES } from './elements';
@@ -37,31 +36,21 @@ const at = (d: Uint8ClampedArray, x: number, y: number) => Array.from(d.slice((y
 
 const photo = (patch: Partial<Extract<Paint, { kind: 'picture' }>> = {}): Paint => ({ kind: 'picture', picture: 'wood-planks', scale: 3, angle: 0, bend: true, tint: null, lighting: 0, ...patch });
 
-describe('ornaments from game-icons.net', () => {
-  it('there are 48, each credited, named "(icon)" and an SVG path in its 512 box', () => {
-    expect(ICON_GLYPHS).toHaveLength(48);
-    for (const g of ICON_GLYPHS) {
-      expect(g.author).toMatch(/^(Lorc|Delapouite|Carl Olsen|Caro Asercion)$/);
-      expect(g.source).toMatch(/^https:\/\/game-icons\.net\//);
-      expect(ELEMENT_NAMES[g.id]).toBe(`${g.name} (icon)`);
-      expect(g.d).toMatch(/^M/);
-    }
-  });
-
-  it('draws inside its box, shaded by the light, with an outline when asked', () => {
-    const layer = { ...repeatLayer(), element: 'icon-fleur-de-lys' as const, count: 8, size: 0.8, fill: '#c08040', raised: false };
-    const plain = draw(project([layer]));
-    expect(ink(plain)).toBeGreaterThan(400);
-    expect(meanDiff(plain, draw(project([{ ...layer, outline: '#000000', outlineWidth: 0.05 }])))).toBeGreaterThan(0.05);
-    expect(meanDiff(plain, draw(project([layer], { light: 45 })))).toBeGreaterThan(0.05);
-  });
-
-  it('survives saving and opening', () => {
-    const p = project([{ ...repeatLayer(), element: 'icon-dragon-head' }, { ...shapeLayer(), shape: 'ornament', element: 'icon-crown' }]);
-    const r = parseProject(serializeProject(p));
+describe('the icon ornaments taken out before release', () => {
+  it('a saved design that used one opens with a drawn ornament in its place', () => {
+    const p = project([{ ...repeatLayer(), element: 'heart' }, { ...shapeLayer(), shape: 'ornament', element: 'crown' }]);
+    const saved = JSON.parse(serializeProject(p));
+    saved.layers[0].element = 'icon-dragon-head';
+    saved.layers[1].element = 'icon-crown';
+    const r = parseProject(JSON.stringify(saved));
     if (!r.ok) throw new Error(r.error);
-    expect(r.warnings).toEqual([]);
-    expect(r.project.layers).toEqual(p.layers);
+    expect(r.project.layers.map((l) => ('element' in l ? l.element : null))).toEqual(['claw', 'crown']);
+  });
+
+  it('every stand-in is an ornament this version draws, and none is offered as an icon', () => {
+    for (const kind of Object.values(LEGACY_ICON_ELEMENTS)) expect(ELEMENT_KINDS).toContain(kind);
+    expect(ELEMENT_KINDS.some((k) => k.startsWith('icon-'))).toBe(false);
+    expect(Object.values(ELEMENT_NAMES).some((n) => n.includes('(icon)'))).toBe(false);
   });
 });
 
@@ -121,7 +110,7 @@ describe('fills with a paint', () => {
     expect(meanDiff(byColour, byPaint)).toBeLessThan(0.5);
   });
 
-  it.each(['bead', 'heart', 'rune', 'watchEye', 'cog', 'gash', 'icon-crown', 'knot'] as const)('%s takes a paint, across the token or each on its own', (element) => {
+  it.each(['bead', 'heart', 'rune', 'watchEye', 'cog', 'gash', 'crown', 'knot'] as const)('%s takes a paint, across the token or each on its own', (element) => {
     const layer = { ...repeatLayer(), element, count: 8, size: 0.7, fill: '#808080' };
     const plain = draw(project([layer]));
     const across = draw(project([{ ...layer, fillPaint: gradient }]));
@@ -147,7 +136,7 @@ describe('fills with a paint', () => {
     await loadPictures(['gold']);
     for (const layer of [
       { ...shapeLayer(), size: 1.2, mirror: 'four' as const },
-      { ...shapeLayer(), shape: 'ornament' as const, element: 'icon-crown' as const, size: 1.2, mirror: 'leftRight' as const },
+      { ...shapeLayer(), shape: 'ornament' as const, element: 'crown' as const, size: 1.2, mirror: 'leftRight' as const },
       { ...pathLayer(GEM_POINTS), size: 1.2 },
     ]) {
       const plain = draw(project([layer]));

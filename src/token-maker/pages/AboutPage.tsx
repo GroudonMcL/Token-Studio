@@ -31,8 +31,8 @@ export function AboutPage() {
       <h2>How it works</h2>
       <ol>
         <li>
-          <strong>Add a picture:</strong> upload it, drop it on the page, paste it, or paste a link to a picture, a web
-          page or a Pinterest pin. No picture to hand? Press <em>Try a sample</em>.
+          <strong>Add a picture:</strong> upload it, drop it on the page, paste it, or paste a link to a picture or a web
+          page. No picture to hand? Press <em>Try a sample</em>.
         </li>
         <li>
           <strong>Style it:</strong> pick a frame and shape, light it, add effects, decorations and a name label, or start

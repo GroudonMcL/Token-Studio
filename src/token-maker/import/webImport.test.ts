@@ -107,27 +107,6 @@ describe('importing from a web address', () => {
     expect(webImportStore.getState()).toMatchObject({ status: 'choosing', picked: 'https://cdn.example/1234567890.jpg' });
   });
 
-  it("loads a Pinterest pin's original, falling back to the preview", async () => {
-    const calls = api({
-      page: {
-        'https://pin.it/abc': {
-          kind: 'pinterest',
-          url: 'https://www.pinterest.com/pin/1/',
-          title: 'Goblin Token',
-          images: [{ url: 'https://i.pinimg.com/originals/aa/bb/cc/x.png' }, { url: 'https://i.pinimg.com/736x/aa/bb/cc/x.jpg' }],
-        },
-      },
-      image: { 'https://i.pinimg.com/originals/aa/bb/cc/x.png': 404, 'https://i.pinimg.com/736x/aa/bb/cc/x.jpg': 200 },
-    });
-    importFromAddress('https://pin.it/abc');
-    await settle();
-    expect(calls.slice(1)).toEqual([
-      '/api/fetch-image https://i.pinimg.com/originals/aa/bb/cc/x.png',
-      '/api/fetch-image https://i.pinimg.com/736x/aa/bb/cc/x.jpg',
-    ]);
-    expect(imported).toHaveBeenCalledWith(expect.anything(), 'Goblin Token');
-  });
-
   it('treats an "image" link that is really a page as a page', async () => {
     const calls = api({
       image: { 'https://wiki.example/File:Goblin.png': 415, 'https://upload.example/Goblin.png': 200 },
@@ -165,8 +144,8 @@ describe('importing from a web address', () => {
   });
 
   it.each([
-    ['a Pinterest pin', 'https://uk.pinterest.com/pin/666392076130436411/'],
-    ['a Pinterest image address', 'https://i.pinimg.com/1200x/ff/8d/8c/ff8d8cd84ec26e904d0e6c003d5e87e7.jpg'],
+    ['a web page', 'https://www.example.com/goblins/'],
+    ['an image address', 'https://cdn.example.com/1200x/ff8d8cd84ec26e904d0e6c003d5e87e7.jpg'],
   ])('says the image server is missing when /api answers with the editor page (%s)', async (_name, address) => {
     // A static or Workers deploy without the image server: every /api/* address gets index.html.
     const page = '<!doctype html><html><body><div id="root"></div></body></html>';

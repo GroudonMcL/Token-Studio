@@ -182,7 +182,7 @@ await page.getByRole('button', { name: 'New' }).click();
 await page.getByRole('button', { name: 'Night sky' }).click();
 await page.getByRole('button', { name: 'Add layer' }).click();
 await page.getByRole('menuitem', { name: /^Repeated shapes/ }).click();
-await page.getByRole('combobox', { name: 'Shape', exact: true }).selectOption('icon-dragon-head');
+await page.getByRole('combobox', { name: 'Shape', exact: true }).selectOption('skull');
 await page.getByLabel('Size value', { exact: true }).fill('70');
 await page.getByLabel('Size value', { exact: true }).press('Enter');
 await page.getByRole('combobox', { name: 'Fill with' }).selectOption('paint');

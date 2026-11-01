@@ -5,7 +5,8 @@
 // design, so they follow the token's shape and thickness; their colour
 // slots each get a colour picker.
 
-import type { DesignFrame, FrameSettings } from '../document/types';
+import type { DesignFrame, FrameSettings, TokenDocument } from '../document/types';
+import { createDocument } from '../document/defaults';
 import { BUILT_IN_FRAMES, type BuiltInGroup } from '../frameStudio/project/builtInFrames';
 import { cleanChoices, recolourProject, type ColourChoices, type ColourSlot } from '../frameStudio/project/colourSlots';
 
@@ -45,4 +46,20 @@ export function builtInDesignFrame(id: string, colours: ColourChoices = {}): Des
   const chosen = cleanChoices(colours, f.colours);
   const project = recolourProject(structuredClone(projects.get(f.id)!), f.colours, chosen);
   return { id: PREFIX + f.id, name: f.name, project, ...(Object.keys(chosen).length ? { colours: chosen } : {}) };
+}
+
+/** The frame a new token starts with: the Essentials' Simple design. */
+export const DEFAULT_DESIGN_ID = 'builtin:simple';
+
+/**
+ * A new token as the app starts it: a blank document (createDocument) with
+ * the Simple design as its frame. The drawn-frame settings stay as they are,
+ * for when a drawn frame is picked.
+ */
+export function newTokenDocument(name?: string): TokenDocument {
+  const doc = createDocument(name);
+  const design = builtInDesignFrame(DEFAULT_DESIGN_ID);
+  const band = builtInDesignById(DEFAULT_DESIGN_ID)?.band;
+  if (!design || !band) return doc;
+  return { ...doc, frame: { ...doc.frame, kind: 'design', design, thickness: band.thickness, outerSpacing: Math.max(doc.frame.outerSpacing, band.outerSpacing) } };
 }

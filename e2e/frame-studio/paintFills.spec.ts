@@ -40,22 +40,22 @@ test('a photo texture is added as a band, drawn once its picture arrives, and ex
   await expect.poll(() => previewHash(page)).toBe(before);
 });
 
-test('an icon ornament is filled with a photo, each on its own', async ({ page }) => {
+test('an ornament is filled with a photo, each on its own', async ({ page }) => {
   await page.getByRole('button', { name: 'Add layer' }).click();
   await page.getByRole('menuitem', { name: /^Repeated shapes/ }).click();
-  await page.getByRole('combobox', { name: 'Shape', exact: true }).selectOption('icon-dragon-head');
+  await page.getByRole('combobox', { name: 'Shape', exact: true }).selectOption('skull');
   await page.waitForTimeout(300);
   const plain = await previewHash(page);
   await page.getByRole('combobox', { name: 'Fill with' }).selectOption('paint');
   await page.getByRole('combobox', { name: 'Paint' }).selectOption('picture');
   await page.getByRole('combobox', { name: 'Photo' }).selectOption('lava');
   await page.getByText('Paint each one on its own').click();
-  await expect.poll(async () => (await data(page)).layers[0]).toMatchObject({ element: 'icon-dragon-head', fillPaint: { kind: 'picture', picture: 'lava' }, paintEach: true });
+  await expect.poll(async () => (await data(page)).layers[0]).toMatchObject({ element: 'skull', fillPaint: { kind: 'picture', picture: 'lava' }, paintEach: true });
   await expect.poll(() => previewHash(page)).not.toBe(plain);
 });
 
 test('the artwork credits are one click from Help', async ({ page }) => {
   await page.getByRole('button', { name: 'Help' }).click();
   await page.getByText('Artwork credits').click();
-  await expect(page.getByRole('link', { name: 'game-icons.net' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Poly Haven' })).toBeVisible();
 });

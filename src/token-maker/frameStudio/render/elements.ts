@@ -4,7 +4,6 @@
 
 import { shade } from '../../render/color';
 import { noShadow, seededRandom, sphere } from '../../render/frameKit';
-import { ICON_GLYPHS, type IconGlyph } from '../project/iconGlyphs';
 import type { ElementKind, GemCut, GemSetting } from '../project/types';
 import type { CanvasLike, Ctx } from './canvas';
 import { drawFacets } from './facets';
@@ -55,7 +54,6 @@ export const ELEMENT_NAMES: Record<ElementKind, string> = {
   knot: 'Celtic knot',
   skull: 'Skull',
   arrow: 'Arrow',
-  ...(Object.fromEntries(ICON_GLYPHS.map((g) => [g.id, `${g.name} (icon)`])) as Record<(typeof ICON_GLYPHS)[number]['id'], string>),
 };
 
 /** Elements with a second colour (`detail`), and what it is called in the editor. */
@@ -564,31 +562,6 @@ function ball(ctx: Ctx, x: number, y: number, r: number, style: ElementStyle): v
   ctx.restore();
 }
 
-const iconPaths = new Map<string, Path2D>();
-const ICONS = new Map<string, IconGlyph>(ICON_GLYPHS.map((g) => [g.id, g]));
-
-/** A game-icons.net ornament: its path (in a 512 box) stretched to the element, shaded like the others. */
-function drawIcon(ctx: Ctx, icon: IconGlyph, w: number, h: number, style: ElementStyle): void {
-  let path = iconPaths.get(icon.id);
-  if (!path) {
-    path = new Path2D(icon.d);
-    iconPaths.set(icon.id, path);
-  }
-  ctx.save();
-  ctx.scale(w / 512, h / 512);
-  ctx.translate(-256, -256);
-  shadedFill(ctx, body(style), 512, 512, style.light, 'nonzero', style.shaded, path, 256, 256);
-  if (style.outline && style.outlineWidth > 0) {
-    noShadow(ctx);
-    ctx.strokeStyle = style.outline;
-    // In the 512 box, so the outline comes out `outlineWidth` of the element's height.
-    ctx.lineWidth = Math.max(0.5, h * style.outlineWidth) * (512 / h);
-    ctx.lineJoin = 'round';
-    ctx.stroke(path);
-  }
-  ctx.restore();
-}
-
 /** Token Maker's Bard note: a head and stem, single with a flag or paired with a beam. `u` is Token Maker's band width × 2.5. */
 function bardNote(ctx: Ctx, h: number, stretch: number, style: ElementStyle): void {
   const u = h / 0.4;
@@ -785,8 +758,6 @@ export function drawElement(ctx: Ctx, kind: ElementKind, h: number, stretch: num
     const paint = style.paint;
     style = { ...style, ink: () => paintPattern(ctx, paint, frame, w, h) };
   }
-  const icon = ICONS.get(kind);
-  if (icon) return drawIcon(ctx, icon, w, h, style);
   const glyph = GLYPHS[kind];
   if (glyph) return drawGlyph(ctx, glyph, w, h, style);
   switch (kind) {

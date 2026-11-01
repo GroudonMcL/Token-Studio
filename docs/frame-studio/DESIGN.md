@@ -240,7 +240,7 @@ A texture layer draws a procedural surface over the band between `from` and `to`
 
 ### 4.7 Converted Token Maker frames (Phase 4)
 
-`src/project/convert.ts` turns a Token Maker frame into editable layers. Every drawn frame shares one build (TOKEN-MAKER-CONTEXT.md §2.2), so a converter is a few lines on top of shared pieces, written with the numbers in the frame's finish:
+`src/project/convert.ts` turns a Token Maker frame into editable layers. Every drawn frame shares one build (Token Maker's `render/finishes.ts`), so a converter is a few lines on top of shared pieces, written with the numbers in the frame's finish:
 
 | Token Maker part | Layers |
 |---|---|
@@ -317,7 +317,7 @@ A **contours** layer is several lines at once: `count` lines from `from` across,
 Built on a separate branch alongside Phases 6–7 and brought onto the Phase 10 code afterwards. Where both had built the same thing, the Phase 7–8 version stayed: fitted waves are `waveFit`, random size and angle are `jitterSize` and `jitterAngle`, and the faceted `gem`, `tooth` and `gash` elements are unchanged (the branch's drawn two-tone gem is `jewel`; `gash` gained a second colour). Everything new is off by default, so a version-9 file opens and draws as before.
 
 - **Ornaments** (repeat elements): Token Maker's details (`fletching`, `bardNote`, `watchEye`, `cog`, `sprig`) and new ones drawn for Frame Studio: heart, crescent moon, flame, fleur-de-lis, shield, sun, snowflake, crown, jewel, drop, scallop shell, spiral, paw print, feather, Celtic knot, skull, arrow. They are written like SVG paths in a −1…1 box (`render/glyphs.ts`); filled parts wind the same way, so overlapping parts join instead of cutting holes. Some have a **second colour** (`detail`: an eye's white, a cog's hub, a flame's core, a gash's lit edge…; null works one out from the main colour; `DETAIL_NAMES` in `elements.ts`).
-- **48 ornaments from game-icons.net** (CC BY 3.0, by Lorc, Delapouite, Carl Olsen and Caro Asercion): `project/iconGlyphs.ts` keeps each one's SVG path as published, its author and its page. They are element kinds (`icon-…`, named "… (icon)"), drawn from a `Path2D` stretched from their 512 box, shaded, outlined and painted like the others. Node has no `Path2D`: tests and scripts use @napi-rs/canvas's (`src/test/setup.ts`, `scripts/napi.ts`). Credits: Help → **Artwork credits** and `docs/CREDITS.md`.
+- *(Removed before the public release:* the 48 ornaments from game-icons.net (CC BY 3.0) that versions 10 and 11 offered as `icon-…` element kinds. Every ornament is now drawn by Frame Studio's own code. A saved design that used one opens with the nearest drawn ornament instead (`LEGACY_ICON_ELEMENTS` in `project/migrate.ts`).*)
 - **Shapes** get a fifth kind, **Ornament**: any repeat element placed on its own, with mirroring, radial arrays, raised and glow (`element`, `detail`). It draws its own outline, so it isn't faceted or turned into a path.
 - **Repeats:** `detail`; `multipleOf` (round the number to a multiple, so alternating patterns meet up); `wander` (in and out, band widths). Wandering, and Bard's single or paired notes, take numbers from `seededRandom(seed)` in Token Maker's order, separately from the Phase 7 variation's numbers, so converted frames match their originals and changing one setting doesn't reshuffle the other.
 - **Lines:** `waveShape` (smooth, zigzag, scallops, battlements; `WAVE` in `track.ts`) and `raised` (the small shadow away from the light).
@@ -327,7 +327,7 @@ Built on a separate branch alongside Phases 6–7 and brought onto the Phase 10 
 - **Fills with a paint** (`fillPaint`, `paintEach` on repeats, shapes and paths): metal lighting, gradients, colours round the ring or photos instead of the fill colour. The paint is drawn once over the whole picture (`paintCanvas`) and used as a pattern set at the moment of filling (`paintPattern`): across the token each ornament shows its own part; with `paintEach` the whole paint is shrunk into each one. Shading is laid over it as light and shade. A faceted shape keeps its fill colour.
 - **Reset buttons:** the ↺ beside a slider or colour puts it back as a new layer, effect or stage has it, as one undo step; it stays in place, disabled, when there is nothing to reset.
 - **Templates:** Moon & stars, Frostbound, Celtic knots, Royal (a crown ornament over fleurs-de-lis and jewels) and Grim iron.
-- `npm run showcase -- ornaments|icons|textures|photos|fills|templates|shapes|crafted|converted out.png` draws them on one sheet (docs/screenshots/27–30, 33–35; version 11: 38–40).
+- `npm run showcase -- ornaments|textures|photos|fills|templates|shapes|crafted|converted out.png` draws them on one sheet (docs/screenshots/27–30, 33–35; version 11: 38–40).
 
 ### 4.12 Blending, blur, natural and strange textures, more shapes (version 11)
 
@@ -551,7 +551,7 @@ Autosave: the project's JSON is written to IndexedDB (`frame-studio:project`) 0.
 
 ## 7. Quality rules
 
-- Read this file first; update it, `PROGRESS.md` and `README.md` at the end of every phase.
+- Read this file first; update it and `README.md` when something changes.
 - Never edit `src/engine/legacy/`; sync from Token Maker instead.
 - One renderer for preview and export. Keep it pure and pixel-tested.
 - Don't present a Token Maker frame as editable parts until it really is converted. Every converter has a limit in `convert.test.ts` and a row in §4.7.
@@ -564,7 +564,7 @@ Autosave: the project's JSON is written to IndexedDB (`frame-studio:project`) 0.
 
 ## 8. Roadmap
 
-See `docs/BUILD-PROMPTS.md` for the full prompt of each phase and `docs/PROGRESS.md` for the checklist.
+
 
 | Phase | Goal |
 |---|---|

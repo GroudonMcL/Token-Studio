@@ -126,7 +126,7 @@ test('a web link explains when the image server is missing instead of a JSON err
   // Like a static deploy: every /api address answers with the editor's page.
   await page.route('**/api/**', (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>Token Maker</title>' }));
   const panel = await openSection(page, 'Import');
-  await panel.getByLabel('Web address').fill('https://uk.pinterest.com/pin/666392076130436411/');
+  await panel.getByLabel('Web address').fill('https://www.example.com/goblins/');
   await panel.getByRole('button', { name: 'Get' }).click();
   await expect(panel.getByText('That site blocks direct loading. Right-click the image, choose “Copy image”, then press Ctrl+V here.')).toBeVisible();
 });

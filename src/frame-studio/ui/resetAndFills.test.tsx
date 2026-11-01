@@ -72,8 +72,7 @@ describe('photo textures and credits', () => {
   it('Help lists who made the artwork, with links', async () => {
     render(<WelcomeCard onClose={() => {}} onTemplates={() => {}} />);
     await userEvent.click(screen.getByText('Artwork credits'));
-    expect(screen.getByRole('link', { name: 'game-icons.net' })).toHaveAttribute('href', 'https://game-icons.net');
-    expect(screen.getByRole('link', { name: 'Fleur de lys' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'game-icons.net' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Poly Haven' })).toBeInTheDocument();
   });
 });

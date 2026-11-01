@@ -6,6 +6,8 @@
 
 Everything runs in the browser, on the visitor's own device: no accounts, no analytics, no cookies.
 
+Token Studio is free and open source under the [MIT licence](LICENSE).
+
 ## Running it
 
 You need Node 22 or newer (`winget install OpenJS.NodeJS.LTS` on Windows).
@@ -56,13 +58,13 @@ A Cloudflare **Pages** project still works: build command `npm run build`, outpu
 ```
 index.html, src/shell/        Token Studio's page: each app in its own frame, the app switch and the themes both apps use.
                               Frames keep the apps' styles and keyboard shortcuts (Ctrl+Z…) apart.
-token-maker/index.html        Token Maker's page   → src/token-maker/  (was token-maker/src)
-frame-studio/index.html       Frame Studio's page  → src/frame-studio/ (was Frame-Studio/src)
-server/, functions/, worker/  Token Maker's image proxy, unchanged
-public/                       Token Maker's public files (Frame Studio only had the same favicon)
+token-maker/index.html        Token Maker's page   → src/token-maker/
+frame-studio/index.html       Frame Studio's page  → src/frame-studio/
+server/, functions/, worker/  Token Maker's image proxy for web imports
+public/                       Fonts, backgrounds, pictures, help pictures and the favicon
 scripts/token-maker/, scripts/frame-studio/   Each app's scripts
 e2e/shell, e2e/token-maker, e2e/frame-studio  End-to-end tests
-docs/token-maker/, docs/frame-studio/         Each app's design documents and progress lists
+docs/token-maker/, docs/frame-studio/         Each app's design documents
 ```
 
 Sending a frame: Frame Studio (`src/frame-studio/io/tokenStudio.ts`) posts the project file's text, with its preview, to Token Studio's page. The page switches to Token Maker and passes it on as soon as Token Maker says it is ready (`src/token-maker/editor/studioBridge.ts`). Token Maker then opens it exactly like a `.framestudio.json` file. Messages are only accepted from the same site.
@@ -78,7 +80,14 @@ Each copy has a `SOURCE.json`, and a test fails if a copied file is edited. Fram
 
 ## Documents
 
-- Token Maker: [`docs/token-maker/DESIGN.md`](docs/token-maker/DESIGN.md), [`docs/token-maker/PROGRESS.md`](docs/token-maker/PROGRESS.md)
-- Frame Studio: [`docs/frame-studio/DESIGN.md`](docs/frame-studio/DESIGN.md), [`docs/frame-studio/PROGRESS.md`](docs/frame-studio/PROGRESS.md)
-- Asset credits: [`ASSETS-CREDITS.md`](ASSETS-CREDITS.md) (Token Maker) and [`docs/frame-studio/CREDITS.md`](docs/frame-studio/CREDITS.md) (Frame Studio)
-- Going public: [`docs/RELEASE-CHECKLIST.md`](docs/RELEASE-CHECKLIST.md), and the AI-made art to replace: [`docs/AI-ART-REPLACEMENT.md`](docs/AI-ART-REPLACEMENT.md)
+- Token Maker's design: [`docs/token-maker/DESIGN.md`](docs/token-maker/DESIGN.md)
+- Frame Studio's design: [`docs/frame-studio/DESIGN.md`](docs/frame-studio/DESIGN.md)
+- Asset credits (fonts, pictures, textures and their licences, for both apps): [`ASSETS-CREDITS.md`](ASSETS-CREDITS.md)
+
+## Bug reports and contact
+
+For bug reports, privacy questions or takedown requests, message [u/CrystalFrogMaps](https://www.reddit.com/user/CrystalFrogMaps/) on Reddit, or open an issue on this repository.
+
+## Licence
+
+The code is under the [MIT licence](LICENSE). The bundled fonts, pictures and other assets keep their own licences, listed in [`ASSETS-CREDITS.md`](ASSETS-CREDITS.md). People using the site must have the rights to the pictures they upload or link to; see the Terms of use on Token Maker's Privacy page.

@@ -1,7 +1,7 @@
 // The photo textures a "picture" paint can use: seamless photographs from
 // Poly Haven (polyhaven.com) and ambientCG (ambientcg.com), both CC0
 // (public domain, no credit needed; credited anyway in Help → Artwork
-// credits and docs/CREDITS.md). Their pixels are in render/pictureData.ts.
+// credits and ASSETS-CREDITS.md). Their pixels are in render/pictureData.ts.
 
 export interface PictureInfo {
   id: string;

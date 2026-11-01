@@ -354,7 +354,7 @@ describe('emblems on a hexagon (version 12)', () => {
     const r: RepeatLayer = { ...repeatLayer(), element: 'crescent', count: 12, snapToCorners: false };
     const placed = repeatPlacements(r, g(hex(r)), finder(hex(r)));
     expect(placed.every(outward)).toBe(true);
-    const icons = { ...r, element: 'icon-rose' as RepeatLayer['element'] };
+    const icons = { ...r, element: 'crown' as RepeatLayer['element'] };
     expect(repeatPlacements(icons, g(hex(icons)), finder(hex(icons))).every(outward)).toBe(true);
   });
 

@@ -6,27 +6,23 @@ What to do before Token Studio goes public, from a review on 27 October 2026. Wh
 
 - [ ] Replace the AI-made art: see [`AI-ART-REPLACEMENT.md`](AI-ART-REPLACEMENT.md) and the replacement pack.
 - [ ] Afterwards, run `npm run tm:help-images` to redraw the help pictures. Also update the tests that compare pictures pixel for pixel (`libraryFiles.test.ts`, the frame and preset tests…).
-- [ ] Bring `ASSETS-CREDITS.md` up to date:
+- [x] Bring `ASSETS-CREDITS.md` up to date (done 1 November 2026: paths fixed, 32 photo textures listed one per row, Frame Studio's credits merged in). Still to do when art is replaced:
   - Remove the rows for art you replaced and add your own ("by GroudonMcL").
-  - Fix the code paths: they still say `src/render/…` and `src/frameStudio/…`, but the code is now under `src/token-maker/…`.
-  - It says "20 photo textures", but Frame Studio's credits list 32.
-  - The "27 code-drawn frames" row says "Owner's own code". If the AI wrote that code, say so, or drop the row once the frames are replaced.
-- [ ] Keep the **game-icons.net** credits. They are CC BY 3.0, so credit is a legal requirement, unlike the CC0 art. Token Maker's About page and Frame Studio's welcome card both show them.
-- [ ] `ASSETS-CREDITS.md` links to `github.com/GroudonMcL/Frame-Studio/blob/main/docs/CREDITS.md`. Make sure that repository is public, or link to this repository's `docs/frame-studio/CREDITS.md` instead.
-- [ ] Choose a licence for the code. There is no `LICENSE` file, so the code is "all rights reserved" by default. That is fine if you mean it. If the repository is public and you want others to reuse the code, add an open licence (MIT, for example).
+  - The "25 code-drawn frames" row says "Owner's own code". If the AI wrote that code, say so, or drop the row once the frames are replaced.
+- [x] The **game-icons.net** ornaments were removed (1 November 2026); saved designs that used one get a drawn ornament instead.
+- [x] The link to the old Frame-Studio repository's credits went with the game-icons.net row.
+- [x] Choose a licence for the code: MIT (`LICENSE`). There is no `LICENSE` file, so the code is "all rights reserved" by default. That is fine if you mean it. If the repository is public and you want others to reuse the code, add an open licence (MIT, for example).
 - [ ] Trademarks: "D&D" appears in the page descriptions. Mentioning it as a description ("for D&D and other tabletop RPGs") is normally fine. Don't use Wizards of the Coast's logos, and don't name the product after D&D.
 
 ## 2. Legal pages and contact
 
-- [ ] Add a **contact address** to the About and Privacy pages (email, GitHub Issues or Discord). People will want to report bugs, ask privacy questions and send copyright takedown requests.
-- [ ] Add short **Terms of use**:
-  - People must have the right to use the pictures they upload or link to.
+- [x] Add a **contact address** (u/CrystalFrogMaps on Reddit, at the bottom of the Privacy page and in the README) (email, GitHub Issues or Discord). People will want to report bugs, ask privacy questions and send copyright takedown requests.
+- [x] Add short **Terms of use** (Privacy page: rights to pictures, no warranty). Not added yet:
   - Tokens are for personal use.
-  - The tool is provided as it is, with no warranty.
   - You will remove content if asked. Nothing is stored on the server, so this applies only to what the proxy fetches.
-- [ ] Privacy page: it says the site is "hosted on Cloudflare Pages". The README now deploys as a Cloudflare **Worker**, so correct the wording if that's how you deploy.
+- [x] Privacy page: it said the site is "hosted on Cloudflare Pages"; it now says Cloudflare Worker. The README now deploys as a Cloudflare **Worker**, so correct the wording if that's how you deploy.
 - [ ] No cookies and no analytics means no cookie banner is needed under UK GDPR/PECR. Adding analytics or switching on adverts (`VITE_FEATURE_ADS`) changes that: you would need to update the Privacy page and probably add a consent banner.
-- [ ] Web imports: the image proxy fetches pictures from other sites, including Pinterest (`server/pinterest.ts`). Pinterest's terms forbid scraping. Weigh that risk, and consider removing the Pinterest-specific code or keeping it to single pin links.
+- [x] Web imports: the Pinterest-specific code was removed; a Pinterest link is now handled like any other page. Before: Pinterest's terms forbid scraping. Weigh that risk, and consider removing the Pinterest-specific code or keeping it to single pin links.
 
 ## 3. Security and abuse
 
@@ -41,7 +37,7 @@ What to do before Token Studio goes public, from a review on 27 October 2026. Wh
   - `'wasm-unsafe-eval'`
   
   Test the AI cut-out with the policy on before going live.
-- [ ] `npm audit`: 4 high-severity advisories, all in `@huggingface/transformers`' Node-only dependencies (`sharp`, `onnxruntime-node`, `adm-zip`). None of them reach the browser bundle. Moving from 4.2.0 (pinned) to 4.3.1 clears them. Re-test the AI cut-out after the upgrade.
+- [x] `npm audit`: upgraded to 4.3.1. Re-test the AI cut-out in a browser. Before: 4 high-severity advisories, all in `@huggingface/transformers`' Node-only dependencies (`sharp`, `onnxruntime-node`, `adm-zip`). None of them reach the browser bundle. Moving from 4.2.0 (pinned) to 4.3.1 clears them. Re-test the AI cut-out after the upgrade.
 
 ## 4. Performance
 
@@ -56,7 +52,7 @@ What to do before Token Studio goes public, from a review on 27 October 2026. Wh
   - `https://<domain>/api/health` shows `{"ok":true}`
   - `/`, `/token-maker/`, `/token-maker/about`, `/token-maker/privacy` and `/frame-studio/` all open
   - a web import works on the live site
-- [ ] `docs/token-maker/PROGRESS.md` mentions an owner checklist in "README §6". That section is no longer in the README, so restore it or point PROGRESS.md at this file.
+- [x] The PROGRESS.md files and other build-time documents were removed.
 - [ ] Add social-share tags (`og:title`, `og:description`, `og:image`), an `apple-touch-icon` PNG and maybe a web manifest. At the moment the favicon is the only icon.
 - [ ] Decide how you'll hear about errors. Cloudflare's Workers logs cover the proxy. Browser errors are invisible unless you add something, and that something must go on the Privacy page.
 

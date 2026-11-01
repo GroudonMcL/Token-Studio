@@ -9,7 +9,7 @@ import { clearWebImport, importFromAddress, importManyAddresses, pickWebImage, p
 import type { ImportTarget } from '../import/importImage';
 import { commitDoc, updateDoc, useDoc } from '../state/tokenStore';
 
-/** Import section: upload, drop, paste, web addresses and Pinterest links (DESIGN.md §6.1). */
+/** Import section: upload, drop, paste and web addresses (DESIGN.md §6.1). */
 export function ImportSection() {
   const name = useDoc((d) => d.name);
   const batchOn = useBatch((b) => b.on);
@@ -58,10 +58,10 @@ export function ImportSection() {
  * page. The Background section has its own box, which sends pictures to the
  * background instead; each box only shows what it asked for.
  */
-export function WebAddress({ target = 'art', hint: plainHint = 'Paste a link to a picture, a web page, or a Pinterest pin.' }: { target?: ImportTarget; hint?: string }) {
+export function WebAddress({ target = 'art', hint: plainHint = 'Paste a link to a picture or a web page.' }: { target?: ImportTarget; hint?: string }) {
   const id = useId();
   const batchOn = useBatch((b) => b.on) && target === 'art';
-  const hint = batchOn ? 'Paste one or more links to pictures, pages or Pinterest pins, separated by spaces.' : plainHint;
+  const hint = batchOn ? 'Paste one or more links to pictures or pages, separated by spaces.' : plainHint;
   const [text, setText] = useState('');
   const mine = useWebImport((s) => s.target === target);
   const status = useWebImport((s) => (mine ? s.status : 'idle'));
@@ -98,7 +98,7 @@ export function WebAddress({ target = 'art', hint: plainHint = 'Paste a link to 
             autoComplete="off"
             autoCapitalize="off"
             spellCheck={false}
-            placeholder="Image, page or Pinterest link"
+            placeholder="Image or page link"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onPaste={(e) => {

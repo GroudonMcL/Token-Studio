@@ -1,5 +1,5 @@
-// The new versions of Token Maker's frames chosen in the frame review
-// (docs/FRAME-REVIEW.md), in the owner's house style (houseStyle.ts). Each
+// The new versions of Token Maker's frames chosen in the pre-launch frame
+// review, in the owner's house style (houseStyle.ts). Each
 // is listed in Token Maker as a frame of its own, in its own category
 // (frameCategories.ts), with a colour picker per colour slot.
 
@@ -519,7 +519,7 @@ const ROSE_STAGE = { thickness: 0.18 };
 const woodHoop = (stops: string[], picture: 'wood-planks' | 'bark' | 'plane-bark' = 'wood-planks'): Layer[] =>
   bandShading([{ ...bandFillLayer(), name: 'Hoop', from: 0.15, to: 0.85, paint: photo(picture, 1.4, { angle: 90, lighting: 0.3 }), effects: [recolour(stops), DROP] }], { step: null });
 const roseVine = (stem: string, leaf: string, o: { extra?: 'leaves' | 'berries' | 'thorns'; seed?: number; count?: number; size?: number } = {}): Layer => ({ ...growthLayer('vine'), name: o.extra === 'berries' ? 'Berries' : 'Vine', count: o.count ?? 2, thickness: 0.05, amplitude: 0.26, waveLength: 2, extra: o.extra ?? 'leaves', extraSize: o.size ?? 0.42, color: stem, extraColor: leaf, seed: o.seed ?? 3, effects: [bevel({ size: 0.4, gloss: 0.3 }), contact(0.6)] });
-const roseBlooms = (fill: string, effects: Layer['effects'], count = 4, size = 0.95): Layer => ({ ...repeatLayer(), name: 'Roses', element: 'icon-rose', count, snapToCorners: false, at: 0.5, size, fill, raised: false, effects });
+const roseBlooms = (fill: string, effects: Layer['effects'], count = 4, size = 0.95): Layer => ({ ...repeatLayer(), name: 'Roses', element: 'spiral', count, snapToCorners: false, at: 0.5, size, fill, raised: false, effects });
 const HOOP_WOOD = ['#140a04', '#3a2210', '#7a5230', '#b08a60', '#e0c8a0'];
 // themed-fey
 const FEY_STAGE = { thickness: 0.18, bloom: 0.4 };
@@ -1407,14 +1407,14 @@ const VERSIONS: Version[] = [
   {
     id: 'bard-lyre',
     name: 'Golden lyre',
-    description: 'Purple enamel with gold lyres at the quarters and fine gold lines.',
+    description: 'Purple enamel with gold music notes at the quarters and fine gold lines.',
     after: 'bard',
     colours: [slot('enamel', 'Enamel colour', '#6a2a8a', ['Enamel']), slot('gold', 'Gold colour', '#c8952e', ['Lyres', 'Gold lines'])],
     layers: () => [
       { ...bandFillLayer(), name: 'Enamel', paint: lin(['#a05ad0', '#6a2a8a', '#1a0626']), effects: [bevel({ direction: 'sunken', size: 0.12, gloss: 0.9, highlightOpacity: 0.5 }), DROP] },
       { ...lineLayer(), name: 'Gold lines', at: 0.08, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
       { ...lineLayer(), name: 'Gold lines', at: 0.92, width: 0.06, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
-      { ...repeatLayer(), name: 'Lyres', element: 'icon-lyre', count: 4, at: 0.5, size: 1.4, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.6)] },
+      { ...repeatLayer(), name: 'Lyres', element: 'note', count: 4, at: 0.5, size: 0.95, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.6)] },
     ],
   },
   // ── cleric ──
@@ -1435,12 +1435,12 @@ const VERSIONS: Version[] = [
     id: 'cleric-silver',
     shading: {},
     name: 'Silver & sapphire',
-    description: 'Polished silver with holy symbols at the quarters between cut sapphires.',
+    description: 'Polished silver with silver crosses at the quarters between cut sapphires.',
     after: 'cleric',
     colours: [slot('metal', 'Metal colour', '#a8aeb8', ['Silver', 'Symbols']), slot('gems', 'Gem colour', '#2a5ad0', ['Sapphires'])],
     layers: () => [
       { ...bandFillLayer(), name: 'Silver', paint: photo('hammered-metal', 2.4), effects: [...metalFx(SILVER_STOPS, 0.35, 0.9), DROP] },
-      { ...repeatLayer(), name: 'Symbols', element: 'icon-holy-symbol', count: 4, at: 0.5, size: 1.4, fill: '#c8ccd4', raised: true, effects: [recolour(SILVER_STOPS), bevel({ size: 0.4, gloss: 0.9 }), contact(0.6)] },
+      { ...repeatLayer(), name: 'Symbols', element: 'cross', count: 4, at: 0.5, size: 1, fill: '#c8ccd4', raised: true, effects: [recolour(SILVER_STOPS), bevel({ size: 0.4, gloss: 0.9 }), contact(0.6)] },
       { ...repeatLayer(), name: 'Sapphires', element: 'gem', count: 8, offset: 0.5, at: 0.5, size: 0.5, fill: '#2a5ad0', raised: false, gemSparkle: 0.7, effects: [contact(0.5)] },
     ],
   },
@@ -1455,7 +1455,7 @@ const VERSIONS: Version[] = [
       overlay('marble', 1.4, 'multiply', 0.6, { lighting: 0.3 }),
       { ...lineLayer(), name: 'Gold lines', at: 0.14, width: 0.05, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
       { ...lineLayer(), name: 'Gold lines', at: 0.86, width: 0.05, paint: goldPaint(1.4), effects: goldFx(0.6, WARM_GOLD) },
-      { ...repeatLayer(), name: 'Suns', element: 'icon-heraldic-sun', count: 4, at: 0.5, size: 1.4, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.5)] },
+      { ...repeatLayer(), name: 'Suns', element: 'sun', count: 4, at: 0.5, size: 1.4, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.5)] },
       ...rims(),
     ],
   },
@@ -1772,7 +1772,7 @@ const VERSIONS: Version[] = [
       { ...bandFillLayer(), name: 'Enamel', paint: lin(['#4a6ad0', '#1e3a8a', '#040a24']), effects: [bevel({ direction: 'sunken', size: 0.12, gloss: 0.9, highlightOpacity: 0.5 }), DROP] },
       { ...bandFillLayer(), name: 'Outer gold', to: 0.16, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
       { ...bandFillLayer(), name: 'Inner gold', from: 0.84, paint: goldPaint(1.4), effects: goldFx(0.5, WARM_GOLD) },
-      { ...repeatLayer(), name: 'Crowns', element: 'icon-crown', count: 4, at: 0.5, size: 1.1, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.5)] },
+      { ...repeatLayer(), name: 'Crowns', element: 'crown', count: 4, at: 0.5, size: 0.8, fill: '#c8952e', raised: true, effects: [recolour(WARM_GOLD), bevel({ size: 0.4, gloss: 0.8 }), contact(0.5)] },
     ],
   },
   {
@@ -1809,7 +1809,7 @@ const VERSIONS: Version[] = [
     layers: () => [
       { ...bandFillLayer(), name: 'Cloak', paint: photo('hessian', 0.7, { lighting: 0.6 }), effects: [recolour(['#040a02', '#16260e', '#3a5a2a', '#7a9a5a']), bevel({ size: 0.5, gloss: 0.1 }), DROP] },
       ...[0.08, 0.92].map((at) => ({ ...lineLayer(), name: 'Stitching', at, width: 0.03, dash: 'dashed' as const, paint: { kind: 'solid' as const, color: '#c8b888' } })),
-      { ...repeatLayer(), name: 'Clasp', element: 'icon-oak-leaf', count: 1, at: 0.5, size: 0.8, fill: '#a87a3a', raised: true, effects: [recolour(['#1e1206', '#5a3a18', '#a87a3a', '#e0c08a', '#fff0d0']), bevel({ size: 0.4, gloss: 0.8 }), contact(0.6)] },
+      { ...repeatLayer(), name: 'Clasp', element: 'leaf', count: 1, at: 0.5, size: 0.8, fill: '#a87a3a', raised: true, effects: [recolour(['#1e1206', '#5a3a18', '#a87a3a', '#e0c08a', '#fff0d0']), bevel({ size: 0.4, gloss: 0.8 }), contact(0.6)] },
     ],
   },
   {
@@ -1864,12 +1864,12 @@ const VERSIONS: Version[] = [
     id: 'rogue-daggers',
     shading: {},
     name: 'Dagger belt',
-    description: 'A dark leather belt with four daggers sheathed along it.',
+    description: 'A dark leather belt with four steel bolts slotted along it.',
     after: 'rogue',
     colours: [slot('leather', 'Leather colour', '#3a2a20', ['Belt']), slot('metal', 'Blade colour', '#a8b0ba', ['Daggers'])],
     layers: () => [
       { ...bandFillLayer(), name: 'Belt', paint: photo('leather', 1.4, { lighting: 0.6 }), effects: [recolour(['#050302', '#1a120c', '#3a2a20', '#6a5444', '#9a8474']), bevel({ size: 0.4, gloss: 0.3 }), DROP] },
-      { ...repeatLayer(), name: 'Daggers', element: 'icon-plain-dagger', count: 4, at: 0.5, size: 1.15, rotation: 90, fill: '#a8b0ba', raised: true, effects: [recolour(STEEL_STOPS), bevel({ size: 0.4, gloss: 0.9 }), contact(0.6)] },
+      { ...repeatLayer(), name: 'Daggers', element: 'arrow', count: 4, at: 0.5, size: 1.1, rotation: 90, fill: '#a8b0ba', raised: true, effects: [recolour(STEEL_STOPS), bevel({ size: 0.4, gloss: 0.9 }), contact(0.6)] },
     ],
   },
   {
@@ -2024,7 +2024,7 @@ const VERSIONS: Version[] = [
     layers: () => [
       ...base({ light: '#4a2a6a', dark: '#06020a', step: null }),
       { ...textureLayer('smoke'), name: 'Smoke', color: '#8a6aaa', color2: '#06020a', opacity: 0.6, seed: 0x5e0f },
-      { ...repeatLayer(), name: 'Sigils', element: 'icon-pentagram-rose', count: 4, at: 0.5, size: 1.1, fill: '#f0d8ff', raised: false, shaded: false, effects: [glow({ color: '#d08aff', opacity: 0.9, size: 0.14 }), contact(0.4)] },
+      { ...repeatLayer(), name: 'Sigils', element: 'star', count: 4, at: 0.5, size: 1.1, fill: '#f0d8ff', raised: false, shaded: false, effects: [glow({ color: '#d08aff', opacity: 0.9, size: 0.14 }), contact(0.4)] },
     ],
   },
   // ── artificer ──
@@ -2228,14 +2228,14 @@ const VERSIONS: Version[] = [
   {
     id: 'runestone-gilded-slate',
     name: 'Gilded slate',
-    description: 'Smooth dark slate with runes carved in and filled with gold leaf, and a gold rune stone at each quarter.',
+    description: 'Smooth dark slate with runes carved in and filled with gold leaf, and a gold rune at each quarter.',
     after: 'runestone',
     stage: { thickness: 0.2, outerSpacing: 0.02 },
     colours: [slot('stone', 'Slate colour', '#2e3238', ['Stone']), slot('gold', 'Gold colour', '#d8a838', ['Runes', 'Rune stones'])],
     layers: () => bandShading([
       runeStone('Stone', 'black-onyx', 3, ['#020304', '#121418', '#2e3238', '#5a606a', '#8a909a']),
       inscription('babelstone', '#f4d27a', { name: 'Runes', at: 0.76, size: 0.28, start: 2, effects: [...goldFx(0.3, WARM_GOLD)] }),
-      { ...repeatLayer(), name: 'Rune stones', element: 'icon-rune-stone', count: 4, at: 0.2, size: 0.38, fill: '#d8a838', raised: false, effects: [...goldFx(0.4, WARM_GOLD), contact(0.5)] },
+      { ...repeatLayer(), name: 'Rune stones', element: 'rune', count: 4, at: 0.2, size: 0.38, fill: '#d8a838', raised: false, effects: [...goldFx(0.4, WARM_GOLD), contact(0.5)] },
     ]),
   },
   // ── thorns ──
@@ -2250,7 +2250,7 @@ const VERSIONS: Version[] = [
       { ...briar('Briar', '#3a2a1a', '#1a120a'), effects: [bevel({ size: 0.5, gloss: 0.3 }), DROP] },
       { ...briar('Second briar', '#4a3420', '#1e140a', { count: 1, thickness: 0.06, waveLength: 2.2, seed: 7 }), effects: [bevel({ size: 0.5, gloss: 0.3 }), contact(0.6)] },
       { ...growthLayer('vine'), name: 'Leaves', count: 1, thickness: 0.025, amplitude: 0.2, waveLength: 1.9, extra: 'leaves', extraSize: 0.3, color: '#2a3a1a', extraColor: '#2e5a22', seed: 3, effects: [bevel({ size: 0.4, gloss: 0.3 }), contact(0.5)] },
-      { ...repeatLayer(), name: 'Roses', element: 'icon-rose', count: 8, at: 0.5, size: 1.1, fill: '#a01828', raised: false, effects: [bevel({ size: 0.4, gloss: 0.5 }), contact(0.6)] },
+      { ...repeatLayer(), name: 'Roses', element: 'spiral', count: 8, at: 0.5, size: 1.1, fill: '#a01828', raised: false, effects: [bevel({ size: 0.4, gloss: 0.5 }), contact(0.6)] },
     ],
   },
   {
@@ -2413,7 +2413,7 @@ const VERSIONS: Version[] = [
     colours: [slot('field', 'Field colour', '#1a3a8a', ['Field']), slot('gold', 'Gold colour', '#d8a838', ['Gold rim', 'Nails', 'Fleurs'])],
     layers: () => [
       { ...bandFillLayer(), name: 'Field', from: 0.4, to: 1, paint: lin(['#2a5ab0', '#081a48']) },
-      { ...repeatLayer(), name: 'Fleurs', element: 'icon-fleur-de-lys', count: 4, at: 0.71, size: 0.62, fill: '#d8a838', raised: false, effects: [...goldFx(0.4, WARM_GOLD)] },
+      { ...repeatLayer(), name: 'Fleurs', element: 'fleur', count: 4, at: 0.71, size: 0.62, fill: '#d8a838', raised: false, effects: [...goldFx(0.4, WARM_GOLD)] },
       { ...shieldRim('Gold rim', WARM_GOLD), paint: photo('gold', 1, { lighting: 0.3 }) },
       shieldNails('#d8a838', WARM_GOLD),
       ...shieldShading(),
@@ -3206,24 +3206,24 @@ const VERSIONS: Version[] = [
   {
     id: 'grim-iron-bone-ring',
     name: 'Bone ring',
-    description: 'Black iron with a ring of skulls and crossed bones, yellowed like old ivory.',
+    description: 'Black iron with a ring of skulls, yellowed like old ivory.',
     after: 'grim-iron',
     stage: GRIM_STAGE,
     colours: [slot('iron', 'Iron colour', '#2a2824', ['Iron', 'Chainmail']), slot('bone', 'Bone colour', '#e8dcc0', ['Skulls', 'Emblems'])],
     layers: () => [
       ...grimIron(['#020202', '#0c0c0c', '#2a2824', '#4a4844', '#7a7670']),
       grimEmblems('skull', '#e8dcc0', [recolour(BONE_STOPS), bevel({ size: 0.4, gloss: 0.4 }), contact(0.7)]),
-      grimEmblems('icon-skull-crossed-bones', '#e8dcc0', [recolour(BONE_STOPS), contact(0.6)], [false, true], 0.8),
+      grimEmblems('skull', '#e8dcc0', [recolour(BONE_STOPS), contact(0.6)], [false, true], 0.8),
     ],
   },
   {
     id: 'grim-iron-crowned-skulls',
     name: 'Crowned skulls',
-    description: 'Black iron with gold crowned skulls, for a lich or a pirate king.',
+    description: 'Black iron with gold skulls, for a lich or a pirate king.',
     after: 'grim-iron',
     stage: GRIM_STAGE,
     colours: [slot('iron', 'Iron colour', '#2a2824', ['Iron', 'Chainmail']), slot('gold', 'Gold colour', '#d8a838', ['Emblems'])],
-    layers: () => [...grimIron(['#020202', '#0c0c0c', '#2a2824', '#4a4844', '#7a7670']), grimEmblems('icon-crowned-skull', '#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.7)], [true], 0.9)],
+    layers: () => [...grimIron(['#020202', '#0c0c0c', '#2a2824', '#4a4844', '#7a7670']), grimEmblems('skull', '#d8a838', [...goldFx(0.4, WARM_GOLD), contact(0.7)], [true], 0.9)],
   },
   // ── themed-enamel ──
   {
@@ -3371,7 +3371,7 @@ const VERSIONS: Version[] = [
     after: 'gothic-thorns',
     stage: GOTHIC_STAGE,
     colours: [slot('stone', 'Stone colour', '#24202a', ['Black stone']), slot('roses', 'Rose colour', '#8a0a1a', ['Roses'])],
-    layers: () => [...gothicStone(), gothicBriars('#1a1012', '#2a1418'), { ...repeatLayer(), name: 'Roses', element: 'icon-rose', count: 6, snapToCorners: false, at: 0.5, size: 0.85, fill: '#8a0a1a', raised: false, effects: [bevel({ size: 0.4, gloss: 0.6 }), glow({ color: '#ff1a2a', opacity: 0.3, size: 0.06 }), contact(0.7)] }],
+    layers: () => [...gothicStone(), gothicBriars('#1a1012', '#2a1418'), { ...repeatLayer(), name: 'Roses', element: 'spiral', count: 6, snapToCorners: false, at: 0.5, size: 0.85, fill: '#8a0a1a', raised: false, effects: [bevel({ size: 0.4, gloss: 0.6 }), glow({ color: '#ff1a2a', opacity: 0.3, size: 0.06 }), contact(0.7)] }],
   },
   {
     id: 'gothic-thorns-bone',
@@ -3399,7 +3399,7 @@ const VERSIONS: Version[] = [
     after: 'archmage',
     stage: ARCHMAGE_STAGE,
     colours: [slot('band', 'Band colour', '#1a2460', ['Band', 'Pressed-in step']), slot('gold', 'Gold colour', '#d8a838', ['Contour lines', 'Sigils']), slot('glow', 'Glow colour', '#a8d8ff', ['Inscription'])],
-    layers: () => [...base({ light: '#2a3a90', dark: '#04061a', step: null }), sigilLines('#d8a838', WARM_GOLD), panelWords('outerRim', '#e0f0ff', { size: 0.38, start: 2, effects: [glow({ color: '#6ab0ff', opacity: 0.9, size: 0.1 })] }), starSigils('icon-seven-pointed-star', '#f4d27a', WARM_GOLD, '#ffe8a0')],
+    layers: () => [...base({ light: '#2a3a90', dark: '#04061a', step: null }), sigilLines('#d8a838', WARM_GOLD), panelWords('outerRim', '#e0f0ff', { size: 0.38, start: 2, effects: [glow({ color: '#6ab0ff', opacity: 0.9, size: 0.1 })] }), starSigils('star', '#f4d27a', WARM_GOLD, '#ffe8a0')],
   },
   {
     id: 'archmage-panels', name: 'Sigil panels',
@@ -3411,11 +3411,11 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'archmage-blood', name: 'Blood sigils',
-    description: 'Black and crimson with rose-gold lines, red-glowing Sith AF runes and pentacle sigils.',
+    description: 'Black and crimson with rose-gold lines, red-glowing Sith AF runes and star sigils.',
     after: 'archmage',
     stage: ARCHMAGE_STAGE,
     colours: [slot('band', 'Band colour', '#3a0a14', ['Band', 'Pressed-in step']), slot('glow', 'Glow colour', '#ff3a4a', ['Inscription'])],
-    layers: () => [...base({ light: '#6a1a2a', dark: '#0a0204', step: null }), sigilLines('#d8907a', ROSE_STOPS), panelWords('sith', '#ffd0d0', { size: 0.36, start: 6, effects: [glow({ color: '#ff3a4a', opacity: 0.9, size: 0.1 })] }), starSigils('icon-pentagram-rose', '#d8907a', ROSE_STOPS, '#ff6a7a')],
+    layers: () => [...base({ light: '#6a1a2a', dark: '#0a0204', step: null }), sigilLines('#d8907a', ROSE_STOPS), panelWords('sith', '#ffd0d0', { size: 0.36, start: 6, effects: [glow({ color: '#ff3a4a', opacity: 0.9, size: 0.1 })] }), starSigils('star', '#d8907a', ROSE_STOPS, '#ff6a7a')],
   },
   // ── themed-starship ──
   {
@@ -3645,11 +3645,11 @@ const VERSIONS: Version[] = [
   },
   {
     id: 'nautical-pirate', name: 'Pirate’s hoard',
-    description: 'Black tarred timber, a rope, gold doubloons and a skull and crossbones at the top.',
+    description: 'Black tarred timber, a rope, gold doubloons and a skull at the top.',
     after: 'nautical',
     stage: NAUTICAL_STAGE,
     colours: [slot('wood', 'Wood colour', '#2a2018', ['Timber'])],
-    layers: () => [...photoRing('Timber', 'wood-planks', ['#020101', '#0e0a06', '#2a2018', '#5a4a3a', '#8a7a6a'], { angle: 90, step: null }), ...shipRope('#a88a5a'), doubloons(), ringOf('Skull', 'icon-skull-crossed-bones', 1, '#f0e8d8', [contact(0.7)], { size: 0.85 } as never)],
+    layers: () => [...photoRing('Timber', 'wood-planks', ['#020101', '#0e0a06', '#2a2018', '#5a4a3a', '#8a7a6a'], { angle: 90, step: null }), ...shipRope('#a88a5a'), doubloons(), ringOf('Skull', 'skull', 1, '#f0e8d8', [contact(0.7)], { size: 0.85 } as never)],
   },
   // ── themed-autumn ──
   {

@@ -1,6 +1,6 @@
 // Token Studio's ready-made frames, as Frame Studio designs: the owner's
 // Essentials, the new versions of Token Maker's frames chosen in the frame
-// review (docs/FRAME-REVIEW.md), and the old picture frames
+// review before launch, and the old picture frames
 // (pictureFrameTemplates.ts). Token Maker lists them in its frame picker,
 // with a colour picker for each of a design's colour slots; Frame Studio
 // offers them in New, ready to change.

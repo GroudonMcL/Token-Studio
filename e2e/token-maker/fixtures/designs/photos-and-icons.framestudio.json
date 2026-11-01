@@ -56,7 +56,7 @@
       "heightDepth": 1,
       "heightSize": 0.15,
       "type": "repeat",
-      "element": "icon-dragon-head",
+      "element": "claw",
       "mode": "count",
       "count": 8,
       "spacing": 1,

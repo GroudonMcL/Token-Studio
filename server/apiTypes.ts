@@ -14,9 +14,7 @@ export type PageImagesResult =
   /** The address is itself an image: load it with /api/fetch-image. */
   | { kind: 'image'; url: string }
   /** A normal page: let the user pick one of `images`. */
-  | { kind: 'page'; url: string; title: string; images: FoundImage[] }
-  /** A Pinterest pin: `images` are the pin's main image, best (largest) first. */
-  | { kind: 'pinterest'; url: string; title: string; images: FoundImage[] };
+  | { kind: 'page'; url: string; title: string; images: FoundImage[] };
 
 export type ApiErrorCode =
   | 'bad_url'
@@ -31,7 +29,6 @@ export type ApiErrorCode =
   | 'not_image'
   | 'not_page'
   | 'no_images'
-  | 'pinterest_board'
   | 'rate_limited'
   | 'forbidden';
 

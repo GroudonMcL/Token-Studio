@@ -7,7 +7,6 @@ import { RateLimiter } from './rateLimit.ts';
 import { sniffImageMime } from './sniff.ts';
 import { fakeFetch, html, image, PNG_BYTES, type Route } from './testFetch.ts';
 
-const pinPage = readFileSync(new URL('./fixtures/pinterest-pin.html', import.meta.url), 'utf8');
 const artPage = readFileSync(new URL('./fixtures/art-page.html', import.meta.url), 'utf8');
 
 function setup(routes: Record<string, Route>, limits = { image: new RateLimiter(100), page: new RateLimiter(100) }) {
@@ -103,24 +102,6 @@ describe('GET /api/page-images', () => {
     });
     expect(await result(await call('page-images', 'https://img.example/i'))).toEqual({ kind: 'image', url: 'https://img.example/i' });
     expect(await result(await call('page-images', 'https://img.example/unlabelled'))).toMatchObject({ kind: 'image' });
-  });
-
-  it('follows a pin.it short link to the pin and returns its full-size image', async () => {
-    const { call } = setup({
-      'https://pin.it/4x2Yj8Yd': { redirect: 'https://api.pinterest.com/url_shortener/4x2Yj8Yd/redirect/', status: 308 },
-      'https://api.pinterest.com/url_shortener/4x2Yj8Yd/redirect/': { redirect: 'https://www.pinterest.com/pin/571112796472578260/sent/?invite_code=x' },
-      'https://www.pinterest.com/pin/571112796472578260/sent/?invite_code=x': html(pinPage),
-    });
-    const out = await result(await call('page-images', 'https://pin.it/4x2Yj8Yd'));
-    expect(out).toMatchObject({ kind: 'pinterest', title: 'Goblin Token' });
-    if (out.kind === 'image') return;
-    expect(out.images[0]!.url).toBe('https://i.pinimg.com/originals/bb/2b/70/bb2b70f7dd055929c8048dfe4527b96a.png');
-  });
-
-  it('explains that boards cannot be read, without fetching them', async () => {
-    const { call, calls } = setup({});
-    expect(await errorCode(await call('page-images', 'https://www.pinterest.com/someone/goblins/'))).toBe('pinterest_board');
-    expect(calls).toEqual([]);
   });
 
   it('reports pages with no images, and files that are neither pages nor images', async () => {

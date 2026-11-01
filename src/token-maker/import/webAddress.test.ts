@@ -38,7 +38,7 @@ describe('token names from web addresses', () => {
     ['https://cdn.example/art/Red_Dragon@2x.png', 'Red Dragon'],
     ['https://cdn.example/art/orc%20warchief-scaled.webp?v=3', 'Orc Warchief'],
     ['https://cdn.example/art/HillGiant.png', 'Hill Giant'],
-    ['https://i.pinimg.com/originals/bb/2b/70/bb2b70f7dd055929c8048dfe4527b96a.png', ''],
+    ['https://cdn.example.com/originals/bb/2b/70/bb2b70f7dd055929c8048dfe4527b96a.png', ''],
     ['https://cdn.example/IMG_2041.jpg', ''],
     ['https://cdn.example/photos/1693847562831.jpg', ''],
     ['https://cdn.example/', ''],

@@ -1,6 +1,6 @@
 // Converting Token Maker frames into stacks of editable layers (Phase 4,
-// DESIGN.md §4.7). Every drawn frame shares one build (TOKEN-MAKER-CONTEXT.md
-// §2.2): a lit band, a pressed-in step, a texture, the step's crease, two rims
+// DESIGN.md §4.7). Every drawn frame shares one build (Token Maker's
+// render/finishes.ts): a lit band, a pressed-in step, a texture, the step's crease, two rims
 // and ornaments. A converter writes those parts as layers with the numbers
 // token-maker's finishes use, so the stack draws like the original and every
 // part can then be changed on its own. convert.test.ts measures how close

@@ -30,7 +30,7 @@ const LAYERS: [string, Layer][] = [
   ['fitted, raised, zigzag line', { ...lineLayer(), waveAmplitude: 0.2, waveFit: 1.5, waveShape: 'zigzag', raised: true }],
   ['repeat of eyes, varied at random', { ...repeatLayer(), element: 'watchEye', detail: '#ffffff', multipleOf: 2, wander: 0.3, jitterSize: 0.1, jitterAngle: 10 }],
   ['repeat of cogs', { ...repeatLayer(), element: 'cog' }],
-  ['repeat of icons filled with a photo', { ...repeatLayer(), element: 'icon-fleur-de-lys', fillPaint: { kind: 'picture', picture: 'gold', scale: 3, angle: 0, bend: true, tint: '#cccccc', lighting: 0.5 }, paintEach: true }],
+  ['repeat of icons filled with a photo', { ...repeatLayer(), element: 'fleur', fillPaint: { kind: 'picture', picture: 'gold', scale: 3, angle: 0, bend: true, tint: '#cccccc', lighting: 0.5 }, paintEach: true }],
   ['band fill of a photo texture', { ...bandFillLayer(), paint: { kind: 'picture', picture: 'wood-planks', scale: 3, angle: 0, bend: true, tint: null, lighting: 0.5 } }],
   ['shape filled with a gradient', { ...shapeLayer(), fillPaint: { kind: 'linear', angle: 45, stops: [{ at: 0, color: '#ffffff', opacity: 1 }, { at: 1, color: '#000000', opacity: 1 }], followLight: false } }],
   ['shape (ornament with a second colour)', { ...shapeLayer(), shape: 'ornament', element: 'skull', detail: '#000000' }],

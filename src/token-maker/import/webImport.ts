@@ -1,7 +1,6 @@
 // Importing from the web (DESIGN.md §6.1 items 2–5). Typed, pasted and
 // dragged addresses all come here:
 //
-//   Pinterest pin or pin.it link → /api/page-images finds the pin's image → load it
 //   an address that looks like an image file → /api/fetch-image → load it
 //   anything else → /api/page-images: an image loads straight away; a page
 //     shows its pictures in the Import section for the user to pick one
@@ -14,7 +13,6 @@
 import { createStore } from 'zustand/vanilla';
 import { useStore } from 'zustand';
 import type { ApiErrorBody, ApiErrorCode, FoundImage, PageImagesResult } from '../../../server/apiTypes.ts';
-import { pinterestKind } from '../../../server/pinterest.ts';
 import { revealSection } from '../layout/reveal';
 import { toast } from '../ui/toast';
 import { importTo, type ImportTarget } from './importImage';
@@ -119,19 +117,6 @@ async function findImages(url: string): Promise<PageImagesResult> {
   }
 }
 
-/** Tries each candidate in turn (a pin's original, then its preview). */
-async function loadFirstWorking(images: FoundImage[], name: string): Promise<void> {
-  let last: unknown;
-  for (const img of images) {
-    try {
-      return await loadImage(img.url, name);
-    } catch (err) {
-      last = err;
-    }
-  }
-  throw last ?? new WebImportError('no_images');
-}
-
 export type ImportSource = 'box' | 'paste' | 'drop';
 
 /**
@@ -173,16 +158,15 @@ async function run(url: URL, source: ImportSource): Promise<RunResult> {
   if (source !== 'box') revealSection('import');
   const current = () => mine === generation;
   try {
-    const pin = pinterestKind(url);
     // Any address may be a picture its site lets us read directly, even without the proxy.
-    const direct = pin ? null : await fetchDirect(address);
+    const direct = await fetchDirect(address);
     if (direct) {
       await importTo(to, direct, nameFromImageUrl(address));
       if (current()) webImportStore.setState({ ...IDLE, target: to });
       return 'loaded';
     }
     if (!current()) return 'overtaken';
-    if (!pin && looksLikeImageUrl(url)) {
+    if (looksLikeImageUrl(url)) {
       try {
         await loadImage(address, '', false);
         if (current()) webImportStore.setState({ ...IDLE, target: to });
@@ -196,9 +180,6 @@ async function run(url: URL, source: ImportSource): Promise<RunResult> {
     if (!current()) return 'overtaken';
     if (found.kind === 'image') {
       await loadImage(found.url, '');
-      if (current()) webImportStore.setState({ ...IDLE, target: to });
-    } else if (found.kind === 'pinterest') {
-      await loadFirstWorking(found.images, nameFromTitle(found.title));
       if (current()) webImportStore.setState({ ...IDLE, target: to });
     } else if (found.images.length === 1) {
       await loadImage(found.images[0]!.url, nameForPicked(found.images[0]!, found.title));

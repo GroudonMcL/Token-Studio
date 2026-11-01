@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Token Maker and Frame Studio in one web app: make tokens for tabletop RPGs and design their frames.",
   "author": "GroudonMcL",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -49,7 +50,7 @@
     "@fontsource/spectral": "^5.3.0",
     "@fontsource/uncial-antiqua": "^5.3.0",
     "@fontsource/unifrakturmaguntia": "^5.3.0",
-    "@huggingface/transformers": "4.2.0",
+    "@huggingface/transformers": "4.3.1",
     "fflate": "^0.8.3",
     "idb-keyval": "^6.3.0",
     "lucide-react": "^1.61.0",

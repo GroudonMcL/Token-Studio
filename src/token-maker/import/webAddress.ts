@@ -36,7 +36,7 @@ export function isDataImageUrl(text: string): boolean {
 
 /** Does the address end like an image file? Then we try it as an image first. */
 export function looksLikeImageUrl(url: URL): boolean {
-  return /\.(png|jpe?g|webp|gif|avif|bmp|svg)$/i.test(url.pathname) || url.hostname === 'i.pinimg.com';
+  return /\.(png|jpe?g|webp|gif|avif|bmp|svg)$/i.test(url.pathname);
 }
 
 /**
@@ -116,8 +116,6 @@ export function friendlyError(code: ApiErrorCode | 'offline' | 'no_server' | 'un
       return "That address isn't a web page or a picture.";
     case 'no_images':
       return `No pictures were found on that page. Some sites load their pictures in a way we can't see. ${SUGGESTION}`;
-    case 'pinterest_board':
-      return 'Open a single pin on Pinterest and copy its link (Share → Copy link). Boards and searches can’t be read.';
     case 'rate_limited':
       return message ?? 'Too many requests in a short time. Wait a minute and try again.';
     case 'forbidden':

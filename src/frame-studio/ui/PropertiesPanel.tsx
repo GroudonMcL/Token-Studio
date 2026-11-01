@@ -503,7 +503,7 @@ function LayerControls({ layer, light }: { layer: Layer; light: number }) {
             hint={
               following(layer, layers)
                 ? 'Turned to follow the path, square to its edge, or all standing upright on the screen.'
-                : 'Turned with the band (icons and emblems point straight out from the centre, so on a hexagon they don’t twist), all square to the band’s edge, or all standing upright on the screen.'
+                : 'Turned with the band (emblems such as crowns and moons point straight out from the centre, so on a hexagon they don’t twist), all square to the band’s edge, or all standing upright on the screen.'
             }
             value={layer.orient}
             disabled={disabled}

@@ -34,6 +34,7 @@ import {
   TEXTURE_KINDS,
   TEXTURE_PLACES,
   type Effect,
+  type ElementKind,
   WAVE_SHAPES,
   type FrameProject,
   type GradientStop,
@@ -266,6 +267,66 @@ const hex = (v: unknown, fallback: string) => (typeof v === 'string' && isValidH
 const hexOrNull = (v: unknown, fallback: string | null) => (v === null ? null : typeof v === 'string' && isValidHex(v) ? v.toLowerCase() : fallback);
 const oneOf = <T extends string>(v: unknown, options: readonly T[], fallback: T): T => (options.includes(v as T) ? (v as T) : fallback);
 const bool = (v: unknown, fallback: boolean) => (typeof v === 'boolean' ? v : fallback);
+
+/**
+ * The icon ornaments that versions 10 and 11 drew from game-icons.net outlines
+ * were taken out before the public release. A saved design that used one gets
+ * the closest of Frame Studio's own drawn ornaments instead, so it still has
+ * something in that place.
+ */
+export const LEGACY_ICON_ELEMENTS: Readonly<Record<string, ElementKind>> = {
+  'icon-acorn': 'drop',
+  'icon-all-seeing-eye': 'eye',
+  'icon-ankh': 'cross',
+  'icon-anvil': 'plate',
+  'icon-bat': 'crescent',
+  'icon-battle-axe': 'spike',
+  'icon-boss-key': 'arrow',
+  'icon-bow-arrow': 'arrow',
+  'icon-bowen-knot': 'knot',
+  'icon-checked-shield': 'shield',
+  'icon-cog': 'cog',
+  'icon-crossed-chains': 'knot',
+  'icon-crossed-swords': 'cross',
+  'icon-crown': 'crown',
+  'icon-crowned-skull': 'skull',
+  'icon-crystal-cluster': 'shard',
+  'icon-curled-leaf': 'leaf',
+  'icon-direwolf': 'paw',
+  'icon-divided-spiral': 'spiral',
+  'icon-dragon-head': 'claw',
+  'icon-dragon-spiral': 'spiral',
+  'icon-feather': 'feather',
+  'icon-feathered-wing': 'feather',
+  'icon-flame': 'flame',
+  'icon-fleur-de-lys': 'fleur',
+  'icon-gems': 'gem',
+  'icon-griffin-symbol': 'claw',
+  'icon-heraldic-sun': 'sun',
+  'icon-holy-symbol': 'cross',
+  'icon-laurel-crown': 'sprig',
+  'icon-light-thorny-triskelion': 'spiral',
+  'icon-lyre': 'bardNote',
+  'icon-moon': 'crescent',
+  'icon-oak-leaf': 'leaf',
+  'icon-paw': 'paw',
+  'icon-pentagram-rose': 'star',
+  'icon-plain-dagger': 'spike',
+  'icon-rose': 'spiral',
+  'icon-rune-stone': 'rune',
+  'icon-scroll-unfurled': 'plate',
+  'icon-seven-pointed-star': 'star',
+  'icon-skull-crossed-bones': 'skull',
+  'icon-spider-web': 'snowflake',
+  'icon-spotted-mushroom': 'shell',
+  'icon-standing-potion': 'drop',
+  'icon-thorny-vine': 'sprig',
+  'icon-triquetra': 'knot',
+  'icon-waves': 'shell',
+};
+/** An ornament, with a taken-out icon swapped for its drawn stand-in. */
+const elementKind = (v: unknown, fallback: ElementKind): ElementKind =>
+  typeof v === 'string' && Object.hasOwn(LEGACY_ICON_ELEMENTS, v) ? LEGACY_ICON_ELEMENTS[v] : oneOf(v, ELEMENT_KINDS, fallback);
 
 function checkStops(v: unknown, fallback: GradientStop[]): GradientStop[] {
   if (!Array.isArray(v)) return fallback;
@@ -534,7 +595,7 @@ function checkLayer(l: unknown, index: number, warnings: string[], ids: Set<stri
         sides: Math.round(num(o.sides, d.sides, 3, 24)),
         innerRatio: num(o.innerRatio, d.innerRatio, 0.05, 1),
         corner: num(o.corner, d.corner, 0, 1),
-        element: oneOf(o.element, ELEMENT_KINDS, d.element),
+        element: elementKind(o.element, d.element),
         detail: hexOrNull(o.detail, d.detail),
         seed: Math.round(num(o.seed, d.seed, 0, 99999)),
       };
@@ -737,7 +798,7 @@ function checkLayer(l: unknown, index: number, warnings: string[], ids: Set<stri
       return {
         ...common,
         type: 'repeat',
-        element: oneOf(o.element, ELEMENT_KINDS, d.element),
+        element: elementKind(o.element, d.element),
         mode: oneOf(o.mode, ['count', 'spacing'] as const, d.mode),
         count: Math.round(num(o.count, d.count, 1, 400)),
         spacing: num(o.spacing, d.spacing, 0.05, 20),

@@ -165,6 +165,7 @@ describe('the converted layers', () => {
 
 describe('version 11 files', () => {
   it('keep their emblems square to the band, so they draw as they did', () => {
+    // A version 11 icon ornament (taken out since): the file still names it.
     const icon: RepeatLayer = { ...repeatLayer(), element: 'icon-rose' as RepeatLayer['element'] };
     const bead: RepeatLayer = { ...repeatLayer(), element: 'bead' };
     const old = { ...createProject([icon, { ...groupLayer([icon]) }, bead] as never), schemaVersion: 11 };

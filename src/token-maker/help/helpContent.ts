@@ -31,7 +31,7 @@ export const helpContent = {
   // ---- Panel sections (DESIGN.md §8, in order) ----
   'section.import': {
     title: 'Import',
-    text: 'Bring in a picture: upload a file, drag it onto the page, paste it, or paste a web or Pinterest link.',
+    text: 'Bring in a picture: upload a file, drag it onto the page, paste it, or paste a web link.',
     media: beforeAfter('section-import', 'an empty token gets a goblin picture'),
   },
   'section.image': {
@@ -118,7 +118,7 @@ export const helpContent = {
   },
   'import.web': {
     title: 'Web address',
-    text: 'Paste a link to a picture, a web page or a Pinterest pin and press Get. A page shows its pictures so you can pick one; you can also paste or drag a link anywhere on the page.',
+    text: 'Paste a link to a picture or a web page and press Get. A page shows its pictures so you can pick one; you can also paste or drag a link anywhere on the page.',
     media: beforeAfter('import-web', 'an empty token gets a picture from a link'),
   },
   'import.pagePictures': {

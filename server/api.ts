@@ -4,13 +4,12 @@
 //
 //   GET /api/fetch-image?url=…  → the image bytes, checked to really be an image
 //   GET /api/page-images?url=…  → JSON (PageImagesResult): the images on a page,
-//                                  a Pinterest pin's image, or "this is an image"
+//                                  or "this is an image"
 //
 // Nothing is stored or logged.
 
 import type { ApiErrorBody, ApiErrorCode, PageImagesResult } from './apiTypes.ts';
 import { extractImages } from './extractImages.ts';
-import { pinterestImages, pinterestKind } from './pinterest.ts';
 import { RateLimiter } from './rateLimit.ts';
 import { readCapped, safeFetch, SafeFetchError, validateUrl, type SafeFetchOptions } from './safeFetch.ts';
 import { isHtmlType, sniffImageMime } from './sniff.ts';
@@ -117,10 +116,7 @@ export async function handlePageImages(request: Request, deps: ApiDeps = {}): Pr
   const pre = precheck(request, (deps.limits ?? defaultLimits).page);
   if (pre instanceof Response) return pre;
   try {
-    const start = validateUrl(pre.url);
-    if (pinterestKind(start) === 'other') {
-      return errorResponse(400, 'pinterest_board', 'Open a single pin on Pinterest and copy its link. Boards and searches can’t be read.');
-    }
+    validateUrl(pre.url);
     const { url, response } = await safeFetch(pre.url, { accept: PAGE_ACCEPT, ...fetchOptions(deps) });
     const type = response.headers.get('content-type');
     if (/^\s*image\//i.test(type ?? '')) {
@@ -134,11 +130,6 @@ export async function handlePageImages(request: Request, deps: ApiDeps = {}): Pr
       if (type) return errorResponse(415, 'not_page', "That address isn't a web page or an image.");
     }
     const html = new TextDecoder().decode(body);
-    if (pinterestKind(url) === 'pin') {
-      const pin = pinterestImages(html, url);
-      if (!pin.images.length) return errorResponse(422, 'no_images', "We couldn't find the picture on that pin.");
-      return json({ kind: 'pinterest', url: url.toString(), ...pin });
-    }
     const page = extractImages(html, url);
     if (!page.images.length) return errorResponse(422, 'no_images', 'No images were found on that page.');
     return json({ kind: 'page', url: url.toString(), ...page });

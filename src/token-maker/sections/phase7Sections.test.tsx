@@ -128,7 +128,9 @@ describe('Frame section: built-in Frame Studio designs (v11)', () => {
     expect(screen.queryByText('Frame colour')).toBeNull();
     helpIds(container);
     undo();
-    expect(getDoc().frame.kind).toBe('code');
+    // Back to the frame a new token starts with: the Simple design.
+    expect(getDoc().frame.kind).toBe('design');
+    expect(getDoc().frame.design?.id).toBe('builtin:simple');
     pickFrame('Celestial star');
     expect(getDoc().frame.outerSpacing).toBeGreaterThanOrEqual(0.14);
     pickFrame('Stamped');
@@ -147,9 +149,10 @@ describe('Frame section: built-in Frame Studio designs (v11)', () => {
   it("lists every frame on its own, with no versions stacked behind another, opens on the chosen frame's group, and closes with Escape", () => {
     render(<FrameSection />);
     fireEvent.click(screen.getByRole('button', { name: 'Change frame' }));
-    expect(screen.getByRole('tab', { name: /Metal & Gems/ })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('radio', { name: /^Stamped$/ })).toBeChecked();
+    expect(screen.getByRole('tab', { name: /Essentials/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('radio', { name: /^Simple$/ })).toBeChecked();
     expect(screen.queryByRole('button', { name: /versions of/ })).toBeNull();
+    fireEvent.click(screen.getByRole('tab', { name: /Metal & Gems/ }));
     fireEvent.click(screen.getByRole('radio', { name: /^Ember stamp$/ }));
     expect(getDoc().frame.design?.id).toBe('builtin:stamped-ember');
     expect(screen.getByTestId('current-frame')).toHaveTextContent('Metal & Gems');
